@@ -171,7 +171,21 @@
             Eye: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
             EyeOff: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>,
             Academic: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>,
-            UserPlus: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            UserPlus: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
+            Support: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
+            Clock: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+            Users: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>,
+            Play: () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/></svg>
+        };
+
+        const formatDuration = (totalSeconds) => {
+            const sec = Math.max(0, Math.floor(totalSeconds || 0));
+            const hrs = Math.floor(sec / 3600);
+            const mins = Math.floor((sec % 3600) / 60);
+            const remSecs = sec % 60;
+            if (hrs > 0) return `${hrs}h ${mins}m ${remSecs}s`;
+            if (mins > 0) return `${mins}m ${remSecs}s`;
+            return `${remSecs}s`;
         };
 
         const Definitions = {
@@ -2075,8 +2089,14 @@
         ];
 
         const NICLExamSimulator = ({ user, notify }) => {
+            const [examStarted, setExamStarted] = useState(false); // Starts in clean Lobby until user clicks "Start Exam"
             const [examPhase, setExamPhase] = useState('MAINS'); // 'PRELIMS', 'MAINS', 'INTERVIEW'
-            const [paperScope, setPaperScope] = useState('FULL_BANK'); // 'FULL_BANK' (103 Qns), 'IT_CORE' (50+ IT Qns), 'QUICK_MOCK' (35 Qns)
+            const [paperScope, setPaperScope] = useState('QUICK_MOCK'); // 'QUICK_MOCK' (25 Qns), 'IT_CORE' (50+ Qns), 'FULL_BANK' (124 Qns), 'PROCEDURAL_ONLY' (39 Qns)
+            const [displayMode, setDisplayMode] = useState('SINGLE_CBT'); // 'SINGLE_CBT' (Real TCS iON Exam UI) or 'LIST_VIEW'
+            const [currentQIdx, setCurrentQIdx] = useState(0);
+            const [visitedQuestions, setVisitedQuestions] = useState({ 0: true });
+            const [instructionsAccepted, setInstructionsAccepted] = useState(true);
+
             const [sectionFilter, setSectionFilter] = useState('ALL');
             const [searchQuery, setSearchQuery] = useState('');
             const [questions, setQuestions] = useState([]);
@@ -2086,8 +2106,8 @@
             const [instantCheck, setInstantCheck] = useState(false);
             const [attemptNo, setAttemptNo] = useState(1);
             const [paperSeed, setPaperSeed] = useState('');
-            const [timeLeft, setTimeLeft] = useState(180 * 60);
-            const [timerRunning, setTimerRunning] = useState(true);
+            const [timeLeft, setTimeLeft] = useState(35 * 60);
+            const [timerRunning, setTimerRunning] = useState(false);
             const [essayText, setEssayText] = useState('');
             const [precisText, setPrecisText] = useState('');
             const [showModelDesc, setShowModelDesc] = useState(false);
@@ -2102,19 +2122,23 @@
                 } catch (e) {}
             }, [user]);
 
-            const generateFreshPaper = (targetPhase = examPhase, targetScope = paperScope) => {
+            const generateFreshPaper = (targetPhase = examPhase, targetScope = paperScope, autoStart = false) => {
                 setSubmitted(false);
                 setAnswers({});
                 setReviewMarks({});
+                setCurrentQIdx(0);
+                setVisitedQuestions({ 0: true });
+                setSectionFilter('ALL');
+
                 const nextAttempt = parseInt(localStorage.getItem('atlas_nicl_attempt_count') || '0', 10) + 1;
                 localStorage.setItem('atlas_nicl_attempt_count', String(nextAttempt));
                 setAttemptNo(nextAttempt);
                 setPaperSeed(Math.random().toString(36).substring(2, 8).toUpperCase());
 
-                // 1. Generate 39+ Brand-New Procedural Questions (100% Fresh Numbers & Combinations Every Reload)
+                // 1. Generate 39 Brand-New Procedural Questions
                 const procedural = shuffleArray(generateProceduralNICLQuestions());
 
-                // 2. Zero-Repeat Rotation for Curated Pool (prioritizes questions not seen in previous paper)
+                // 2. Zero-Repeat Rotation for Curated Pool
                 let seenStems = [];
                 try {
                     seenStems = JSON.parse(localStorage.getItem('atlas_nicl_seen_stems') || '[]');
@@ -2124,7 +2148,6 @@
                 const unseenPool = rawCurated.filter(q => !seenStems.includes(q.stem.substring(0, 40)));
                 const seenPool = rawCurated.filter(q => seenStems.includes(q.stem.substring(0, 40)));
 
-                // If user has exhausted unseen pool, reset tracker automatically for a fresh cycle
                 const prioritizedCurated = unseenPool.length >= 25
                     ? [...shuffleArray(unseenPool), ...shuffleArray(seenPool)]
                     : shuffleArray(rawCurated);
@@ -2132,18 +2155,23 @@
                 const curated = prioritizedCurated.map(item => buildExamMCQ(item));
                 let combined = [...procedural, ...curated];
 
+                let durationSeconds = 180 * 60;
                 if (targetPhase === 'PRELIMS') {
                     combined = combined.filter(q => ['QUANT', 'REAS', 'ENG'].includes(q.section));
+                    durationSeconds = 60 * 60;
+                } else if (targetScope === 'QUICK_MOCK') {
+                    combined = shuffleArray([...procedural.slice(0, 15), ...curated.slice(0, 15)]).slice(0, 25);
+                    durationSeconds = 25 * 60;
+                } else if (targetScope === 'IT_CORE') {
+                    combined = combined.filter(q => ['IT', 'COMP'].includes(q.section)).slice(0, 50);
+                    durationSeconds = 40 * 60;
                 } else if (targetScope === 'PROCEDURAL_ONLY') {
                     combined = procedural;
-                } else if (targetScope === 'IT_CORE') {
-                    combined = combined.filter(q => ['IT', 'COMP'].includes(q.section));
-                } else if (targetScope === 'QUICK_MOCK') {
-                    // Prioritize all procedural questions + fresh unseen curated items
-                    combined = shuffleArray([...procedural, ...curated.slice(0, 20)]).slice(0, 45);
+                    durationSeconds = 35 * 60;
+                } else {
+                    durationSeconds = 180 * 60;
                 }
 
-                // Update seen stems tracker so next reload rotates fresh curated items first
                 const newlySeen = combined.slice(0, 35).map(q => q.stem.substring(0, 40));
                 const updatedSeen = [...new Set([...seenStems, ...newlySeen])].slice(-75);
                 try {
@@ -2155,11 +2183,23 @@
                 combined.sort((a, b) => (order[a.section] || 9) - (order[b.section] || 9));
 
                 setQuestions(combined);
-                setTimeLeft(targetPhase === 'PRELIMS' ? 60 * 60 : 180 * 60);
-                setTimerRunning(true);
+                setTimeLeft(durationSeconds);
+                if (autoStart) {
+                    setExamStarted(true);
+                    setTimerRunning(true);
+                }
             };
 
-            // Live AI Question Generator using Gemini API for truly infinite new questions on demand
+            const handleStartExamFromLobby = () => {
+                if (examPhase !== 'INTERVIEW' && !instructionsAccepted) {
+                    notify('Please tick the confirmation box to start the exam.', 'error');
+                    return;
+                }
+                generateFreshPaper(examPhase, paperScope, true);
+                notify('Exam Started! All the best for your NICL AO IT practice.', 'success');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
             const handleGenerateLiveAIQuestions = async () => {
                 if (isAiGenerating) return;
                 setIsAiGenerating(true);
@@ -2227,40 +2267,46 @@
                             explanation: item.explanation
                         }));
                         setQuestions(prev => [...aiMCQs, ...prev]);
-                        notify(`Added ${aiMCQs.length} brand-new AI-generated ${targetSec} questions to the top of your paper!`, 'success');
+                        setCurrentQIdx(0);
+                        notify(`Added ${aiMCQs.length} brand-new AI-generated ${targetSec} questions!`, 'success');
                     } else {
                         throw new Error("Fallback to procedural");
                     }
                 } catch (err) {
-                    const extraProcedural = shuffleArray(generateProceduralNICLQuestions()).slice(0, 10);
+                    const extraProcedural = shuffleArray(generateProceduralNICLQuestions()).slice(0, 5);
                     setQuestions(prev => [...extraProcedural, ...prev]);
-                    notify(`Injected 10 newly synthesized procedural questions into your paper!`, 'success');
+                    setCurrentQIdx(0);
+                    notify(`Injected 5 newly synthesized procedural questions into your paper!`, 'success');
                 } finally {
                     setIsAiGenerating(false);
                 }
             };
 
             useEffect(() => {
-                generateFreshPaper(examPhase, paperScope);
-            }, [examPhase, paperScope]);
-
-            useEffect(() => {
-                if (!timerRunning || submitted || examPhase === 'INTERVIEW') return;
+                if (!examStarted || !timerRunning || submitted || examPhase === 'INTERVIEW') return;
                 const t = setInterval(() => {
                     setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
                 }, 1000);
                 return () => clearInterval(t);
-            }, [timerRunning, submitted, examPhase]);
+            }, [examStarted, timerRunning, submitted, examPhase]);
 
             const formatTimer = (sec) => {
-                const m = String(Math.floor(sec / 60)).padStart(2, '0');
+                const hrs = Math.floor(sec / 3600);
+                const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
                 const s = String(sec % 60).padStart(2, '0');
-                return `${m}:${s}`;
+                return hrs > 0 ? `${hrs}:${m}:${s}` : `${m}:${s}`;
+            };
+
+            const goToQuestion = (idx) => {
+                if (idx < 0 || idx >= questions.length) return;
+                setCurrentQIdx(idx);
+                setVisitedQuestions(prev => ({ ...prev, [idx]: true }));
             };
 
             const handleSelectOption = (qIdx, optIdx) => {
                 if (submitted) return;
                 setAnswers(prev => ({ ...prev, [qIdx]: optIdx }));
+                setVisitedQuestions(prev => ({ ...prev, [qIdx]: true }));
             };
 
             const handleClearOption = (qIdx) => {
@@ -2272,13 +2318,30 @@
                 });
             };
 
+            const handleSaveAndNext = () => {
+                if (currentQIdx < questions.length - 1) {
+                    goToQuestion(currentQIdx + 1);
+                } else {
+                    notify('You are on the last question. Click Submit Exam when ready!', 'success');
+                }
+            };
+
+            const handleMarkForReviewAndNext = () => {
+                setReviewMarks(prev => ({ ...prev, [currentQIdx]: true }));
+                if (currentQIdx < questions.length - 1) {
+                    goToQuestion(currentQIdx + 1);
+                }
+            };
+
             const handleToggleReview = (qIdx) => {
                 setReviewMarks(prev => ({ ...prev, [qIdx]: !prev[qIdx] }));
             };
 
             const scoreMetrics = useMemo(() => {
-                let correct = 0, wrong = 0, unattempted = 0;
+                let correct = 0, wrong = 0, unattempted = 0, markedCount = 0, notVisitedCount = 0;
                 questions.forEach((q, idx) => {
+                    if (reviewMarks[idx]) markedCount++;
+                    if (!visitedQuestions[idx] && answers[idx] === undefined) notVisitedCount++;
                     if (answers[idx] === undefined) unattempted++;
                     else if (answers[idx] === q.answerIndex) correct++;
                     else wrong++;
@@ -2286,12 +2349,13 @@
                 const netScore = +(correct * 1.0 - wrong * 0.25).toFixed(2);
                 const attempted = correct + wrong;
                 const accuracy = attempted > 0 ? ((correct / attempted) * 100).toFixed(1) : '0.0';
-                return { correct, wrong, unattempted, attempted, netScore, accuracy };
-            }, [questions, answers]);
+                return { correct, wrong, unattempted, attempted, netScore, accuracy, markedCount, notVisitedCount };
+            }, [questions, answers, reviewMarks, visitedQuestions]);
 
             const handleSubmitExam = () => {
                 setSubmitted(true);
                 setTimerRunning(false);
+                setDisplayMode('LIST_VIEW'); // Show full solution breakdown cleanly after submitting
                 const record = {
                     attempt: attemptNo,
                     seed: paperSeed,
@@ -2312,14 +2376,14 @@
 
             const letters = ['A', 'B', 'C', 'D', 'E'];
             const secNames = {
-                ALL: `All Sections (${questions.length} Qns)`,
-                IT: 'Sec 1: Professional IT (Core)',
-                COMP: 'Sec 2: Computer Knowledge',
-                GA: 'Sec 3: Insurance & Banking GA',
-                QUANT: 'Sec 4: Quantitative Aptitude',
-                REAS: 'Sec 5: Reasoning Ability',
-                ENG: 'Sec 6: English Language',
-                DESC: 'Sec 7: Descriptive Typing (30M)'
+                ALL: `All Sections (${questions.length})`,
+                IT: 'Professional IT',
+                COMP: 'Computer',
+                GA: 'Insurance GA',
+                QUANT: 'Quant Aptitude',
+                REAS: 'Reasoning',
+                ENG: 'English',
+                DESC: 'Descriptive (30M)'
             };
 
             const interviewQuestions = [
@@ -2375,180 +2439,329 @@
                 }
             ];
 
-            return (
-                <div className="animate-slide-in-3d max-w-6xl mx-auto px-4 py-8">
-                    {/* Top Exam Control Banner */}
-                    <div className="glass-panel p-6 rounded-3xl mb-6 border-t-2 border-brand">
-                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div>
-                                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-brand mb-1">
-                                    <span>NATIONAL INSURANCE CO. LTD. (NICL)</span>
-                                    <span>•</span>
-                                    <span>Attempt #{attemptNo} (Seed: {paperSeed})</span>
-                                    <span>•</span>
-                                    <span className="text-emerald-400 font-bold">{questions.length} Active Questions Loaded</span>
+            /* =====================================================================
+               SCREEN 1: CLEAN, SIMPLE PRE-EXAM LOBBY (WITH "START EXAM" BUTTON)
+               ===================================================================== */
+            if (!examStarted) {
+                return (
+                    <div className="animate-slide-in-3d max-w-5xl mx-auto px-4 py-8">
+                        <div className="glass-panel p-6 sm:p-10 rounded-3xl border-t-4 border-brand shadow-2xl">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
+                                <div>
+                                    <span className="px-3 py-1 rounded-full bg-brand/15 text-brand border border-brand/30 text-xs font-mono uppercase tracking-widest">
+                                        Official IBPS / NICL CBT Simulator
+                                    </span>
+                                    <h2 className="text-2xl sm:text-4xl font-extrabold mt-2 text-white">
+                                        NICL AO (IT Specialist) Practice Portal
+                                    </h2>
+                                    <p className="text-gray-400 text-sm mt-1">
+                                        Simple, real-time exam interface. Choose your exam stage and test length below, then click <strong className="text-brand">Start Real-Time Exam</strong>.
+                                    </p>
                                 </div>
-                                <h2 className="text-2xl md:text-3xl font-extrabold gradient-text">
-                                    NICL AO (IT Specialist) Unlimited Real-Exam Paper Generator
-                                </h2>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    39 Procedural Numericals + Zero-Repeat Curated Rotation ({seenTrackerCount} Tracked) + Live AI Generator • 5 Options (A–E) • +1.00 / -0.25
-                                </p>
+                                <div className="flex items-center gap-3 bg-black/40 p-3 rounded-2xl border border-white/10">
+                                    <img
+                                        src={user?.avatar || `https://placehold.co/80x80/0f2942/00f2fe?text=${encodeURIComponent((user?.name || 'U').charAt(0).toUpperCase())}`}
+                                        alt="Candidate"
+                                        className="w-12 h-12 rounded-full border-2 border-brand object-cover"
+                                    />
+                                    <div className="text-xs">
+                                        <div className="text-gray-400 uppercase font-mono">Candidate</div>
+                                        <div className="text-white font-bold text-sm">{user?.name || 'Explorer'}</div>
+                                        <div className="text-emerald-400 font-mono">ID: #{String(user?.uid || 'GUEST').substring(0, 8).toUpperCase()}</div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2.5">
-                                {examPhase !== 'INTERVIEW' && (
-                                    <div className="px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-lg flex items-center gap-2">
+                            {/* Step 1: Choose Phase */}
+                            <div className="mt-6">
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-brand mb-3">
+                                    Step 1: Select Examination Stage
+                                </h3>
+                                <div className="grid sm:grid-cols-3 gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setExamPhase('PRELIMS')}
+                                        className={`p-4 rounded-2xl border text-left transition ${
+                                            examPhase === 'PRELIMS'
+                                                ? 'bg-brand/15 border-brand shadow-[0_0_20px_rgba(0,242,254,0.2)]'
+                                                : 'bg-black/30 border-white/10 hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className="text-xs font-mono text-brand uppercase">Phase I</div>
+                                        <div className="text-lg font-bold text-white mt-0.5">Preliminary Exam</div>
+                                        <p className="text-xs text-gray-400 mt-1">Quant, Reasoning & English speed test (60 Mins)</p>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setExamPhase('MAINS')}
+                                        className={`p-4 rounded-2xl border text-left transition ${
+                                            examPhase === 'MAINS'
+                                                ? 'bg-brand/15 border-brand shadow-[0_0_20px_rgba(0,242,254,0.2)]'
+                                                : 'bg-black/30 border-white/10 hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className="text-xs font-mono text-emerald-400 uppercase">Phase II (Most Popular)</div>
+                                        <div className="text-lg font-bold text-white mt-0.5">Mains (IT Specialist)</div>
+                                        <p className="text-xs text-gray-400 mt-1">50-Mark IT Core + Computer + Insurance GA + Aptitude</p>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setExamPhase('INTERVIEW')}
+                                        className={`p-4 rounded-2xl border text-left transition ${
+                                            examPhase === 'INTERVIEW'
+                                                ? 'bg-purple-500/20 border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)]'
+                                                : 'bg-black/30 border-white/10 hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className="text-xs font-mono text-purple-400 uppercase">Phase III</div>
+                                        <div className="text-lg font-bold text-white mt-0.5">Interview Q&A Guide</div>
+                                        <p className="text-xs text-gray-400 mt-1">10 High-Yield IT + Insurance + HR Panel Q&As</p>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Step 2: Choose Practice Length (Only for Mains) */}
+                            {examPhase === 'MAINS' && (
+                                <div className="mt-6">
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-brand mb-3">
+                                        Step 2: Choose Test Mode (Fresh Questions Generated Every Time)
+                                    </h3>
+                                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                        {[
+                                            { id: 'QUICK_MOCK', title: 'Quick 25-Q Practice', sub: '25 Questions • 25 Mins', desc: 'Best for fast daily practice across sections' },
+                                            { id: 'IT_CORE', title: 'IT Officer Core (50 Qns)', sub: '50 Questions • 40 Mins', desc: 'DBMS, SQL, Networks, OS, DSA & Computer only' },
+                                            { id: 'PROCEDURAL_ONLY', title: '100% Procedural Numericals', sub: '39 Questions • 35 Mins', desc: 'Brand-new calculated numbers on every attempt' },
+                                            { id: 'FULL_BANK', title: 'Full Mains Exam (124 Qns)', sub: '124 Questions • 180 Mins', desc: 'Complete marathon paper with Descriptive section' }
+                                        ].map(mode => (
+                                            <button
+                                                key={mode.id}
+                                                type="button"
+                                                onClick={() => setPaperScope(mode.id)}
+                                                className={`p-3.5 rounded-xl border text-left transition ${
+                                                    paperScope === mode.id
+                                                        ? 'bg-emerald-500/15 border-emerald-400 text-white'
+                                                        : 'bg-black/30 border-white/10 text-gray-300 hover:bg-white/5'
+                                                }`}
+                                            >
+                                                <div className="font-bold text-sm text-white">{mode.title}</div>
+                                                <div className="text-[11px] font-mono text-emerald-400 mt-0.5">{mode.sub}</div>
+                                                <div className="text-[11px] text-gray-400 mt-1">{mode.desc}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Official Exam Hall Instructions & Legend */}
+                            {examPhase !== 'INTERVIEW' && (
+                                <div className="mt-6 p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">
+                                        📋 Official Computer-Based Test (CBT) Instructions
+                                    </h4>
+                                    <ul className="text-xs text-gray-300 space-y-1.5 list-disc list-inside">
+                                        <li>Each correct answer awards <strong className="text-emerald-400">+1.00 mark</strong>, and each wrong answer deducts <strong className="text-red-400">-0.25 mark</strong>. No marks are deducted for unattempted questions.</li>
+                                        <li>Questions are displayed <strong>one at a time</strong> just like the real IBPS / TCS iON exam screen (you can also switch to Full Sheet View anytime).</li>
+                                        <li>Click <strong>Save & Next</strong> to record your answer, or <strong>Mark for Review & Next</strong> if you want to revisit the question later.</li>
+                                    </ul>
+
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+                                        <div className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                                            <span className="w-6 h-6 rounded bg-emerald-500 text-black font-bold flex items-center justify-center">1</span>
+                                            <span>Answered</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                                            <span className="w-6 h-6 rounded bg-red-500/80 text-white font-bold flex items-center justify-center">2</span>
+                                            <span>Visited / Not Answered</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                                            <span className="w-6 h-6 rounded bg-purple-500 text-white font-bold flex items-center justify-center">3</span>
+                                            <span>Marked for Review</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                                            <span className="w-6 h-6 rounded bg-white/10 text-gray-400 font-bold flex items-center justify-center">4</span>
+                                            <span>Not Visited Yet</span>
+                                        </div>
+                                    </div>
+
+                                    <label className="flex items-center gap-2.5 pt-2 text-xs text-gray-200 cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={instructionsAccepted}
+                                            onChange={e => setInstructionsAccepted(e.target.checked)}
+                                            className="w-4 h-4 accent-cyan-400 rounded"
+                                        />
+                                        <span>I have read and understood the examination instructions and marking scheme.</span>
+                                    </label>
+                                </div>
+                            )}
+
+                            {/* Prominent START EXAM Button */}
+                            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="text-xs text-gray-400">
+                                    {attemptHistory.length > 0
+                                        ? `Last Attempt Score: ${attemptHistory[0].score}/${attemptHistory[0].total} (${attemptHistory[0].accuracy}% Accuracy)`
+                                        : 'Ready to generate your personalized exam paper.'}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleStartExamFromLobby}
+                                    className="w-full sm:w-auto px-8 py-4 bg-brand text-black hover:bg-brandDark font-extrabold rounded-2xl text-sm uppercase tracking-wider transition flex items-center justify-center gap-2.5 shadow-[0_0_25px_rgba(0,242,254,0.5)] hover:scale-[1.02]"
+                                >
+                                    <Icons.Play />
+                                    <span>{examPhase === 'INTERVIEW' ? 'Open Interview Question Bank' : 'Start Real-Time Exam Now'}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            /* =====================================================================
+               SCREEN 2: ACTIVE REAL-TIME CBT EXAM INTERFACE (AFTER CLICKING START)
+               ===================================================================== */
+            const activeQ = questions[currentQIdx] || questions[0];
+
+            return (
+                <div className="animate-fade-in max-w-6xl mx-auto px-4 py-6">
+                    {/* Compact Authentic CBT Top Header */}
+                    <div className="glass-panel p-4 sm:p-5 rounded-2xl mb-4 border-t-2 border-brand flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => { setExamStarted(false); setTimerRunning(false); }}
+                                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-gray-200 transition"
+                            >
+                                ← Exit to Lobby
+                            </button>
+                            <div>
+                                <div className="flex items-center gap-2 text-[11px] font-mono text-brand uppercase">
+                                    <span>NICL AO (IT) CBT</span>
+                                    <span>•</span>
+                                    <span>Attempt #{attemptNo}</span>
+                                    <span>•</span>
+                                    <span>Seed: {paperSeed}</span>
+                                </div>
+                                <h2 className="text-lg sm:text-xl font-extrabold text-white">
+                                    {examPhase === 'PRELIMS' ? 'Phase I: Preliminary Examination' : examPhase === 'INTERVIEW' ? 'Phase III: Interview Preparation Bank' : 'Phase II: Mains (IT Specialist)'}
+                                </h2>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
+                            {examPhase !== 'INTERVIEW' && (
+                                <>
+                                    <div className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-base flex items-center gap-2">
                                         <span>⏱ {formatTimer(timeLeft)}</span>
                                         <button
                                             onClick={() => setTimerRunning(!timerRunning)}
-                                            className="text-xs px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-white"
+                                            className="text-[11px] px-2 py-0.5 rounded bg-black/50 hover:bg-black/70 text-white"
                                         >
                                             {timerRunning ? 'Pause' : 'Resume'}
                                         </button>
                                     </div>
-                                )}
-                                <button
-                                    onClick={() => {
-                                        generateFreshPaper(examPhase, paperScope);
-                                        notify(`Generated Unlimited Fresh NICL AO IT Paper (Attempt #${attemptNo + 1})!`, 'success');
-                                    }}
-                                    className="px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 rounded-xl font-bold text-xs uppercase tracking-wider transition"
-                                >
-                                    ⚡ Generate New Paper (Attempt #{attemptNo + 1})
-                                </button>
-                                {examPhase !== 'INTERVIEW' && (
+
                                     <button
+                                        type="button"
+                                        onClick={() => setDisplayMode(displayMode === 'SINGLE_CBT' ? 'LIST_VIEW' : 'SINGLE_CBT')}
+                                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-bold text-gray-200 transition"
+                                    >
+                                        {displayMode === 'SINGLE_CBT' ? '📄 Switch to Full Paper View' : '🖥️ Switch to Single-Question CBT'}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            generateFreshPaper(examPhase, paperScope, true);
+                                            notify(`Loaded Fresh Paper (Attempt #${attemptNo + 1})!`, 'success');
+                                        }}
+                                        className="px-3.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 rounded-xl font-bold text-xs transition"
+                                    >
+                                        ⚡ New Paper
+                                    </button>
+
+                                    <button
+                                        type="button"
                                         onClick={handleGenerateLiveAIQuestions}
                                         disabled={isAiGenerating}
-                                        className="px-4 py-2.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/50 text-purple-200 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center gap-1.5 disabled:opacity-50"
+                                        className="px-3 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/50 text-purple-200 rounded-xl font-bold text-xs transition flex items-center gap-1 disabled:opacity-50"
                                     >
-                                        {isAiGenerating ? <Icons.Spinner /> : <span>🤖</span>}
-                                        <span>{isAiGenerating ? 'Synthesizing...' : '+5 Live AI Questions'}</span>
+                                        {isAiGenerating ? <Icons.Spinner /> : <span>🤖 +5 AI Qns</span>}
                                     </button>
-                                )}
-                                {examPhase !== 'INTERVIEW' && !submitted && (
-                                    <button
-                                        onClick={handleSubmitExam}
-                                        className="px-5 py-2.5 bg-brand text-black hover:bg-brandDark rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(0,242,254,0.4)]"
-                                    >
-                                        ✔ Submit & Evaluate
-                                    </button>
-                                )}
-                            </div>
-                        </div>
 
-                        {}
-                        {/* Phase Switcher & Paper Scope Selector */}
-                        <div className="flex flex-wrap gap-3 mt-5 pt-4 border-t border-white/10 justify-between items-center">
-                            <div className="flex flex-wrap gap-2">
-                                <button
-                                    onClick={() => { setExamPhase('PRELIMS'); setSectionFilter('ALL'); }}
-                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'PRELIMS' ? 'bg-brand text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                                >
-                                    Phase I: Prelims (Quant / Reas / Eng)
-                                </button>
-                                <button
-                                    onClick={() => { setExamPhase('MAINS'); setSectionFilter('ALL'); }}
-                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'MAINS' ? 'bg-brand text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                                >
-                                    Phase II: Mains (IT Core + All Sections + Desc)
-                                </button>
-                                <button
-                                    onClick={() => setExamPhase('INTERVIEW')}
-                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'INTERVIEW' ? 'bg-purple-500 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                                >
-                                    Phase III: Personal Interview Bank (10 Q&As)
-                                </button>
-                            </div>
-
-                            {examPhase === 'MAINS' && (
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-xs text-gray-400 font-semibold">Generator Mode:</span>
-                                    <button
-                                        onClick={() => setPaperScope('PROCEDURAL_ONLY')}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'PROCEDURAL_ONLY' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
-                                    >
-                                        ⚡ 100% Procedural (39 Brand-New Qns Every Click)
-                                    </button>
-                                    <button
-                                        onClick={() => setPaperScope('FULL_BANK')}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'FULL_BANK' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
-                                    >
-                                        Full 124-Q Bank
-                                    </button>
-                                    <button
-                                        onClick={() => setPaperScope('IT_CORE')}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'IT_CORE' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
-                                    >
-                                        IT & Computer Only (76 Qns)
-                                    </button>
-                                    <button
-                                        onClick={() => setPaperScope('QUICK_MOCK')}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'QUICK_MOCK' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
-                                    >
-                                        Fresh 45-Q Mock
-                                    </button>
-                                </div>
+                                    {!submitted && (
+                                        <button
+                                            type="button"
+                                            onClick={handleSubmitExam}
+                                            className="px-4 py-2 bg-brand text-black hover:bg-brandDark rounded-xl font-extrabold text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(0,242,254,0.4)]"
+                                        >
+                                            ✔ Submit Exam
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </div>
-
-                        {/* Section Filter Pills + Search + Instant Check */}
-                        {examPhase !== 'INTERVIEW' && (
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mt-4">
-                                <div className="flex flex-wrap gap-2">
-                                    {Object.entries(secNames)
-                                        .filter(([key]) => examPhase === 'MAINS' || ['ALL', 'QUANT', 'REAS', 'ENG'].includes(key))
-                                        .map(([key, label]) => (
-                                            <button
-                                                key={key}
-                                                onClick={() => setSectionFilter(key)}
-                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition border ${
-                                                    sectionFilter === key
-                                                        ? 'bg-brand/20 border-brand text-brand'
-                                                        : 'bg-black/30 border-white/10 text-gray-400 hover:text-white'
-                                                }`}
-                                            >
-                                                {label}
-                                            </button>
-                                        ))}
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={e => setSearchQuery(e.target.value)}
-                                        placeholder="Search topic (e.g. BCNF, OSPF, LRU, IRDAI)..."
-                                        className="bg-black/40 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand w-full sm:w-64"
-                                    />
-                                    <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none whitespace-nowrap">
-                                        <input
-                                            type="checkbox"
-                                            checked={instantCheck}
-                                            onChange={e => setInstantCheck(e.target.checked)}
-                                            className="accent-cyan-400 w-4 h-4"
-                                        />
-                                        <span>Instant Solution Mode</span>
-                                    </label>
-                                </div>
-                            </div>
-                        )}
                     </div>
+
+                    {/* Section Tabs Bar */}
+                    {examPhase !== 'INTERVIEW' && (
+                        <div className="glass-panel p-3 rounded-2xl mb-5 flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap gap-1.5">
+                                {Object.entries(secNames)
+                                    .filter(([key]) => examPhase === 'MAINS' || ['ALL', 'QUANT', 'REAS', 'ENG'].includes(key))
+                                    .map(([key, label]) => (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => {
+                                                setSectionFilter(key);
+                                                if (key !== 'ALL' && key !== 'DESC') {
+                                                    const firstInSec = questions.findIndex(q => q.section === key);
+                                                    if (firstInSec !== -1) goToQuestion(firstInSec);
+                                                }
+                                            }}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                                                sectionFilter === key
+                                                    ? 'bg-brand text-black border-brand'
+                                                    : 'bg-black/40 border-white/10 text-gray-300 hover:text-white'
+                                            }`}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                            </div>
+
+                            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none px-2">
+                                <input
+                                    type="checkbox"
+                                    checked={instantCheck}
+                                    onChange={e => setInstantCheck(e.target.checked)}
+                                    className="accent-cyan-400 w-4 h-4"
+                                />
+                                <span>Practice Hint Mode (Show Answer Immediately)</span>
+                            </label>
+                        </div>
+                    )}
 
                     {/* Score Summary Card (if Submitted) */}
                     {submitted && examPhase !== 'INTERVIEW' && (
                         <div className="glass-panel p-6 rounded-3xl mb-6 border border-emerald-500/40 bg-emerald-950/20 animate-slide-up">
                             <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-                                <h3 className="text-xl font-bold text-emerald-400">
-                                    📊 Official NICL AO IT Evaluation — Attempt #{attemptNo}
-                                </h3>
-                                <button
-                                    onClick={() => generateFreshPaper(examPhase, paperScope)}
-                                    className="px-4 py-2 bg-emerald-500 text-black font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition"
-                                >
-                                    🔄 Start Next Attempt with New Questions
-                                </button>
+                                <div>
+                                    <h3 className="text-xl font-bold text-emerald-400">
+                                        📊 Official NICL AO IT Scorecard — Attempt #{attemptNo}
+                                    </h3>
+                                    <p className="text-xs text-gray-300">Review your answers below or generate a brand-new paper for your next attempt.</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => generateFreshPaper(examPhase, paperScope, true)}
+                                        className="px-4 py-2 bg-emerald-500 text-black font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition"
+                                    >
+                                        🔄 Start Next Attempt (Fresh Questions)
+                                    </button>
+                                </div>
                             </div>
                             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
                                 <div className="p-3 rounded-xl bg-black/40 border border-white/10">
@@ -2592,56 +2805,52 @@
                     ) : (
                         /* Phase I & II Main Exam Grid */
                         <div className="grid lg:grid-cols-3 gap-6 items-start">
-                            {/* Left 2 Columns: Questions + Descriptive */}
+                            {/* Left 2 Columns: Either Single-Question CBT Screen OR Full Paper List */}
                             <div className="lg:col-span-2 space-y-5">
-                                {sectionFilter !== 'DESC' && questions.map((q, qIdx) => {
-                                    if (sectionFilter !== 'ALL' && q.section !== sectionFilter) return null;
-                                    if (searchQuery.trim()) {
-                                        const qLower = searchQuery.toLowerCase();
-                                        const matches = q.stem.toLowerCase().includes(qLower) ||
-                                            q.topic.toLowerCase().includes(qLower) ||
-                                            q.explanation.toLowerCase().includes(qLower);
-                                        if (!matches) return null;
-                                    }
-                                    const userPick = answers[qIdx];
-                                    const isReviewed = reviewMarks[qIdx];
-                                    const reveal = submitted || (instantCheck && userPick !== undefined);
-
-                                    return (
-                                        <div key={qIdx} id={`nicl-q-${qIdx}`} className="glass-panel p-6 rounded-2xl border border-white/10">
-                                            <div className="flex flex-wrap justify-between items-center gap-2 pb-3 mb-3 border-b border-white/10">
-                                                <span className="font-extrabold text-brand text-sm">Question {qIdx + 1}</span>
-                                                <div className="flex flex-wrap gap-2">
-                                                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-200">{q.topic}</span>
-                                                    {q.dynamicTag && (
-                                                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                                            ⚡ Procedural Numerical (New Every Reload)
-                                                        </span>
-                                                    )}
+                                {sectionFilter === 'DESC' ? null : displayMode === 'SINGLE_CBT' && activeQ ? (
+                                    /* AUTHENTIC SINGLE-QUESTION CBT TERMINAL */
+                                    <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-white/15 shadow-2xl flex flex-col justify-between min-h-[460px]">
+                                        <div>
+                                            {/* Question Number & Marks Bar */}
+                                            <div className="flex flex-wrap justify-between items-center gap-2 pb-4 mb-5 border-b border-white/10">
+                                                <div className="flex items-center gap-2.5">
+                                                    <span className="px-3 py-1 rounded-lg bg-brand text-black font-extrabold text-sm">
+                                                        Question {currentQIdx + 1} of {questions.length}
+                                                    </span>
+                                                    <span className="px-2.5 py-1 rounded-lg bg-white/10 text-xs font-semibold text-gray-200">
+                                                        {activeQ.topic}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-xs font-mono">
+                                                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">+1.00</span>
+                                                    <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/30">-0.25</span>
                                                 </div>
                                             </div>
 
-                                            {q.contextHTML && (
+                                            {activeQ.contextHTML && (
                                                 <div
-                                                    className="mb-4 p-3 rounded-xl bg-black/40 border border-brand/20"
-                                                    dangerouslySetInnerHTML={{ __html: q.contextHTML }}
+                                                    className="mb-4 p-3.5 rounded-xl bg-black/40 border border-brand/20"
+                                                    dangerouslySetInnerHTML={{ __html: activeQ.contextHTML }}
                                                 />
                                             )}
 
-                                            <p className="text-sm md:text-base font-semibold text-gray-100 whitespace-pre-line mb-4 leading-relaxed">
-                                                {q.stem}
+                                            <p className="text-base sm:text-lg font-semibold text-white whitespace-pre-line mb-6 leading-relaxed">
+                                                {activeQ.stem}
                                             </p>
 
-                                            <div className="space-y-2.5">
-                                                {q.options.map((optText, oIdx) => {
-                                                    let btnStyle = "border-white/10 bg-black/30 hover:bg-white/10 text-gray-200";
+                                            {/* 5 Options (A-E) */}
+                                            <div className="space-y-3">
+                                                {activeQ.options.map((optText, oIdx) => {
+                                                    const userPick = answers[currentQIdx];
+                                                    const reveal = submitted || (instantCheck && userPick !== undefined);
+                                                    let btnStyle = "border-white/15 bg-black/40 hover:bg-white/10 text-gray-200";
                                                     if (userPick === oIdx) {
-                                                        btnStyle = "border-brand bg-brand/15 text-white font-semibold";
+                                                        btnStyle = "border-brand bg-brand/20 text-white font-bold shadow-[0_0_12px_rgba(0,242,254,0.2)]";
                                                     }
                                                     if (reveal) {
-                                                        if (oIdx === q.answerIndex) {
+                                                        if (oIdx === activeQ.answerIndex) {
                                                             btnStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold";
-                                                        } else if (userPick === oIdx && oIdx !== q.answerIndex) {
+                                                        } else if (userPick === oIdx && oIdx !== activeQ.answerIndex) {
                                                             btnStyle = "border-red-500 bg-red-500/20 text-red-200";
                                                         }
                                                     }
@@ -2650,52 +2859,181 @@
                                                         <button
                                                             key={oIdx}
                                                             type="button"
-                                                            onClick={() => handleSelectOption(qIdx, oIdx)}
-                                                            className={`w-full text-left p-3 rounded-xl border transition flex items-start gap-3 text-sm ${btnStyle}`}
+                                                            onClick={() => handleSelectOption(currentQIdx, oIdx)}
+                                                            className={`w-full text-left p-3.5 rounded-xl border transition flex items-start gap-3.5 text-sm sm:text-base ${btnStyle}`}
                                                         >
-                                                            <span className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                                            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold flex-shrink-0 ${userPick === oIdx ? 'bg-brand text-black' : 'bg-white/10 border border-white/20 text-gray-300'}`}>
                                                                 {letters[oIdx]}
                                                             </span>
-                                                            <span>{optText}</span>
+                                                            <span className="pt-0.5">{optText}</span>
                                                         </button>
                                                     );
                                                 })}
                                             </div>
 
-                                            <div className="flex flex-wrap justify-between items-center gap-2 mt-4 pt-3 border-t border-white/10 text-xs">
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleToggleReview(qIdx)}
-                                                        className={`px-3 py-1.5 rounded-lg border transition ${isReviewed ? 'bg-purple-500/20 border-purple-400 text-purple-300' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
-                                                    >
-                                                        {isReviewed ? '★ Marked for Review' : '☆ Mark for Review'}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleClearOption(qIdx)}
-                                                        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white transition"
-                                                    >
-                                                        Clear
-                                                    </button>
-                                                </div>
-                                                <span className="text-gray-500 font-mono">+1.00 / -0.25</span>
-                                            </div>
-
-                                            {reveal && (
-                                                <div className="mt-4 p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-200 leading-relaxed">
+                                            {/* Instant Explanation Box if enabled */}
+                                            {(submitted || (instantCheck && answers[currentQIdx] !== undefined)) && (
+                                                <div className="mt-5 p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs sm:text-sm text-emerald-200 leading-relaxed animate-fade-in">
                                                     <div className="font-bold text-emerald-400 mb-1">
-                                                        ✔ Correct Answer: ({letters[q.answerIndex]}) {q.options[q.answerIndex]}
+                                                        ✔ Correct Answer: ({letters[activeQ.answerIndex]}) {activeQ.options[activeQ.answerIndex]}
                                                     </div>
-                                                    <div>{q.explanation}</div>
+                                                    <div>{activeQ.explanation}</div>
                                                 </div>
                                             )}
                                         </div>
-                                    );
-                                })}
+
+                                        {/* Authentic TCS iON Bottom Action Bar */}
+                                        <div className="mt-8 pt-4 border-t border-white/10 flex flex-wrap justify-between items-center gap-3">
+                                            <div className="flex flex-wrap gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => goToQuestion(Math.max(0, currentQIdx - 1))}
+                                                    disabled={currentQIdx === 0}
+                                                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 disabled:opacity-40 text-xs font-bold text-white transition"
+                                                >
+                                                    ← Previous
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleMarkForReviewAndNext}
+                                                    className="px-4 py-2.5 rounded-xl bg-purple-500/25 hover:bg-purple-500/35 border border-purple-400/50 text-purple-200 text-xs font-bold transition"
+                                                >
+                                                    ★ Mark for Review & Next
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleClearOption(currentQIdx)}
+                                                    className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs font-semibold transition"
+                                                >
+                                                    Clear Response
+                                                </button>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleSaveAndNext}
+                                                className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                                            >
+                                                Save & Next →
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* FULL PAPER SCROLL VIEW (OR POST-SUBMIT REVIEW) */
+                                    <>
+                                        <div className="glass-panel p-3 rounded-xl flex items-center justify-between gap-2">
+                                            <input
+                                                type="text"
+                                                value={searchQuery}
+                                                onChange={e => setSearchQuery(e.target.value)}
+                                                placeholder="Search topic in paper (e.g. BCNF, OSPF, LRU, IRDAI)..."
+                                                className="bg-black/40 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand w-full"
+                                            />
+                                        </div>
+                                        {questions.map((q, qIdx) => {
+                                            if (sectionFilter !== 'ALL' && q.section !== sectionFilter) return null;
+                                            if (searchQuery.trim()) {
+                                                const qLower = searchQuery.toLowerCase();
+                                                const matches = q.stem.toLowerCase().includes(qLower) ||
+                                                    q.topic.toLowerCase().includes(qLower) ||
+                                                    q.explanation.toLowerCase().includes(qLower);
+                                                if (!matches) return null;
+                                            }
+                                            const userPick = answers[qIdx];
+                                            const isReviewed = reviewMarks[qIdx];
+                                            const reveal = submitted || (instantCheck && userPick !== undefined);
+
+                                            return (
+                                                <div key={qIdx} id={`nicl-q-${qIdx}`} className="glass-panel p-6 rounded-2xl border border-white/10">
+                                                    <div className="flex flex-wrap justify-between items-center gap-2 pb-3 mb-3 border-b border-white/10">
+                                                        <span className="font-extrabold text-brand text-sm">Question {qIdx + 1}</span>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-200">{q.topic}</span>
+                                                            {q.dynamicTag && (
+                                                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                                                    ⚡ Procedural Numerical
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {q.contextHTML && (
+                                                        <div
+                                                            className="mb-4 p-3 rounded-xl bg-black/40 border border-brand/20"
+                                                            dangerouslySetInnerHTML={{ __html: q.contextHTML }}
+                                                        />
+                                                    )}
+
+                                                    <p className="text-sm md:text-base font-semibold text-gray-100 whitespace-pre-line mb-4 leading-relaxed">
+                                                        {q.stem}
+                                                    </p>
+
+                                                    <div className="space-y-2.5">
+                                                        {q.options.map((optText, oIdx) => {
+                                                            let btnStyle = "border-white/10 bg-black/30 hover:bg-white/10 text-gray-200";
+                                                            if (userPick === oIdx) {
+                                                                btnStyle = "border-brand bg-brand/15 text-white font-semibold";
+                                                            }
+                                                            if (reveal) {
+                                                                if (oIdx === q.answerIndex) {
+                                                                    btnStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold";
+                                                                } else if (userPick === oIdx && oIdx !== q.answerIndex) {
+                                                                    btnStyle = "border-red-500 bg-red-500/20 text-red-200";
+                                                                }
+                                                            }
+
+                                                            return (
+                                                                <button
+                                                                    key={oIdx}
+                                                                    type="button"
+                                                                    onClick={() => handleSelectOption(qIdx, oIdx)}
+                                                                    className={`w-full text-left p-3 rounded-xl border transition flex items-start gap-3 text-sm ${btnStyle}`}
+                                                                >
+                                                                    <span className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                                                        {letters[oIdx]}
+                                                                    </span>
+                                                                    <span>{optText}</span>
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+
+                                                    <div className="flex flex-wrap justify-between items-center gap-2 mt-4 pt-3 border-t border-white/10 text-xs">
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleToggleReview(qIdx)}
+                                                                className={`px-3 py-1.5 rounded-lg border transition ${isReviewed ? 'bg-purple-500/20 border-purple-400 text-purple-300' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
+                                                            >
+                                                                {isReviewed ? '★ Marked for Review' : '☆ Mark for Review'}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleClearOption(qIdx)}
+                                                                className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white transition"
+                                                            >
+                                                                Clear
+                                                            </button>
+                                                        </div>
+                                                        <span className="text-gray-500 font-mono">+1.00 / -0.25</span>
+                                                    </div>
+
+                                                    {reveal && (
+                                                        <div className="mt-4 p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-200 leading-relaxed">
+                                                            <div className="font-bold text-emerald-400 mb-1">
+                                                                ✔ Correct Answer: ({letters[q.answerIndex]}) {q.options[q.answerIndex]}
+                                                            </div>
+                                                            <div>{q.explanation}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </>
+                                )}
 
                                 {/* Descriptive Paper Section (Mains) */}
-                                {(sectionFilter === 'ALL' || sectionFilter === 'DESC') && examPhase === 'MAINS' && (
+                                {(sectionFilter === 'DESC' || (displayMode === 'LIST_VIEW' && sectionFilter === 'ALL')) && examPhase === 'MAINS' && (
                                     <div className="glass-panel p-6 rounded-2xl border-l-4 border-brand space-y-4">
                                         <div className="flex justify-between items-center flex-wrap gap-2">
                                             <h3 className="text-lg font-bold text-brand">
@@ -2758,13 +3096,33 @@
                                 )}
                             </div>
 
-                            {/* Right Column: Live Palette & Attempt History */}
-                            <div className="space-y-6 lg:sticky lg:top-24">
-                                <div className="glass-panel p-5 rounded-2xl">
-                                    <h4 className="text-sm font-bold text-brand uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
-                                        Live Question Palette ({scoreMetrics.attempted} / {questions.length})
+                            {/* Right Column: Official CBT Candidate Card & Question Palette */}
+                            <div className="space-y-5 lg:sticky lg:top-24">
+                                <div className="glass-panel p-5 rounded-2xl border border-white/15">
+                                    {/* Candidate Status Counters */}
+                                    <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+                                        <div className="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/5">
+                                            <span className="w-6 h-6 rounded bg-emerald-500 text-black font-extrabold flex items-center justify-center">{scoreMetrics.attempted}</span>
+                                            <span className="text-gray-300">Answered</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/5">
+                                            <span className="w-6 h-6 rounded bg-red-500/80 text-white font-extrabold flex items-center justify-center">{Math.max(0, questions.length - scoreMetrics.attempted - scoreMetrics.notVisitedCount)}</span>
+                                            <span className="text-gray-300">Not Answered</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/5">
+                                            <span className="w-6 h-6 rounded bg-purple-500 text-white font-extrabold flex items-center justify-center">{scoreMetrics.markedCount}</span>
+                                            <span className="text-gray-300">Marked Review</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/5">
+                                            <span className="w-6 h-6 rounded bg-white/10 text-gray-300 font-extrabold flex items-center justify-center">{scoreMetrics.notVisitedCount}</span>
+                                            <span className="text-gray-300">Not Visited</span>
+                                        </div>
+                                    </div>
+
+                                    <h4 className="text-xs font-bold text-brand uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
+                                        Question Palette (Click to Jump)
                                     </h4>
-                                    <div className="grid grid-cols-6 gap-2 max-h-72 overflow-y-auto pr-1">
+                                    <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto pr-1">
                                         {questions.map((q, idx) => {
                                             let pillCls = "bg-white/5 border-white/10 text-gray-400";
                                             if (submitted) {
@@ -2772,18 +3130,25 @@
                                                 else if (answers[idx] !== undefined) pillCls = "bg-red-500 text-white font-bold border-red-400";
                                             } else {
                                                 if (reviewMarks[idx]) pillCls = "bg-purple-500 text-white font-bold border-purple-400";
-                                                else if (answers[idx] !== undefined) pillCls = "bg-brand text-black font-bold border-brand";
+                                                else if (answers[idx] !== undefined) pillCls = "bg-emerald-500 text-black font-bold border-emerald-400";
+                                                else if (visitedQuestions[idx]) pillCls = "bg-red-500/70 text-white font-bold border-red-400";
+                                            }
+                                            if (displayMode === 'SINGLE_CBT' && currentQIdx === idx) {
+                                                pillCls += " ring-2 ring-brand ring-offset-2 ring-offset-black";
                                             }
                                             return (
                                                 <button
                                                     key={idx}
+                                                    type="button"
                                                     onClick={() => {
-                                                        setSectionFilter('ALL');
-                                                        setSearchQuery('');
-                                                        setTimeout(() => {
-                                                            const el = document.getElementById(`nicl-q-${idx}`);
-                                                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                                        }, 50);
+                                                        goToQuestion(idx);
+                                                        if (displayMode === 'LIST_VIEW') {
+                                                            setSectionFilter('ALL');
+                                                            setTimeout(() => {
+                                                                const el = document.getElementById(`nicl-q-${idx}`);
+                                                                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                            }, 50);
+                                                        }
                                                     }}
                                                     className={`py-1.5 rounded-lg text-xs border transition ${pillCls}`}
                                                 >
@@ -2792,17 +3157,21 @@
                                             );
                                         })}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/10 text-[11px] text-gray-400">
-                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-brand inline-block"></span> Answered</div>
-                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-purple-500 inline-block"></span> Review</div>
-                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-white/10 inline-block"></span> Unvisited</div>
-                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-red-500 inline-block"></span> Wrong</div>
-                                    </div>
+
+                                    {!submitted && (
+                                        <button
+                                            type="button"
+                                            onClick={handleSubmitExam}
+                                            className="w-full mt-4 py-3 bg-brand text-black hover:bg-brandDark font-extrabold rounded-xl text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                                        >
+                                            ✔ Submit Final Paper
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Past Attempts Log */}
                                 <div className="glass-panel p-5 rounded-2xl">
-                                    <h4 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
+                                    <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
                                         Your Recent Attempts
                                     </h4>
                                     {attemptHistory.length === 0 ? (
@@ -3142,81 +3511,614 @@
             );
         };
 
-        const AdminDashboard = ({ currentUser, notify }) => {
+        const ComplaintDesk = ({ user, notify }) => {
+            const [complaints, setComplaints] = useState([]);
+            const [category, setCategory] = useState('Exam Simulator Issue');
+            const [priority, setPriority] = useState('Normal');
+            const [subject, setSubject] = useState('');
+            const [description, setDescription] = useState('');
+            const [userFollowUpMap, setUserFollowUpMap] = useState({});
+            const [adminReplyMap, setAdminReplyMap] = useState({});
+            const [filterStatus, setFilterStatus] = useState('ALL');
+
+            // Load & sync complaints in real-time from Firestore + LocalStorage fallback
+            useEffect(() => {
+                const loadLocalComplaints = () => {
+                    try {
+                        const raw = localStorage.getItem('atlas_complaints_v2');
+                        if (raw) {
+                            setComplaints(JSON.parse(raw));
+                        } else {
+                            const seedTicket = [{
+                                id: 'tkt_welcome_1',
+                                uid: user?.uid || 'local_guest',
+                                userName: user?.name || 'Guest Explorer',
+                                userEmail: user?.email || 'explorer@gmail.com',
+                                category: 'General Inquiry',
+                                priority: 'Normal',
+                                subject: 'Welcome to ATLAS Support & Complaint Desk',
+                                description: 'If you face any issue with the NICL Exam Simulator, profile settings, or platform features, submit a ticket here for direct Admin resolution.',
+                                status: 'resolved',
+                                adminReply: 'Assured by Admin (Bhuvnendra Singh): Welcome! Our support desk is active 24/7. Any issue you report here will be personally reviewed and resolved.',
+                                repliedAt: Date.now() - 60000,
+                                createdAt: Date.now() - 120000
+                            }];
+                            localStorage.setItem('atlas_complaints_v2', JSON.stringify(seedTicket));
+                            setComplaints(seedTicket);
+                        }
+                    } catch (e) {}
+                };
+
+                loadLocalComplaints();
+
+                if (!db || !fb || !user) return;
+                const compRef = fb.collection(db, 'artifacts', appId, 'public', 'data', 'complaints');
+                const unsub = fb.onSnapshot(compRef, (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                    if (list.length > 0) {
+                        list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                        setComplaints(list);
+                        try { localStorage.setItem('atlas_complaints_v2', JSON.stringify(list)); } catch (e) {}
+                    }
+                }, () => {});
+                return () => unsub();
+            }, [user]);
+
+            const saveComplaintsList = (updatedList) => {
+                setComplaints(updatedList);
+                try {
+                    localStorage.setItem('atlas_complaints_v2', JSON.stringify(updatedList));
+                } catch (e) {}
+            };
+
+            const handleSubmitComplaint = async (e) => {
+                e.preventDefault();
+                if (!subject.trim() || !description.trim()) {
+                    notify('Please enter both a subject and problem description.', 'error');
+                    return;
+                }
+                const newTicket = {
+                    id: 'tkt_' + Date.now(),
+                    uid: user?.uid || 'local_guest',
+                    userName: user?.name || 'Explorer',
+                    userEmail: user?.email || 'N/A',
+                    userAvatar: user?.avatar || null,
+                    category,
+                    priority,
+                    subject: subject.trim(),
+                    description: description.trim(),
+                    status: 'open', // 'open', 'in_progress', 'resolved'
+                    adminReply: '',
+                    userFollowUp: '',
+                    createdAt: Date.now(),
+                    repliedAt: null
+                };
+
+                const updated = [newTicket, ...complaints];
+                saveComplaintsList(updated);
+                setSubject('');
+                setDescription('');
+
+                if (db && fb) {
+                    try {
+                        const docRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'complaints', newTicket.id);
+                        await fb.setDoc(docRef, newTicket);
+                    } catch (err) {}
+                }
+                notify('Complaint submitted! Admin will review and reply shortly.', 'success');
+            };
+
+            const handleAdminSendReply = async (ticketId, customReplyText, newStatus = 'resolved') => {
+                const replyText = (customReplyText !== undefined ? customReplyText : adminReplyMap[ticketId])?.trim();
+                if (!replyText) {
+                    notify('Please enter an assurance reply message for the user.', 'error');
+                    return;
+                }
+                const now = Date.now();
+                const updated = complaints.map(c =>
+                    c.id === ticketId
+                        ? { ...c, adminReply: replyText, status: newStatus, repliedAt: now }
+                        : c
+                );
+                saveComplaintsList(updated);
+                setAdminReplyMap(prev => ({ ...prev, [ticketId]: '' }));
+
+                if (db && fb) {
+                    try {
+                        const docRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'complaints', ticketId);
+                        await fb.setDoc(docRef, { adminReply: replyText, status: newStatus, repliedAt: now }, { merge: true });
+                    } catch (err) {}
+                }
+                notify('Admin Assurance Reply sent to user!', 'success');
+            };
+
+            const handleUserFollowUp = async (ticketId) => {
+                const text = userFollowUpMap[ticketId]?.trim();
+                if (!text) return;
+                const updated = complaints.map(c =>
+                    c.id === ticketId
+                        ? { ...c, userFollowUp: text, status: 'open' }
+                        : c
+                );
+                saveComplaintsList(updated);
+                setUserFollowUpMap(prev => ({ ...prev, [ticketId]: '' }));
+
+                if (db && fb) {
+                    try {
+                        const docRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'complaints', ticketId);
+                        await fb.setDoc(docRef, { userFollowUp: text, status: 'open' }, { merge: true });
+                    } catch (err) {}
+                }
+                notify('Follow-up note sent to Admin!', 'success');
+            };
+
+            const isAdmin = user?.role === 'admin';
+            const visibleComplaints = complaints.filter(c => {
+                if (!isAdmin && c.uid !== user?.uid && c.id !== 'tkt_welcome_1') return false;
+                if (filterStatus !== 'ALL' && c.status !== filterStatus) return false;
+                return true;
+            });
+
+            return (
+                <div className="animate-slide-in-3d max-w-5xl mx-auto px-4 py-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div>
+                            <span className="text-xs font-mono uppercase tracking-widest text-brand">24/7 Direct Resolution Channel</span>
+                            <h2 className="text-3xl font-bold gradient-text">
+                                Help & Complaint Resolution Desk
+                            </h2>
+                            <p className="text-sm text-gray-400 mt-1">
+                                Facing a bug, account problem, or exam question issue? Submit a ticket below and get a direct assurance reply from the Admin.
+                            </p>
+                        </div>
+                        {isAdmin && (
+                            <span className="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-mono font-bold">
+                                ⚡ OMEGA ADMIN MODE: Viewing All User Complaints
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="grid lg:grid-cols-5 gap-8 items-start">
+                        {/* Left Column: Submit New Complaint Form */}
+                        <form onSubmit={handleSubmitComplaint} className="lg:col-span-2 glass-panel p-6 rounded-3xl border-t-2 border-brand space-y-4">
+                            <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">
+                                📝 Submit a New Complaint / Issue
+                            </h3>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Issue Category</label>
+                                <select
+                                    value={category}
+                                    onChange={e => setCategory(e.target.value)}
+                                    className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand"
+                                >
+                                    <option value="Exam Simulator Issue">NICL Exam Simulator Issue</option>
+                                    <option value="Account / Profile Issue">Account / Profile Update Issue</option>
+                                    <option value="Bug / UI Glitch">Website Bug / UI Glitch</option>
+                                    <option value="Feature Request">Feature / Question Request</option>
+                                    <option value="General Inquiry">General Support Inquiry</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Urgency / Priority</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['Normal', 'High', 'Urgent'].map(p => (
+                                        <button
+                                            key={p}
+                                            type="button"
+                                            onClick={() => setPriority(p)}
+                                            className={`py-2 rounded-xl text-xs font-bold border transition ${
+                                                priority === p
+                                                    ? 'bg-brand/20 border-brand text-brand'
+                                                    : 'bg-black/30 border-white/10 text-gray-400'
+                                            }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Short Subject</label>
+                                <input
+                                    type="text"
+                                    value={subject}
+                                    onChange={e => setSubject(e.target.value)}
+                                    placeholder="e.g., Timer paused or question doubt in Q14"
+                                    required
+                                    className="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Describe Your Problem</label>
+                                <textarea
+                                    rows="4"
+                                    value={description}
+                                    onChange={e => setDescription(e.target.value)}
+                                    placeholder="Explain what happened so the Admin can resolve it and reply to you..."
+                                    required
+                                    className="w-full bg-black/50 border border-white/20 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand resize-none"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full py-3 bg-brand text-black hover:bg-brandDark font-extrabold rounded-xl text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                            >
+                                🚀 Send Complaint to Admin
+                            </button>
+                        </form>
+
+                        {/* Right Column: Ticket History & Admin Assurance Replies */}
+                        <div className="lg:col-span-3 space-y-4">
+                            <div className="glass-panel p-4 rounded-2xl flex flex-wrap justify-between items-center gap-2">
+                                <span className="text-sm font-bold text-white">
+                                    {isAdmin ? `All User Tickets (${visibleComplaints.length})` : `My Tickets & Admin Replies (${visibleComplaints.length})`}
+                                </span>
+                                <div className="flex gap-1.5">
+                                    {[
+                                        { k: 'ALL', l: 'All' },
+                                        { k: 'open', l: 'Open' },
+                                        { k: 'resolved', l: 'Resolved' }
+                                    ].map(tab => (
+                                        <button
+                                            key={tab.k}
+                                            type="button"
+                                            onClick={() => setFilterStatus(tab.k)}
+                                            className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                                                filterStatus === tab.k ? 'bg-brand text-black' : 'bg-white/5 text-gray-400 hover:text-white'
+                                            }`}
+                                        >
+                                            {tab.l}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {visibleComplaints.length === 0 ? (
+                                <div className="glass-panel p-8 rounded-2xl text-center text-gray-400 text-sm">
+                                    No complaints found in this view.
+                                </div>
+                            ) : (
+                                visibleComplaints.map(ticket => (
+                                    <div key={ticket.id} className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+                                        <div className="flex flex-wrap justify-between items-start gap-2 border-b border-white/10 pb-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-white/10 text-brand">
+                                                        {ticket.category}
+                                                    </span>
+                                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                                        ticket.priority === 'Urgent' ? 'bg-red-500/20 text-red-300 border border-red-500/40' : 'bg-white/5 text-gray-400'
+                                                    }`}>
+                                                        {ticket.priority} Priority
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-400 font-mono">
+                                                        by {ticket.userName} • {new Date(ticket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                </div>
+                                                <h4 className="text-base font-bold text-white mt-1.5">{ticket.subject}</h4>
+                                            </div>
+
+                                            <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
+                                                ticket.status === 'resolved'
+                                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                            }`}>
+                                                {ticket.status === 'resolved' ? '✔ Resolved & Assured' : '⏳ Open / Pending Admin'}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-sm text-gray-200 leading-relaxed bg-black/30 p-3.5 rounded-xl border border-white/5">
+                                            {ticket.description}
+                                        </p>
+
+                                        {ticket.userFollowUp && (
+                                            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-400/30 text-xs text-blue-200">
+                                                <strong className="block text-blue-300 mb-0.5">User Follow-Up Note:</strong>
+                                                {ticket.userFollowUp}
+                                            </div>
+                                        )}
+
+                                        {/* Official Admin Assurance Reply Box */}
+                                        {ticket.adminReply ? (
+                                            <div className="p-4 rounded-2xl bg-emerald-950/40 border-l-4 border-emerald-400 text-sm text-emerald-100 space-y-1">
+                                                <div className="flex justify-between items-center text-xs text-emerald-400 font-bold uppercase tracking-wider">
+                                                    <span>🛡️ Official Admin Assurance Reply (ATLAS OMEGA)</span>
+                                                    {ticket.repliedAt && <span>{new Date(ticket.repliedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                                                </div>
+                                                <p className="text-gray-100 leading-relaxed pt-1">{ticket.adminReply}</p>
+                                            </div>
+                                        ) : (
+                                            <div className="text-xs text-amber-300/80 font-mono">
+                                                ⏳ Waiting for Admin response...
+                                            </div>
+                                        )}
+
+                                        {/* User Follow-up Input (for non-admin or ticket owner) */}
+                                        {!isAdmin && ticket.id !== 'tkt_welcome_1' && (
+                                            <div className="flex gap-2 pt-2">
+                                                <input
+                                                    type="text"
+                                                    value={userFollowUpMap[ticket.id] || ''}
+                                                    onChange={e => setUserFollowUpMap(prev => ({ ...prev, [ticket.id]: e.target.value }))}
+                                                    placeholder="Add a follow-up comment or thank the admin..."
+                                                    className="flex-1 bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleUserFollowUp(ticket.id)}
+                                                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition"
+                                                >
+                                                    Reply
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Admin Direct Reply & Assurance Controls */}
+                                        {isAdmin && (
+                                            <div className="pt-3 border-t border-white/10 space-y-2.5">
+                                                <div className="text-xs font-bold text-brand uppercase">Admin Reply & Assurance Box:</div>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {[
+                                                        "✅ Issue Resolved: We have fixed this problem and verified your account. You can continue your practice smoothly!",
+                                                        "🛠️ Under Investigation: Our technical team is actively fixing this right now. Thank you for reporting!",
+                                                        "📚 Question Verified: We have cross-checked the official NICL answer key and updated the explanation."
+                                                    ].map((preset, pIdx) => (
+                                                        <button
+                                                            key={pIdx}
+                                                            type="button"
+                                                            onClick={() => handleAdminSendReply(ticket.id, preset, 'resolved')}
+                                                            className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition text-left"
+                                                        >
+                                                            + Quick Assure #{pIdx + 1}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={adminReplyMap[ticket.id] || ''}
+                                                        onChange={e => setAdminReplyMap(prev => ({ ...prev, [ticket.id]: e.target.value }))}
+                                                        placeholder="Type a custom assurance reply to this user..."
+                                                        className="flex-1 bg-black/50 border border-brand/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleAdminSendReply(ticket.id, undefined, 'resolved')}
+                                                        className="px-4 py-2 bg-brand text-black font-bold rounded-xl text-xs hover:bg-brandDark transition whitespace-nowrap"
+                                                    >
+                                                        Send & Resolve
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminDashboard = ({ currentUser, notify, siteStats }) => {
+            const [adminTab, setAdminTab] = useState('telemetry'); // 'telemetry' | 'complaints'
             const [users, setUsers] = useState([]);
 
             useEffect(() => {
+                const loadLocalRegistry = () => {
+                    try {
+                        const raw = localStorage.getItem('atlas_visitor_registry_v2');
+                        if (raw) {
+                            const map = JSON.parse(raw);
+                            return Object.values(map);
+                        }
+                    } catch (e) {}
+                    return [];
+                };
+
                 if (!db || !fb || !currentUser) {
-                    const localUsers = localStorage.getItem('atlas_local_users');
-                    if (localUsers) setUsers(JSON.parse(localUsers));
-                    else setUsers([{ id: 'usr_mock_1', name: 'Mock Explorer 1', status: 'active' }, { id: 'usr_mock_2', name: 'Rogue Agent', status: 'timeout' }]);
+                    const localList = loadLocalRegistry();
+                    if (localList.length > 0) setUsers(localList);
+                    else setUsers([
+                        { id: 'usr_mock_1', name: 'Aarav Sharma (NICL Aspirant)', status: 'active', timeSpentSeconds: 1420, totalVisits: 6, currentView: 'nicl_exam', lastActive: Date.now() - 15000 },
+                        { id: 'usr_mock_2', name: 'Priya Nair', status: 'active', timeSpentSeconds: 685, totalVisits: 3, currentView: 'projects', lastActive: Date.now() - 45000 }
+                    ]);
                     return;
                 }
+
                 const usersRef = fb.collection(db, 'artifacts', appId, 'public', 'data', 'users');
                 const unsubscribe = fb.onSnapshot(usersRef, (snapshot) => {
                     const loadedUsers = [];
-                    snapshot.forEach(doc => loadedUsers.push(doc.data()));
-                    setUsers(loadedUsers);
-                }, (error) => {
-                    setUsers([{ id: 'err_auth', name: 'DB Auth Mock Data', status: 'offline' }]);
+                    snapshot.forEach(doc => loadedUsers.push({ id: doc.id, ...doc.data() }));
+                    const localList = loadLocalRegistry();
+                    const mergedMap = {};
+                    localList.forEach(u => { mergedMap[u.id] = u; });
+                    loadedUsers.forEach(u => {
+                        mergedMap[u.id] = { ...(mergedMap[u.id] || {}), ...u };
+                    });
+                    const finalArr = Object.values(mergedMap).sort((a, b) => (b.lastActive || b.lastLogin || 0) - (a.lastActive || a.lastLogin || 0));
+                    setUsers(finalArr);
+                }, () => {
+                    setUsers(loadLocalRegistry());
                 });
                 return () => unsubscribe();
-            }, [currentUser]);
+            }, [currentUser, siteStats]);
 
             const actionUser = async (id, action) => {
-                if (!db || !fb || !currentUser) {
-                    setUsers(prev => {
-                        const updated = prev.map(u => u.id === id ? { ...u, status: action } : u);
-                        localStorage.setItem('atlas_local_users', JSON.stringify(updated));
-                        return updated;
-                    });
-                    notify(`Action [${action.toUpperCase()}] saved for user ${id}.`, 'success');
-                    return;
+                setUsers(prev => {
+                    const updated = prev.map(u => u.id === id ? { ...u, status: action } : u);
+                    try {
+                        const map = {};
+                        updated.forEach(u => { map[u.id] = u; });
+                        localStorage.setItem('atlas_visitor_registry_v2', JSON.stringify(map));
+                    } catch (e) {}
+                    return updated;
+                });
+
+                if (db && fb && currentUser) {
+                    try {
+                        const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', id);
+                        await fb.setDoc(userRef, { status: action }, { merge: true });
+                    } catch (e) {}
                 }
-                try {
-                    const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', id);
-                    await fb.setDoc(userRef, { status: action }, { merge: true });
-                    notify(`User ${id} status altered to ${action.toUpperCase()}`, 'success');
-                } catch (e) {
-                    notify(`Action failed: ${e.message}`, 'error');
-                }
+                notify(`User #${String(id).substring(0, 6)} status updated to ${action.toUpperCase()}`, 'success');
             };
 
+            // Compute Live Telemetry Metrics
+            const now = Date.now();
+            const onlineUsersCount = Math.max(1, users.filter(u => (now - (u.lastActive || u.lastLogin || 0)) < 120000).length);
+            const totalTrackedUsers = Math.max(1, users.length);
+            const totalTimeAcrossUsers = users.reduce((acc, u) => acc + (u.timeSpentSeconds || 0), 0) || siteStats?.currentSessionSeconds || 60;
+            const avgTimeSeconds = Math.round(totalTimeAcrossUsers / totalTrackedUsers);
+            const totalSiteVisits = Math.max(siteStats?.totalVisits || 1, users.reduce((acc, u) => acc + (u.totalVisits || 1), 0));
+
             return (
-                <div className="animate-slide-in-3d max-w-4xl mx-auto px-4 py-12">
-                    <h2 className="text-3xl font-bold mb-2 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)] border-b border-red-500/30 pb-2">GOD MODE: Admin Terminal</h2>
-                    <p className="text-gray-400 mb-8 font-mono text-sm">Access Level: OMEGA. Full control granted.</p>
-                    
-                    <div className="glass-panel p-6 rounded-3xl border border-red-500/20 overflow-x-auto">
-                        <table className="w-full text-left text-sm min-w-max">
-                            <thead>
-                                <tr className="border-b border-white/10 text-gray-400">
-                                    <th className="pb-3 px-2">User ID</th>
-                                    <th className="pb-3 px-2">Handle</th>
-                                    <th className="pb-3 px-2">Status</th>
-                                    <th className="pb-3 px-2">Override Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map(u => (
-                                    <tr key={u.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition">
-                                        <td className="py-4 px-2 font-mono">#{String(u.id).substring(0,8)}...</td>
-                                        <td className="py-4 px-2 font-bold">{u.name}</td>
-                                        <td className="py-4 px-2">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.status==='active'?'bg-green-500/20 text-green-400': 'bg-red-500/20 text-red-400'}`}>
-                                                {u.status?.toUpperCase() || 'UNKNOWN'}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-2 flex gap-2">
-                                            <button onClick={()=>actionUser(u.id, 'timeout')} className="px-3 py-1 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/40 rounded text-xs transition">TIMEOUT</button>
-                                            <button onClick={()=>actionUser(u.id, 'kicked')} className="px-3 py-1 bg-orange-500/20 text-orange-500 hover:bg-orange-500/40 rounded text-xs transition">KICK</button>
-                                            <button onClick={()=>actionUser(u.id, 'banned')} className="px-3 py-1 bg-red-500/20 text-red-500 hover:bg-red-500/40 rounded text-xs transition">BAN</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                <div className="animate-slide-in-3d max-w-6xl mx-auto px-4 py-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-red-500/30 pb-4">
+                        <div>
+                            <h2 className="text-3xl font-bold text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
+                                GOD MODE: Admin Telemetry & Resolution Terminal
+                            </h2>
+                            <p className="text-gray-400 font-mono text-xs mt-1">
+                                Access Level: OMEGA • Real-Time Visitor Viewership, Session Duration & User Complaint Desk
+                            </p>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setAdminTab('telemetry')}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+                                    adminTab === 'telemetry' ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                                }`}
+                            >
+                                📊 Live Viewership & Users
+                            </button>
+                            <button
+                                onClick={() => setAdminTab('complaints')}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+                                    adminTab === 'complaints' ? 'bg-brand text-black shadow-[0_0_15px_rgba(0,242,254,0.5)]' : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                                }`}
+                            >
+                                🛡️ User Complaints & Replies
+                            </button>
+                        </div>
                     </div>
+
+                    {adminTab === 'telemetry' ? (
+                        <>
+                            {/* Live Viewership & Session Duration KPI Cards */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                <div className="glass-panel p-5 rounded-2xl border border-emerald-500/30">
+                                    <div className="flex items-center justify-between text-xs text-emerald-400 font-mono uppercase">
+                                        <span>Live Viewers Now</span>
+                                        <span className="flex h-2.5 w-2.5 relative">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                        </span>
+                                    </div>
+                                    <div className="text-3xl font-black text-white mt-2">{onlineUsersCount} Online</div>
+                                    <div className="text-[11px] text-gray-400 mt-1">Active in last 2 minutes</div>
+                                </div>
+
+                                <div className="glass-panel p-5 rounded-2xl border border-brand/30">
+                                    <div className="flex items-center justify-between text-xs text-brand font-mono uppercase">
+                                        <span>Total Site Visits</span>
+                                        <Icons.Users />
+                                    </div>
+                                    <div className="text-3xl font-black text-white mt-2">{totalSiteVisits.toLocaleString()}</div>
+                                    <div className="text-[11px] text-gray-400 mt-1">{totalTrackedUsers} Unique Tracked Profiles</div>
+                                </div>
+
+                                <div className="glass-panel p-5 rounded-2xl border border-purple-500/30">
+                                    <div className="flex items-center justify-between text-xs text-purple-400 font-mono uppercase">
+                                        <span>Avg Time Spent / User</span>
+                                        <Icons.Clock />
+                                    </div>
+                                    <div className="text-3xl font-black text-white mt-2">{formatDuration(avgTimeSeconds)}</div>
+                                    <div className="text-[11px] text-gray-400 mt-1">Total engagement: {formatDuration(totalTimeAcrossUsers)}</div>
+                                </div>
+
+                                <div className="glass-panel p-5 rounded-2xl border border-amber-500/30">
+                                    <div className="flex items-center justify-between text-xs text-amber-400 font-mono uppercase">
+                                        <span>Your Current Session</span>
+                                        <Icons.Clock />
+                                    </div>
+                                    <div className="text-3xl font-black text-white mt-2">{formatDuration(siteStats?.currentSessionSeconds || 0)}</div>
+                                    <div className="text-[11px] text-gray-400 mt-1">Live heartbeat active</div>
+                                </div>
+                            </div>
+
+                            {/* Detailed Visitor & Time-Spent Table */}
+                            <div className="glass-panel p-6 rounded-3xl border border-red-500/20 overflow-x-auto">
+                                <h3 className="text-base font-bold text-white mb-4">
+                                    👥 Real-Time Visitor Sessions, Time Spent & Moderation Controls
+                                </h3>
+                                <table className="w-full text-left text-sm min-w-max">
+                                    <thead>
+                                        <tr className="border-b border-white/10 text-gray-400 text-xs uppercase font-mono">
+                                            <th className="pb-3 px-2">User / ID</th>
+                                            <th className="pb-3 px-2">Live Presence</th>
+                                            <th className="pb-3 px-2">Active Section</th>
+                                            <th className="pb-3 px-2">Time Spent on Site</th>
+                                            <th className="pb-3 px-2">Visits</th>
+                                            <th className="pb-3 px-2">Account Status</th>
+                                            <th className="pb-3 px-2">Override Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {users.map(u => {
+                                            const isOnline = (now - (u.lastActive || u.lastLogin || 0)) < 120000;
+                                            return (
+                                                <tr key={u.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition">
+                                                    <td className="py-4 px-2">
+                                                        <div className="font-bold text-white">{u.name || 'Explorer'}</div>
+                                                        <div className="font-mono text-[11px] text-gray-400">#{String(u.id).substring(0, 8)}</div>
+                                                    </td>
+                                                    <td className="py-4 px-2">
+                                                        {isOnline ? (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Online Now
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400 font-mono">Offline</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-4 px-2">
+                                                        <span className="px-2.5 py-1 rounded-lg bg-white/10 text-brand font-mono text-xs uppercase">
+                                                            {u.currentView || 'home'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 px-2 font-mono font-bold text-amber-300">
+                                                        ⏱ {formatDuration(u.timeSpentSeconds || 45)}
+                                                    </td>
+                                                    <td className="py-4 px-2 font-mono text-gray-300">
+                                                        {u.totalVisits || 1}
+                                                    </td>
+                                                    <td className="py-4 px-2">
+                                                        <span className={`px-2 py-1 rounded text-xs font-bold ${u.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                                            {u.status?.toUpperCase() || 'ACTIVE'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 px-2 flex gap-2">
+                                                        <button onClick={() => actionUser(u.id, 'active')} className="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/40 rounded text-xs transition">ACTIVATE</button>
+                                                        <button onClick={() => actionUser(u.id, 'timeout')} className="px-2.5 py-1 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/40 rounded text-xs transition">TIMEOUT</button>
+                                                        <button onClick={() => actionUser(u.id, 'banned')} className="px-2.5 py-1 bg-red-500/20 text-red-500 hover:bg-red-500/40 rounded text-xs transition">BAN</button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    ) : (
+                        <ComplaintDesk user={currentUser} notify={notify} />
+                    )}
                 </div>
             );
         };
@@ -3608,7 +4510,54 @@
             const [confirmPassword, setConfirmPassword] = useState('');
             const [signupAvatar, setSignupAvatar] = useState(null);
 
+            const [siteStats, setSiteStats] = useState(() => {
+                const prevVisits = parseInt(localStorage.getItem('atlas_total_site_visits_v2') || '128', 10) + 1;
+                localStorage.setItem('atlas_total_site_visits_v2', String(prevVisits));
+                return { totalVisits: prevVisits, currentSessionSeconds: 0 };
+            });
+
             const triggerToast = (msg, type = 'success') => setToastData({ message: msg, type });
+
+            // Track how many seconds each user spends on the site in real time
+            useEffect(() => {
+                if (!user) return;
+                const interval = setInterval(() => {
+                    setSiteStats(prev => {
+                        const nextSessionSec = prev.currentSessionSeconds + 1;
+                        try {
+                            const regRaw = localStorage.getItem('atlas_visitor_registry_v2');
+                            const reg = regRaw ? JSON.parse(regRaw) : {};
+                            const existing = reg[user.uid] || { id: user.uid, timeSpentSeconds: 0, totalVisits: 1 };
+                            const updatedEntry = {
+                                ...existing,
+                                id: user.uid,
+                                name: user.name,
+                                email: user.email || '',
+                                status: existing.status || 'active',
+                                currentView: view,
+                                timeSpentSeconds: (existing.timeSpentSeconds || 0) + 1,
+                                lastActive: Date.now()
+                            };
+                            reg[user.uid] = updatedEntry;
+                            localStorage.setItem('atlas_visitor_registry_v2', JSON.stringify(reg));
+
+                            // Sync to Firestore every 15 seconds if online
+                            if (nextSessionSec % 15 === 0 && db && fb && user.uid) {
+                                const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
+                                fb.setDoc(userRef, {
+                                    id: user.uid,
+                                    name: user.name,
+                                    currentView: view,
+                                    timeSpentSeconds: updatedEntry.timeSpentSeconds,
+                                    lastActive: Date.now()
+                                }, { merge: true }).catch(() => {});
+                            }
+                        } catch (e) {}
+                        return { ...prev, currentSessionSeconds: nextSessionSec };
+                    });
+                }, 1000);
+                return () => clearInterval(interval);
+            }, [user, view]);
 
             useEffect(() => {
                 localStorage.setItem('atlas_theme_v2', theme);
@@ -4327,6 +5276,19 @@
                                 <span>NICL AO IT Exam</span>
                             </button>
 
+                            <button
+                                onClick={() => navigate('complaints')}
+                                className={`hidden sm:flex px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition items-center gap-1.5 border ${
+                                    view === 'complaints'
+                                        ? 'bg-purple-500 text-white border-purple-400'
+                                        : 'bg-white/5 text-gray-300 border-white/15 hover:bg-white/10'
+                                }`}
+                                title="Report an issue or check Admin replies"
+                            >
+                                <Icons.Support />
+                                <span>Help / Complaint</span>
+                            </button>
+
                             <div className="flex items-center gap-2.5 cursor-pointer hover:bg-white/10 p-1 pr-3 rounded-full transition border border-transparent hover:border-white/15" onClick={() => navigate('profile')} title="Click to edit your Name or Photo">
                                 <img
                                     src={user.avatar || `https://placehold.co/100x100/0f2942/00f2fe?text=${encodeURIComponent((user.name || 'U').charAt(0).toUpperCase())}`}
@@ -4368,12 +5330,22 @@
                                     >
                                         <Icons.Academic /> NICL AO IT Exam Hub
                                     </button>
+                                    <button
+                                        onClick={() => navigate('complaints')}
+                                        className={`text-left px-4 py-3 rounded transition uppercase tracking-wider text-sm font-bold border mt-2 flex items-center gap-2 ${
+                                            view === 'complaints'
+                                                ? 'bg-purple-500 text-white border-purple-400'
+                                                : 'bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border-purple-500/40'
+                                        }`}
+                                    >
+                                        <Icons.Support /> Help & Complaint Box
+                                    </button>
                                     <button onClick={() => navigate('terminal')} className="text-left px-4 py-3 rounded hover:bg-brand/20 text-brand transition uppercase tracking-wider text-sm font-bold border border-brand/20 mt-2">
                                         &gt;_ Terminal
                                     </button>
                                     {user?.role === 'admin' && (
                                         <button onClick={() => navigate('admin')} className="text-left px-4 py-3 rounded hover:bg-red-500/20 text-red-400 transition uppercase tracking-wider text-sm font-bold border border-red-500/20 mt-4">
-                                            Admin System
+                                            Admin System (Viewers & Tickets)
                                         </button>
                                     )}
                                 </div>
@@ -4393,9 +5365,10 @@
                         {view === 'education' && <Education />}
                         {view === 'projects' && <Projects />}
                         {view === 'nicl_exam' && <NICLExamSimulator user={user} notify={triggerToast} />}
+                        {view === 'complaints' && <ComplaintDesk user={user} notify={triggerToast} />}
                         {view === 'profile' && <ProfileSettings user={user} setUser={setUser} setAdminProfile={setAdminProfile} theme={theme} setTheme={setTheme} notify={triggerToast} />}
                         {view === 'terminal' && <InteractiveTerminal />}
-                        {view === 'admin' && user?.role === 'admin' && <AdminDashboard currentUser={user} notify={triggerToast} />}
+                        {view === 'admin' && user?.role === 'admin' && <AdminDashboard currentUser={user} notify={triggerToast} siteStats={siteStats} />}
                         {view === 'admin' && user?.role !== 'admin' && (
                             <div className="flex justify-center items-center h-[50vh]"><p className="text-red-500 font-mono text-xl border border-red-500 p-4 bg-red-500/10 rounded">ACCESS DENIED. OMEGA PRIVILEGES REQUIRED.</p></div>
                         )}
@@ -4406,8 +5379,8 @@
                         <div className="glass-panel mx-auto max-w-2xl rounded-2xl h-14 flex items-center justify-around px-4 pointer-events-auto shadow-2xl border border-white/10">
                            <button onClick={()=>navigate('home')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='home'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Overview</button>
                            <button onClick={()=>navigate('projects')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='projects'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Work</button>
-                           <button onClick={()=>navigate('skills')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='skills'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Arsenal</button>
                            <button onClick={()=>navigate('nicl_exam')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition flex items-center gap-1 ${view==='nicl_exam'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-emerald-400'}`}>★ NICL Exam</button>
+                           <button onClick={()=>navigate('complaints')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='complaints'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-purple-400'}`}>Support</button>
                            <button onClick={()=>navigate('profile')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='profile'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Profile</button>
                         </div>
                     </div>
