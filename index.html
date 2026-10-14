@@ -401,22 +401,24 @@
         const generateProceduralNICLQuestions = () => {
             const list = [];
 
-            // 1. Dynamic IPv4 Subnetting (IT)
+            // 1. Dynamic IPv4 CIDR & VLSM Subnetting (IT)
             const prefixes = [
                 { cidr: 25, mask: "255.255.255.128", block: 128, hosts: 126, subnets: 2 },
                 { cidr: 26, mask: "255.255.255.192", block: 64,  hosts: 62,  subnets: 4 },
                 { cidr: 27, mask: "255.255.255.224", block: 32,  hosts: 30,  subnets: 8 },
                 { cidr: 28, mask: "255.255.255.240", block: 16,  hosts: 14,  subnets: 16 },
-                { cidr: 29, mask: "255.255.255.248", block: 8,   hosts: 6,   subnets: 32 }
+                { cidr: 29, mask: "255.255.255.248", block: 8,   hosts: 6,   subnets: 32 },
+                { cidr: 30, mask: "255.255.255.252", block: 4,   hosts: 2,   subnets: 64 }
             ];
             const p = pickOne(prefixes);
+            const oct2 = randInt(16, 31);
             const oct3 = randInt(10, 240);
-            const subIdx = randInt(0, Math.min(p.subnets - 1, 3));
+            const subIdx = randInt(0, Math.min(p.subnets - 1, 5));
             const netStart = subIdx * p.block;
             const hostOffset = randInt(1, p.hosts);
-            const ip = `172.16.${oct3}.${netStart + hostOffset}/${p.cidr}`;
-            const netID = `172.16.${oct3}.${netStart}`;
-            const bcast = `172.16.${oct3}.${netStart + p.block - 1}`;
+            const ip = `172.${oct2}.${oct3}.${netStart + hostOffset}/${p.cidr}`;
+            const netID = `172.${oct2}.${oct3}.${netStart}`;
+            const bcast = `172.${oct2}.${oct3}.${netStart + p.block - 1}`;
 
             list.push(buildExamMCQ({
                 section: "IT", phase: "MAINS",
@@ -425,18 +427,80 @@
                 stem: `An NICL Regional Data Center host is assigned the IPv4 address ${ip}. Identify its Subnet Mask, Usable Host capacity, Network ID, and Directed Broadcast Address.`,
                 correctText: `Mask: ${p.mask} | Hosts: ${p.hosts} | NetID: ${netID} | Broadcast: ${bcast}`,
                 distractors: [
-                    `Mask: ${p.mask} | Hosts: ${p.block} | NetID: ${netID} | Broadcast: 172.16.${oct3}.${netStart + p.block}`,
-                    `Mask: 255.255.255.0 | Hosts: 254 | NetID: 172.16.${oct3}.0 | Broadcast: 172.16.${oct3}.255`,
-                    `Mask: ${p.mask} | Hosts: ${p.hosts} | NetID: 172.16.${oct3}.${netStart + 1} | Broadcast: ${bcast}`,
-                    `Mask: ${p.mask} | Hosts: ${p.hosts - 2} | NetID: ${netID} | Broadcast: 172.16.${oct3}.${netStart + p.hosts}`
+                    `Mask: ${p.mask} | Hosts: ${p.block} | NetID: ${netID} | Broadcast: 172.${oct2}.${oct3}.${netStart + p.block}`,
+                    `Mask: 255.255.255.0 | Hosts: 254 | NetID: 172.${oct2}.${oct3}.0 | Broadcast: 172.${oct2}.${oct3}.255`,
+                    `Mask: ${p.mask} | Hosts: ${p.hosts} | NetID: 172.${oct2}.${oct3}.${netStart + 1} | Broadcast: ${bcast}`,
+                    `Mask: ${p.mask} | Hosts: ${Math.max(1, p.hosts - 2)} | NetID: ${netID} | Broadcast: 172.${oct2}.${oct3}.${netStart + p.hosts}`
                 ],
                 explanation: `/${p.cidr} leaves ${32 - p.cidr} host bits. Block size = 2^${32 - p.cidr} = ${p.block}, Usable hosts = ${p.block} - 2 = ${p.hosts}. The subnet containing .${netStart + hostOffset} starts at ${netID} and broadcasts at ${bcast}.`
             }));
 
-            // 2. Dynamic OS TLB Effective Memory Access Time (IT)
-            const hitRate = pickOne([80, 85, 90, 92, 95]);
-            const tlbNs = pickOne([10, 15, 20]);
-            const memNs = pickOne([100, 120, 150]);
+            // 2. Dynamic TCP 3-Way Handshake & Payload Sequence Number Generator (IT)
+            const clientISN = randInt(1200, 8500);
+            const serverISN = randInt(4000, 9900);
+            const payloadBytes = pickOne([256, 512, 1024, 1460]);
+            const serverAck1 = clientISN + 1;
+            const clientAckAfterData = clientISN + 1 + payloadBytes;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Computer Networks • TCP Sequence & ACK Numbers",
+                dynamicTag: true,
+                stem: `A client initiates a TCP connection with SYN (Seq = ${clientISN}). The server replies with SYN-ACK (Seq = ${serverISN}, Ack = ${serverAck1}). Immediately after the 3-way handshake, the client sends a data segment carrying ${payloadBytes} bytes of payload. What will be the Acknowledgment Number sent by the server if all ${payloadBytes} bytes are received error-free?`,
+                correctText: `Ack = ${clientAckAfterData}`,
+                distractors: [
+                    `Ack = ${clientISN + payloadBytes}`,
+                    `Ack = ${serverISN + payloadBytes + 1}`,
+                    `Ack = ${clientAckAfterData + 1}`,
+                    `Ack = ${serverAck1}`
+                ],
+                explanation: `The SYN flag consumes 1 sequence number, so the first data byte starts at Seq = ${serverAck1}, spanning bytes ${serverAck1} through ${clientAckAfterData - 1}. TCP uses cumulative acknowledgments (next expected byte), so the server replies with Ack = ${serverAck1} + ${payloadBytes} = ${clientAckAfterData}.`
+            }));
+
+            // 3. Dynamic TCP Congestion Window (RTO vs 3-Dup ACK) Generator (IT)
+            const cwndInit = pickOne([24, 32, 40, 48, 64]);
+            const isTimeout = Math.random() > 0.5;
+            const newSsthresh = cwndInit / 2;
+            const newCwnd = isTimeout ? 1 : newSsthresh;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Computer Networks • TCP Congestion Control",
+                dynamicTag: true,
+                stem: `A TCP connection currently operates with a Congestion Window (cwnd) of ${cwndInit} MSS. If a ${isTimeout ? 'Retransmission Timeout (RTO) timer expires' : 'Triple Duplicate ACK (3-Dup ACK in TCP Reno) occurs'}, what are the updated values of ssthresh and cwnd?`,
+                correctText: `ssthresh = ${newSsthresh} MSS | cwnd = ${newCwnd} MSS`,
+                distractors: [
+                    `ssthresh = ${newSsthresh} MSS | cwnd = ${isTimeout ? newSsthresh : 1} MSS`,
+                    `ssthresh = ${cwndInit} MSS | cwnd = ${newSsthresh} MSS`,
+                    `ssthresh = ${newSsthresh / 2} MSS | cwnd = 1 MSS`,
+                    `ssthresh = ${cwndInit - 4} MSS | cwnd = ${newCwnd + 2} MSS`
+                ],
+                explanation: `When cwnd = ${cwndInit} MSS, ssthresh is set to cwnd / 2 = ${newSsthresh} MSS. ${isTimeout ? 'On a Retransmission Timeout (RTO), TCP resets cwnd to 1 MSS and enters Slow Start.' : 'On 3-Duplicate ACKs, TCP Reno performs Fast Retransmit / Fast Recovery and halves cwnd to ssthresh (' + newSsthresh + ' MSS) without dropping to 1 MSS.'}`
+            }));
+
+            // 4. Dynamic Hamming Code Parity Bits Generator (IT)
+            const dataBitsM = pickOne([8, 11, 16, 24, 32, 48, 64]);
+            let parityR = 1;
+            while (Math.pow(2, parityR) < (dataBitsM + parityR + 1)) {
+                parityR++;
+            }
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Computer Networks • Hamming Code Error Correction",
+                dynamicTag: true,
+                stem: `To protect a ${dataBitsM}-bit data word against single-bit transmission errors using Hamming Code, what is the minimum number of parity bits (r) required, and what is the total codeword length (n = m + r)?`,
+                correctText: `r = ${parityR} parity bits | Total codeword = ${dataBitsM + parityR} bits`,
+                distractors: [
+                    `r = ${parityR - 1} parity bits | Total codeword = ${dataBitsM + parityR - 1} bits`,
+                    `r = ${parityR + 1} parity bits | Total codeword = ${dataBitsM + parityR + 1} bits`,
+                    `r = ${parityR} parity bits | Total codeword = ${dataBitsM * 2} bits`,
+                    `r = ${parityR + 2} parity bits | Total codeword = ${dataBitsM + parityR + 2} bits`
+                ],
+                explanation: `Hamming's inequality requires 2^r ≥ m + r + 1. For m = ${dataBitsM}: 2^${parityR - 1} = ${Math.pow(2, parityR - 1)} < ${dataBitsM + parityR}, whereas 2^${parityR} = ${Math.pow(2, parityR)} ≥ ${dataBitsM} + ${parityR} + 1 (${dataBitsM + parityR + 1}). Thus r = ${parityR} and total codeword length = ${dataBitsM + parityR} bits.`
+            }));
+
+            // 5. Dynamic OS TLB Effective Memory Access Time (IT)
+            const hitRate = pickOne([75, 80, 85, 90, 92, 95, 96]);
+            const tlbNs = pickOne([10, 12, 15, 20]);
+            const memNs = pickOne([100, 120, 140, 150, 200]);
             const h = hitRate / 100;
             const eat = +(h * (tlbNs + memNs) + (1 - h) * (tlbNs + 2 * memNs)).toFixed(2);
             list.push(buildExamMCQ({
@@ -454,27 +518,225 @@
                 explanation: `EAT = h × (T_tlb + T_mem) + (1 - h) × (T_tlb + 2 × T_mem) = ${h} × (${tlbNs + memNs}) + ${(1 - h).toFixed(2)} × (${tlbNs + 2 * memNs}) = ${eat} ns.`
             }));
 
-            // 3. Dynamic 2D Array Memory Address Calculation (IT)
-            const rows = randInt(12, 24);
-            const cols = randInt(15, 30);
-            const baseAddr = pickOne([1000, 2000, 4000]);
+            // 6. Dynamic OS Non-Preemptive SJF CPU Scheduling (IT)
+            const b1 = randInt(6, 11), b2 = randInt(2, 5), b3 = randInt(12, 17), b4 = randInt(5, 9);
+            const sortedBursts = [b1, b2, b3, b4].sort((a, b) => a - b);
+            const wtTotal = 0 + sortedBursts[0] + (sortedBursts[0] + sortedBursts[1]) + (sortedBursts[0] + sortedBursts[1] + sortedBursts[2]);
+            const avgWT = (wtTotal / 4).toFixed(2);
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • SJF CPU Scheduling",
+                dynamicTag: true,
+                stem: `Four batch jobs arrive at time t = 0 with CPU burst times: P1 = ${b1} ms, P2 = ${b2} ms, P3 = ${b3} ms, and P4 = ${b4} ms. Using Non-Preemptive Shortest Job First (SJF), what is the Average Waiting Time?`,
+                correctText: `${avgWT} ms`,
+                distractors: [
+                    `${(wtTotal / 4 + 1.75).toFixed(2)} ms`,
+                    `${(wtTotal / 4 - 1.25).toFixed(2)} ms`,
+                    `${((b1 + (b1 + b2) + (b1 + b2 + b3)) / 4).toFixed(2)} ms`,
+                    `${((wtTotal + sortedBursts[3]) / 4).toFixed(2)} ms`
+                ],
+                explanation: `Sorted burst order: ${sortedBursts.join(' ms → ')} ms. Individual waiting times: 0, ${sortedBursts[0]}, ${sortedBursts[0] + sortedBursts[1]}, and ${sortedBursts[0] + sortedBursts[1] + sortedBursts[2]} ms. Total WT = ${wtTotal} ms; Average WT = ${wtTotal} / 4 = ${avgWT} ms.`
+            }));
+
+            // 7. Dynamic Live LRU Page Replacement Simulator (IT)
+            const refPool = [1, 2, 3, 4, 5, 6];
+            const refSeq = [refPool[0], refPool[1], refPool[2], refPool[3], refPool[0], refPool[1], refPool[4], refPool[0], refPool[1], refPool[5]];
+            const framesCount = 3;
+            let lruFrames = [];
+            let lruFaults = 0;
+            refSeq.forEach(pg => {
+                const idx = lruFrames.indexOf(pg);
+                if (idx !== -1) {
+                    lruFrames.splice(idx, 1);
+                    lruFrames.push(pg);
+                } else {
+                    lruFaults++;
+                    if (lruFrames.length === framesCount) lruFrames.shift();
+                    lruFrames.push(pg);
+                }
+            });
+            const lruHits = refSeq.length - lruFaults;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • LRU Page Replacement",
+                dynamicTag: true,
+                stem: `Consider the page reference string: ${refSeq.join(', ')} with ${framesCount} initially empty physical page frames. Using the Least Recently Used (LRU) page replacement algorithm, how many Page Faults and Page Hits occur?`,
+                correctText: `${lruFaults} Page Faults and ${lruHits} Page Hits`,
+                distractors: [
+                    `${lruFaults - 1} Page Faults and ${lruHits + 1} Page Hits`,
+                    `${lruFaults + 1} Page Faults and ${lruHits - 1} Page Hits`,
+                    `${lruFaults + 2} Page Faults and ${lruHits - 2} Page Hits`,
+                    `${lruHits} Page Faults and ${lruFaults} Page Hits`
+                ],
+                explanation: `Tracing the 10 references across ${framesCount} frames under LRU: the first 4 distinct pages (${refSeq.slice(0,4).join(', ')}) cause 4 faults; references to ${refSeq[4]} and ${refSeq[5]} are hits; ${refSeq[6]} faults; ${refSeq[7]} and ${refSeq[8]} are hits; ${refSeq[9]} faults. Total = ${lruFaults} Page Faults and ${lruHits} Page Hits.`
+            }));
+
+            // 8. Dynamic OS Deadlock Minimum Resources Formula (IT)
+            const numProcs = randInt(4, 9);
+            const maxNeedK = randInt(3, 7);
+            const minRes = numProcs * (maxNeedK - 1) + 1;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • Deadlock Prevention",
+                dynamicTag: true,
+                stem: `A system has ${numProcs} concurrent processes, where each process requires a maximum of ${maxNeedK} instances of identical tape drives. What is the MINIMUM number of tape drives required so the system is guaranteed to be deadlock-free?`,
+                correctText: `${minRes}`,
+                distractors: [`${numProcs * maxNeedK}`, `${minRes - 1}`, `${minRes + 1}`, `${numProcs + maxNeedK}`],
+                explanation: `To guarantee freedom from deadlock, Total Resources R ≥ P × (K - 1) + 1 = ${numProcs} × (${maxNeedK} - 1) + 1 = ${minRes}.`
+            }));
+
+            // 9. Dynamic Counting Semaphore Wait/Signal Calculator (IT)
+            const semInit = randInt(8, 16);
+            const waitOps = randInt(semInit + 2, semInit + 9);
+            const signalOps = randInt(1, waitOps - semInit - 1);
+            const semFinal = semInit - waitOps + signalOps;
+            const blockedCount = Math.abs(semFinal);
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • Counting Semaphores",
+                dynamicTag: true,
+                stem: `A counting semaphore S is initialized to ${semInit}. Subsequently, ${waitOps} P(wait) operations and ${signalOps} V(signal) operations are executed on S. What is the final value of S, and how many processes are blocked waiting on S?`,
+                correctText: `Final value = ${semFinal} | Blocked processes = ${blockedCount}`,
+                distractors: [
+                    `Final value = +${blockedCount} | Blocked processes = 0`,
+                    `Final value = ${semFinal} | Blocked processes = ${waitOps - signalOps}`,
+                    `Final value = 0 | Blocked processes = ${blockedCount}`,
+                    `Final value = ${semFinal - 1} | Blocked processes = ${blockedCount + 1}`
+                ],
+                explanation: `Each P(wait) decrements S by 1 and each V(signal) increments S by 1: Final S = ${semInit} - ${waitOps} + ${signalOps} = ${semFinal}. When a counting semaphore is negative (${semFinal}), its magnitude (${blockedCount}) represents the exact number of processes queued in the blocked state.`
+            }));
+
+            // 10. Dynamic Linux chmod Octal Permission Generator (IT)
+            const octMap = {
+                7: "rwx", 6: "rw-", 5: "r-x", 4: "r--", 0: "---"
+            };
+            const uOct = pickOne([7, 6]);
+            const gOct = pickOne([5, 4]);
+            const oOct = pickOne([4, 0]);
+            const chmodCode = `${uOct}${gOct}${oOct}`;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • Linux File Permissions",
+                dynamicTag: true,
+                stem: `An NICL DevOps engineer executes \`chmod ${chmodCode} policy_sync.sh\` on a RHEL server. Which symbolic permission string is applied?`,
+                correctText: `Owner: ${octMap[uOct]} | Group: ${octMap[gOct]} | Others: ${octMap[oOct]}`,
+                distractors: [
+                    `Owner: ${octMap[gOct]} | Group: ${octMap[uOct]} | Others: ${octMap[oOct]}`,
+                    `Owner: rwx | Group: rwx | Others: r-x`,
+                    `Owner: ${octMap[uOct]} | Group: rw- | Others: r-x`,
+                    `Owner: r-x | Group: r-- | Others: ---`
+                ],
+                explanation: `In octal chmod notation (4=Read, 2=Write, 1=Execute): ${uOct} = ${octMap[uOct]} (Owner), ${gOct} = ${octMap[gOct]} (Group), and ${oOct} = ${octMap[oOct]} (Others).`
+            }));
+
+            // 11. Dynamic fork() Child Process Counter (IT)
+            const forkCount = randInt(3, 6);
+            const totalProcs = Math.pow(2, forkCount);
+            const childProcs = totalProcs - 1;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • Process Creation (fork)",
+                dynamicTag: true,
+                stem: `A C program executes ${forkCount} sequential unconditional \`fork()\` system calls. Assuming all calls succeed, how many NEW child processes are spawned, and how many TOTAL processes exist?`,
+                correctText: `${childProcs} child processes (${totalProcs} total processes)`,
+                distractors: [
+                    `${totalProcs} child processes (${totalProcs + 1} total processes)`,
+                    `${forkCount * 2} child processes (${forkCount * 2 + 1} total processes)`,
+                    `${Math.pow(2, forkCount - 1)} child processes (${totalProcs} total processes)`,
+                    `${forkCount} child processes (${forkCount + 1} total processes)`
+                ],
+                explanation: `n unconditional fork() calls create 2^n total processes and (2^n - 1) newly spawned child processes. For n = ${forkCount}: 2^${forkCount} = ${totalProcs} total processes and ${childProcs} child processes.`
+            }));
+
+            // 12. Dynamic DBMS SQL Aggregate & NULL Simulator (IT)
+            const v1 = randInt(1, 4) * 1000;
+            const v2 = randInt(5, 8) * 1000;
+            const v3 = randInt(9, 12) * 1000;
+            const nullCnt = randInt(2, 4);
+            const nonNullRows = [v1, v2, v1, v3, v2, v1];
+            const totalTableRows = nonNullRows.length + nullCnt;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "SQL • Aggregate Functions & NULL Semantics",
+                dynamicTag: true,
+                stem: `A table CLAIMS has ${totalTableRows} rows. The column CLAIM_AMT contains the non-null values (${nonNullRows.join(', ')}) along with ${nullCnt} NULL rows. What are the outputs of COUNT(*), COUNT(CLAIM_AMT), and COUNT(DISTINCT CLAIM_AMT)?`,
+                correctText: `${totalTableRows}, ${nonNullRows.length}, and 3`,
+                distractors: [
+                    `${totalTableRows}, ${totalTableRows}, and 3`,
+                    `${nonNullRows.length}, ${nonNullRows.length}, and 4`,
+                    `${totalTableRows}, ${nonNullRows.length}, and 4`,
+                    `${nonNullRows.length}, 3, and 3`
+                ],
+                explanation: `COUNT(*) counts all ${totalTableRows} rows including the ${nullCnt} NULLs. COUNT(CLAIM_AMT) ignores NULLs and returns ${nonNullRows.length}. COUNT(DISTINCT CLAIM_AMT) counts the unique non-null values {${v1}, ${v2}, ${v3}}, returning 3.`
+            }));
+
+            // 13. Dynamic SQL JOIN Row Cardinality Calculator (IT)
+            const t1Total = randInt(8, 15);
+            const t2Total = randInt(6, 12);
+            const matchedRows = randInt(3, Math.min(t1Total - 2, t2Total - 2));
+            const leftJoinRows = t1Total;
+            const fullJoinRows = t1Total + (t2Total - matchedRows);
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "SQL • INNER, LEFT & FULL OUTER JOIN Cardinality",
+                dynamicTag: true,
+                stem: `Table BRANCH_A has ${t1Total} rows and Table BRANCH_B has ${t2Total} rows (with unique primary key PolicyID in both tables). Exactly ${matchedRows} PolicyIDs are common to both tables. How many rows are returned by (i) INNER JOIN, (ii) LEFT OUTER JOIN, and (iii) FULL OUTER JOIN on PolicyID?`,
+                correctText: `INNER: ${matchedRows} | LEFT OUTER: ${leftJoinRows} | FULL OUTER: ${fullJoinRows}`,
+                distractors: [
+                    `INNER: ${matchedRows} | LEFT OUTER: ${t1Total + matchedRows} | FULL OUTER: ${t1Total + t2Total}`,
+                    `INNER: ${t1Total} | LEFT OUTER: ${t2Total} | FULL OUTER: ${fullJoinRows}`,
+                    `INNER: ${matchedRows} | LEFT OUTER: ${leftJoinRows} | FULL OUTER: ${t1Total + t2Total}`,
+                    `INNER: ${matchedRows * 2} | LEFT OUTER: ${leftJoinRows} | FULL OUTER: ${fullJoinRows}`
+                ],
+                explanation: `Since PolicyID is unique in both tables: INNER JOIN returns the ${matchedRows} matching rows. LEFT OUTER JOIN returns ${matchedRows} matched + (${t1Total} - ${matchedRows}) unmatched left rows = ${leftJoinRows}. FULL OUTER JOIN returns ${t1Total} + ${t2Total} - ${matchedRows} = ${fullJoinRows} rows.`
+            }));
+
+            // 14. Dynamic DBMS B+ Tree Order & Node Capacity Calculator (IT)
+            const bOrderP = pickOne([5, 7, 9, 11, 13]);
+            const minPtrs = Math.ceil(bOrderP / 2);
+            const minKeys = minPtrs - 1;
+            const maxKeys = bOrderP - 1;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "DBMS • B+ Tree Indexing Structure",
+                dynamicTag: true,
+                stem: `In a B+ Tree of order p = ${bOrderP} (where each internal node can hold at most ${bOrderP} block pointers), what are the MINIMUM and MAXIMUM number of search keys allowed in a non-root internal node?`,
+                correctText: `Minimum: ${minKeys} keys | Maximum: ${maxKeys} keys`,
+                distractors: [
+                    `Minimum: ${minPtrs} keys | Maximum: ${bOrderP} keys`,
+                    `Minimum: ${minKeys - 1} keys | Maximum: ${maxKeys} keys`,
+                    `Minimum: ${minKeys} keys | Maximum: ${bOrderP} keys`,
+                    `Minimum: ${Math.floor(bOrderP / 2)} keys | Maximum: ${maxKeys + 1} keys`
+                ],
+                explanation: `An internal non-root node of order p = ${bOrderP} holds between ceil(p/2) = ${minPtrs} and p = ${bOrderP} pointers, which corresponds to between ceil(p/2) - 1 = ${minKeys} keys and p - 1 = ${maxKeys} search keys.`
+            }));
+
+            // 15. Dynamic 2D Array Memory Address Calculation (IT)
+            const rows = randInt(12, 26);
+            const cols = randInt(15, 32);
+            const baseAddr = pickOne([1000, 2000, 3000, 4000]);
             const elemSize = pickOne([4, 8]);
             const r = randInt(3, rows - 3);
             const c = randInt(3, cols - 3);
+            const isRowMajor = Math.random() > 0.4;
             const rowMajor = baseAddr + ((r * cols) + c) * elemSize;
             const colMajor = baseAddr + ((c * rows) + r) * elemSize;
+            const correctAddr = isRowMajor ? rowMajor : colMajor;
+            const oppositeAddr = isRowMajor ? colMajor : rowMajor;
             list.push(buildExamMCQ({
                 section: "IT", phase: "MAINS",
                 topic: "Data Structures • 2D Array Addressing",
                 dynamicTag: true,
-                stem: `A 0-indexed 2D array A[${rows}][${cols}] is stored in Row-Major Order starting at base address ${baseAddr}, where each element occupies ${elemSize} bytes. What is the exact memory address of A[${r}][${c}]?`,
-                correctText: `${rowMajor}`,
-                distractors: [`${colMajor}`, `${rowMajor - elemSize}`, `${rowMajor + cols * elemSize}`, `${baseAddr + r * c * elemSize}`],
-                explanation: `In 0-indexed Row-Major Order: Address(A[i][j]) = Base + (i × Total_Columns + j) × Size = ${baseAddr} + (${r} × ${cols} + ${c}) × ${elemSize} = ${rowMajor}.`
+                stem: `A 0-indexed 2D array A[${rows}][${cols}] is stored in ${isRowMajor ? 'Row-Major' : 'Column-Major'} Order starting at base address ${baseAddr}, where each element occupies ${elemSize} bytes. What is the exact memory address of A[${r}][${c}]?`,
+                correctText: `${correctAddr}`,
+                distractors: [`${oppositeAddr}`, `${correctAddr - elemSize}`, `${correctAddr + cols * elemSize}`, `${baseAddr + r * c * elemSize}`],
+                explanation: isRowMajor
+                    ? `In 0-indexed Row-Major Order: Address(A[i][j]) = Base + (i × Total_Columns + j) × Size = ${baseAddr} + (${r} × ${cols} + ${c}) × ${elemSize} = ${rowMajor}.`
+                    : `In 0-indexed Column-Major Order: Address(A[i][j]) = Base + (j × Total_Rows + i) × Size = ${baseAddr} + (${c} × ${rows} + ${r}) × ${elemSize} = ${colMajor}.`
             }));
 
-            // 4. Dynamic Stack Postfix Evaluation (IT)
-            const pA = randInt(4, 9), pB = randInt(2, 6), pC = randInt(3, 5), pD = randInt(2, 7);
+            // 16. Dynamic Stack Postfix Evaluation (IT)
+            const pA = randInt(4, 11), pB = randInt(2, 7), pC = randInt(3, 6), pD = randInt(2, 9);
             const postVal = pA + (pB * pC) - pD;
             list.push(buildExamMCQ({
                 section: "IT", phase: "MAINS",
@@ -486,9 +748,63 @@
                 explanation: `Push ${pA}, ${pB}, ${pC}. '*' pops ${pC} & ${pB} → ${pB * pC}. '+' pops ${pB * pC} & ${pA} → ${pA + pB * pC}. Push ${pD}. '-' computes ${pA + pB * pC} - ${pD} = ${postVal}.`
             }));
 
-            // 5. Dynamic Software Engineering Cyclomatic Complexity (IT)
-            const cfgN = randInt(12, 26);
-            const cfgPred = randInt(4, 9);
+            // 17. Dynamic Hashing Linear Probing Generator (IT)
+            const hashM = pickOne([7, 11, 13]);
+            const remBase = randInt(1, hashM - 5);
+            const hk1 = hashM + remBase, hk2 = 2 * hashM + remBase, hk3 = 3 * hashM + remBase, hk4 = hashM + remBase + 1;
+            const slotAns = (remBase + 3) % hashM;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Data Structures • Hashing & Linear Probing",
+                dynamicTag: true,
+                stem: `A hash table of size m = ${hashM} (indices 0 to ${hashM - 1}) uses h(k) = k mod ${hashM} with Linear Probing. If keys ${hk1}, ${hk2}, ${hk3}, and ${hk4} are inserted in order into an empty table, at which index is ${hk4} placed?`,
+                correctText: `Index ${slotAns}`,
+                distractors: [`Index ${(remBase + 1) % hashM}`, `Index ${(remBase + 2) % hashM}`, `Index ${remBase}`, `Index ${(remBase + 4) % hashM}`],
+                explanation: `${hk1} → slot ${remBase}; ${hk2} collides at ${remBase} → slot ${remBase + 1}; ${hk3} collides at ${remBase}, ${remBase + 1} → slot ${remBase + 2}; ${hk4} hashes to ${remBase + 1} (occupied) and probes to slot ${slotAns}.`
+            }));
+
+            // 18. Dynamic Binary Heap Array Index Calculator (IT)
+            const heapIdx = randInt(7, 25);
+            const parentIdx = Math.floor((heapIdx - 1) / 2);
+            const leftChildIdx = 2 * heapIdx + 1;
+            const rightChildIdx = 2 * heapIdx + 2;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Data Structures • Binary Heap Array Representation",
+                dynamicTag: true,
+                stem: `In a 0-indexed array representation of a Complete Binary Heap, a node is located at index i = ${heapIdx}. What are the exact indices of its Parent node, Left Child, and Right Child?`,
+                correctText: `Parent: ${parentIdx} | Left Child: ${leftChildIdx} | Right Child: ${rightChildIdx}`,
+                distractors: [
+                    `Parent: ${Math.floor(heapIdx / 2)} | Left Child: ${2 * heapIdx} | Right Child: ${2 * heapIdx + 1}`,
+                    `Parent: ${parentIdx + 1} | Left Child: ${leftChildIdx} | Right Child: ${rightChildIdx + 1}`,
+                    `Parent: ${parentIdx} | Left Child: ${2 * heapIdx} | Right Child: ${leftChildIdx}`,
+                    `Parent: ${parentIdx - 1} | Left Child: ${leftChildIdx + 1} | Right Child: ${rightChildIdx + 1}`
+                ],
+                explanation: `For a 0-indexed binary heap at index i = ${heapIdx}: Parent = floor((i - 1)/2) = ${parentIdx}; Left Child = 2i + 1 = ${leftChildIdx}; Right Child = 2i + 2 = ${rightChildIdx}.`
+            }));
+
+            // 19. Dynamic Graph Handshaking Theorem Calculator (IT)
+            const gVertices = randInt(8, 16);
+            const gDegree = pickOne([3, 4]);
+            const gEdges = (gVertices * gDegree) / 2;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Data Structures • Graph Theory (Handshaking Lemma)",
+                dynamicTag: true,
+                stem: `An undirected regular network graph has ${gVertices} vertices, where every vertex has a degree of ${gDegree}. How many edges does the graph contain, and how many edges are in its Minimum Spanning Tree (MST)?`,
+                correctText: `Total Edges: ${gEdges} | MST Edges: ${gVertices - 1}`,
+                distractors: [
+                    `Total Edges: ${gVertices * gDegree} | MST Edges: ${gVertices}`,
+                    `Total Edges: ${gEdges} | MST Edges: ${gEdges - 1}`,
+                    `Total Edges: ${gEdges + gVertices} | MST Edges: ${gVertices - 1}`,
+                    `Total Edges: ${gEdges - 2} | MST Edges: ${gVertices - 2}`
+                ],
+                explanation: `By the Handshaking Lemma, Sum of Degrees = 2E ⇒ ${gVertices} × ${gDegree} = 2E ⇒ E = ${gEdges} edges. Any Spanning Tree on V = ${gVertices} vertices has exactly V - 1 = ${gVertices - 1} edges.`
+            }));
+
+            // 20. Dynamic Software Engineering Cyclomatic Complexity (IT)
+            const cfgN = randInt(12, 28);
+            const cfgPred = randInt(4, 10);
             const cfgE = cfgN + cfgPred - 1;
             const vg = cfgE - cfgN + 2;
             list.push(buildExamMCQ({
@@ -501,8 +817,8 @@
                 explanation: `McCabe's Cyclomatic Complexity V(G) = E - N + 2P = ${cfgE} - ${cfgN} + 2(1) = ${vg}.`
             }));
 
-            // 6. Dynamic Computer Knowledge Number Conversion (COMP)
-            const decNum = randInt(50, 240);
+            // 21. Dynamic Computer Knowledge Number Conversion (COMP)
+            const decNum = randInt(45, 245);
             const hexStr = decNum.toString(16).toUpperCase();
             const binStr = decNum.toString(2).padStart(8, '0');
             const octStr = decNum.toString(8);
@@ -521,11 +837,64 @@
                 explanation: `0x${hexStr} equals ${decNum} in decimal, which converts to (${binStr})₂ in 8-bit binary and (${octStr})₈ in base-8 octal.`
             }));
 
-            // 7. Dynamic Insurance Contribution Numerical (GA)
+            // 22. Dynamic 8-Bit 2's Complement Negative Number Generator (COMP)
+            const negMag = randInt(25, 95);
+            const twosCompDec = 256 - negMag;
+            const twosBin = twosCompDec.toString(2).padStart(8, '0');
+            const onesBin = (twosCompDec - 1).toString(2).padStart(8, '0');
+            list.push(buildExamMCQ({
+                section: "COMP", phase: "MAINS",
+                topic: "Computer Architecture • 2's Complement Arithmetic",
+                dynamicTag: true,
+                stem: `What is the 8-bit signed 2's complement binary representation of the negative decimal integer -${negMag}?`,
+                correctText: `${twosBin}`,
+                distractors: [
+                    `${onesBin}`,
+                    `1${negMag.toString(2).padStart(7, '0')}`,
+                    `${(twosCompDec + 1).toString(2).padStart(8, '0')}`,
+                    `${negMag.toString(2).padStart(8, '0')}`
+                ],
+                explanation: `+${negMag} in 8-bit binary is ${negMag.toString(2).padStart(8, '0')}. Inverting all bits gives 1's complement (${onesBin}), and adding 1 yields the 2's complement: ${twosBin}.`
+            }));
+
+            // 23. Dynamic Full-Mesh Topology Links (COMP)
+            const meshNodes = randInt(7, 18);
+            const meshLinks = (meshNodes * (meshNodes - 1)) / 2;
+            list.push(buildExamMCQ({
+                section: "COMP", phase: "MAINS",
+                topic: "Computer Knowledge • Network Topologies",
+                dynamicTag: true,
+                stem: `How many dedicated bidirectional point-to-point physical links are required to connect n = ${meshNodes} regional NICL servers in a Full-Mesh topology?`,
+                correctText: `${meshLinks}`,
+                distractors: [`${meshNodes * (meshNodes - 1)}`, `${meshNodes - 1}`, `${meshLinks + meshNodes}`, `${meshNodes * 2}`],
+                explanation: `A Full-Mesh topology of n nodes requires n(n - 1) / 2 links = (${meshNodes} × ${meshNodes - 1}) / 2 = ${meshLinks} links.`
+            }));
+
+            // 24. Dynamic RAID 5 & RAID 6 Usable Storage Calculator (COMP)
+            const diskCount = randInt(5, 10);
+            const diskSizeTB = pickOne([2, 4, 8]);
+            const raid5Usable = (diskCount - 1) * diskSizeTB;
+            const raid6Usable = (diskCount - 2) * diskSizeTB;
+            list.push(buildExamMCQ({
+                section: "COMP", phase: "MAINS",
+                topic: "Enterprise Storage • RAID 5 vs RAID 6 Capacity",
+                dynamicTag: true,
+                stem: `A storage array contains ${diskCount} identical SSDs of ${diskSizeTB} TB each (Total Raw Capacity = ${diskCount * diskSizeTB} TB). What is the net usable storage capacity if configured in RAID 5 versus RAID 6?`,
+                correctText: `RAID 5: ${raid5Usable} TB | RAID 6: ${raid6Usable} TB`,
+                distractors: [
+                    `RAID 5: ${diskCount * diskSizeTB} TB | RAID 6: ${raid5Usable} TB`,
+                    `RAID 5: ${(diskCount * diskSizeTB) / 2} TB | RAID 6: ${raid6Usable} TB`,
+                    `RAID 5: ${raid6Usable} TB | RAID 6: ${raid5Usable} TB`,
+                    `RAID 5: ${raid5Usable} TB | RAID 6: ${(diskCount - 3) * diskSizeTB} TB`
+                ],
+                explanation: `RAID 5 uses 1 drive's worth of capacity for distributed parity: (${diskCount} - 1) × ${diskSizeTB} = ${raid5Usable} TB. RAID 6 uses 2 drives' worth for dual parity: (${diskCount} - 2) × ${diskSizeTB} = ${raid6Usable} TB.`
+            }));
+
+            // 25. Dynamic Insurance Contribution Numerical (GA)
             const insA = pickOne([20, 30, 40]);
-            const insB = pickOne([40, 60]);
+            const insB = pickOne([40, 60, 80]);
             const totIns = insA + insB;
-            const claimLoss = pickOne([16, 24, 32]);
+            const claimLoss = pickOne([15, 24, 30, 36]);
             const payA = +((insA / totIns) * claimLoss).toFixed(2);
             const payB = +((insB / totIns) * claimLoss).toFixed(2);
             list.push(buildExamMCQ({
@@ -543,18 +912,57 @@
                 explanation: `Total Sum Insured = ₹${insA}L + ₹${insB}L = ₹${totIns}L. Insurer A pays (${insA}/${totIns}) × ${claimLoss} = ₹${payA} Lakhs, and NICL pays (${insB}/${totIns}) × ${claimLoss} = ₹${payB} Lakhs.`
             }));
 
-            // 8. Dynamic Quantitative Aptitude Tabular DI + Series + Quadratics (QUANT - Prelims & Mains)
+            // 26. Dynamic Insurance Average Clause Under-Insurance Numerical (GA)
+            const propVal = pickOne([50, 80, 100, 120]);
+            const insuredPct = pickOne([60, 70, 75, 80]);
+            const sumInsured = +((propVal * insuredPct) / 100).toFixed(2);
+            const fireLoss = pickOne([20, 30, 40]);
+            const avgPayout = +((sumInsured / propVal) * fireLoss).toFixed(2);
+            list.push(buildExamMCQ({
+                section: "GA", phase: "MAINS",
+                topic: "Insurance Awareness • Average Clause (Under-Insurance)",
+                dynamicTag: true,
+                stem: `A commercial building actually worth ₹${propVal} Lakhs is insured under a Fire Policy (with Average Clause) for only ₹${sumInsured} Lakhs. If a partial fire causes an actual loss of ₹${fireLoss} Lakhs, what claim payout will the insurer make?`,
+                correctText: `₹${avgPayout} Lakhs`,
+                distractors: [`₹${fireLoss} Lakhs`, `₹${sumInsured} Lakhs`, `₹${(fireLoss / 2).toFixed(2)} Lakhs`, `₹${(avgPayout - 2.5).toFixed(2)} Lakhs`],
+                explanation: `Under the Average Clause for under-insurance: Payout = Actual Loss × (Sum Insured / Actual Value) = ${fireLoss} × (${sumInsured} / ${propVal}) = ₹${avgPayout} Lakhs.`
+            }));
+
+            // 27. Dynamic General Insurer Combined Ratio Calculator (GA)
+            const earnedPrem = pickOne([200, 400, 500]); // in Crores
+            const lossPct = randInt(62, 74);
+            const expPct = randInt(18, 24);
+            const combRatio = lossPct + expPct;
+            const incClaims = (earnedPrem * lossPct) / 100;
+            const uwExp = (earnedPrem * expPct) / 100;
+            list.push(buildExamMCQ({
+                section: "GA", phase: "MAINS",
+                topic: "Insurance Financial Metrics • Combined Ratio",
+                dynamicTag: true,
+                stem: `During FY 2025–26, a General Insurance division recorded Earned Premium of ₹${earnedPrem} Crores, Incurred Claim Losses of ₹${incClaims} Crores, and Underwriting Expenses of ₹${uwExp} Crores. What is its Combined Ratio and Underwriting Margin?`,
+                correctText: `Combined Ratio: ${combRatio}% | Underwriting Profit Margin: ${100 - combRatio}%`,
+                distractors: [
+                    `Combined Ratio: ${lossPct}% | Underwriting Profit Margin: ${100 - lossPct}%`,
+                    `Combined Ratio: ${combRatio}% | Underwriting Loss: ${combRatio - 50}%`,
+                    `Combined Ratio: ${lossPct - expPct}% | Underwriting Profit Margin: ${expPct}%`,
+                    `Combined Ratio: ${combRatio + 10}% | Underwriting Profit Margin: ${90 - combRatio}%`
+                ],
+                explanation: `Loss Ratio = (${incClaims}/${earnedPrem}) × 100 = ${lossPct}%. Expense Ratio = (${uwExp}/${earnedPrem}) × 100 = ${expPct}%. Combined Ratio = ${lossPct}% + ${expPct}% = ${combRatio}%, yielding a ${100 - combRatio}% underwriting profit margin.`
+            }));
+
+            // 28, 29 & 30. Dynamic Quantitative Aptitude Tabular DI (3 Linked Questions)
             const zA = randInt(4, 8) * 100, zB = randInt(5, 9) * 100, zC = randInt(6, 10) * 100;
             const pA_pct = pickOne([75, 80]), pB_pct = pickOne([70, 80]), pC_pct = pickOne([80, 90]);
             const setA = (zA * pA_pct) / 100, setB = (zB * pB_pct) / 100, setC = (zC * pC_pct) / 100;
+            const rejA = zA - setA, rejB = zB - setB, rejC = zC - setC;
             const diContext = `
-                <div class="text-xs text-brand font-bold mb-1">DYNAMIC NICL ZONAL CLAIMS TABLE:</div>
+                <div class="text-xs text-brand font-bold mb-1">DYNAMIC NICL ZONAL CLAIMS TABLE (NEW DATA EVERY RELOAD):</div>
                 <table class="w-full text-xs border-collapse border border-white/20">
-                    <thead><tr class="bg-white/10"><th class="border border-white/20 p-1">Zone</th><th class="border border-white/20 p-1">Policies Issued</th><th class="border border-white/20 p-1">% Settled</th></tr></thead>
+                    <thead><tr class="bg-white/10"><th class="border border-white/20 p-1">Zone</th><th class="border border-white/20 p-1">Policies Issued</th><th class="border border-white/20 p-1">% Settled</th><th class="border border-white/20 p-1">% Rejected</th></tr></thead>
                     <tbody>
-                        <tr><td class="border border-white/20 p-1">North Zone</td><td class="border border-white/20 p-1">${zA}</td><td class="border border-white/20 p-1">${pA_pct}%</td></tr>
-                        <tr><td class="border border-white/20 p-1">West Zone</td><td class="border border-white/20 p-1">${zB}</td><td class="border border-white/20 p-1">${pB_pct}%</td></tr>
-                        <tr><td class="border border-white/20 p-1">South Zone</td><td class="border border-white/20 p-1">${zC}</td><td class="border border-white/20 p-1">${pC_pct}%</td></tr>
+                        <tr><td class="border border-white/20 p-1">North Zone</td><td class="border border-white/20 p-1">${zA}</td><td class="border border-white/20 p-1">${pA_pct}%</td><td class="border border-white/20 p-1">${100 - pA_pct}%</td></tr>
+                        <tr><td class="border border-white/20 p-1">West Zone</td><td class="border border-white/20 p-1">${zB}</td><td class="border border-white/20 p-1">${pB_pct}%</td><td class="border border-white/20 p-1">${100 - pB_pct}%</td></tr>
+                        <tr><td class="border border-white/20 p-1">South Zone</td><td class="border border-white/20 p-1">${zC}</td><td class="border border-white/20 p-1">${pC_pct}%</td><td class="border border-white/20 p-1">${100 - pC_pct}%</td></tr>
                     </tbody>
                 </table>
             `;
@@ -569,8 +977,35 @@
                 explanation: `North = ${setA}, West = ${setB}, South = ${setC}. Total settled = ${setA} + ${setB} + ${setC} = ${setA + setB + setC}.`
             }));
 
-            // Missing Number Series
-            const s0 = randInt(12, 30), kOff = randInt(2, 5);
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Tabular Data Interpretation",
+                dynamicTag: true,
+                contextHTML: diContext,
+                stem: `What is the exact difference between the number of SETTLED claims in South Zone and the total REJECTED claims in North and West Zones combined?`,
+                correctText: `${Math.abs(setC - (rejA + rejB))}`,
+                distractors: [`${Math.abs(setC - (rejA + rejB)) + 25}`, `${Math.abs(setA - rejC)}`, `${rejA + rejB + rejC}`, `${Math.abs(setC - (rejA + rejB)) + 50}`],
+                explanation: `South Settled = ${setC}. Rejected in North (${rejA}) + West (${rejB}) = ${rejA + rejB}. Difference = |${setC} - ${rejA + rejB}| = ${Math.abs(setC - (rejA + rejB))}.`
+            }));
+
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Tabular Data Interpretation",
+                dynamicTag: true,
+                contextHTML: diContext,
+                stem: `What is the average number of REJECTED claims across all three zones (North, West, and South)?`,
+                correctText: `${((rejA + rejB + rejC) / 3).toFixed(2)}`,
+                distractors: [
+                    `${((rejA + rejB + rejC) / 3 + 12).toFixed(2)}`,
+                    `${((setA + setB + setC) / 3).toFixed(2)}`,
+                    `${(rejA + rejB + rejC).toFixed(2)}`,
+                    `${((rejA + rejB + rejC) / 3 - 8).toFixed(2)}`
+                ],
+                explanation: `Total Rejected = ${rejA} + ${rejB} + ${rejC} = ${rejA + rejB + rejC}. Average = (${rejA + rejB + rejC}) / 3 = ${((rejA + rejB + rejC) / 3).toFixed(2)}.`
+            }));
+
+            // 31. Missing Number Series (QUANT)
+            const s0 = randInt(12, 35), kOff = randInt(2, 6);
             const sArr = [s0];
             for (let i = 1; i <= 5; i++) sArr.push(sArr[i - 1] + i * i + kOff);
             list.push(buildExamMCQ({
@@ -583,8 +1018,32 @@
                 explanation: `Successive differences follow (n² + ${kOff}): +${1 + kOff}, +${4 + kOff}, +${9 + kOff}, +${16 + kOff}, +${25 + kOff}. Next term = ${sArr[4]} + ${25 + kOff} = ${sArr[5]}.`
             }));
 
-            // Quadratic Equations
-            const r1 = randInt(7, 11), r2 = randInt(12, 16), r3 = randInt(2, 5), r4 = randInt(5, 6);
+            // 32. Wrong Number Series Detector (QUANT)
+            const wBase = randInt(5, 12);
+            const wTerms = [wBase];
+            for (let i = 1; i <= 5; i++) wTerms.push(wTerms[i - 1] * 2 + i);
+            const wrongPos = 3; // Corrupt the 4th term
+            const trueVal = wTerms[wrongPos];
+            const corruptedVal = trueVal + 5;
+            const dispSeries = [...wTerms];
+            dispSeries[wrongPos] = corruptedVal;
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Wrong Number Series",
+                dynamicTag: true,
+                stem: `Identify the WRONG number in the following series:\n${dispSeries.join(', ')}`,
+                correctText: `${corruptedVal} (should be ${trueVal})`,
+                distractors: [
+                    `${dispSeries[1]} (should be ${dispSeries[1] + 2})`,
+                    `${dispSeries[2]} (should be ${dispSeries[2] - 3})`,
+                    `${dispSeries[4]} (should be ${dispSeries[4] + 4})`,
+                    `${dispSeries[5]} (should be ${dispSeries[5] - 2})`
+                ],
+                explanation: `The series pattern is (×2 + 1), (×2 + 2), (×2 + 3), (×2 + 4), (×2 + 5). The 4th term should be ${wTerms[2]} × 2 + 3 = ${trueVal} instead of ${corruptedVal}.`
+            }));
+
+            // 33. Quadratic Equations (QUANT)
+            const r1 = randInt(7, 12), r2 = randInt(13, 18), r3 = randInt(2, 5), r4 = randInt(5, 6);
             list.push(buildExamMCQ({
                 section: "QUANT", phase: "BOTH",
                 topic: "Quantitative Aptitude • Quadratic Equations",
@@ -595,8 +1054,48 @@
                 explanation: `From I: x = ${r1}, ${r2}. From II: y = ${r3}, ${r4}. Since both roots of x are strictly greater than both roots of y, x > y.`
             }));
 
-            // 9. Dynamic Reasoning Coded Inequality (REAS - Prelims & Mains)
-            const syms = shuffleArray(["A", "B", "C", "D", "E", "F", "G"]).slice(0, 6);
+            // 34. Dynamic CI - SI 2-Year Corpus Calculator (QUANT)
+            const ciRate = pickOne([10, 15, 20, 25]);
+            const ciPrincipal = randInt(2, 8) * 100000;
+            const ciDiff = Math.round(ciPrincipal * Math.pow(ciRate / 100, 2));
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Simple & Compound Interest",
+                dynamicTag: true,
+                stem: `The difference between Compound Interest (compounded annually) and Simple Interest on an insurance reserve fund for 2 years at ${ciRate}% per annum is ₹${ciDiff.toLocaleString('en-IN')}. What is the principal reserve corpus?`,
+                correctText: `₹${ciPrincipal.toLocaleString('en-IN')}`,
+                distractors: [
+                    `₹${(ciPrincipal + 50000).toLocaleString('en-IN')}`,
+                    `₹${(ciPrincipal - 50000).toLocaleString('en-IN')}`,
+                    `₹${(ciPrincipal * 2).toLocaleString('en-IN')}`,
+                    `₹${(ciPrincipal + 25000).toLocaleString('en-IN')}`
+                ],
+                explanation: `For 2 years, CI - SI = P × (R / 100)². Thus ₹${ciDiff} = P × (${ciRate}/100)² ⇒ P = ₹${ciPrincipal.toLocaleString('en-IN')}.`
+            }));
+
+            // 35. Dynamic Profit, Loss & Markup Calculator (QUANT)
+            const cpVal = randInt(3, 9) * 10000;
+            const markupPct = 50;
+            const discPct = 20;
+            // 1.50 * 0.80 = 1.20 (20% net profit)
+            const netProfit = cpVal * 0.20;
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Profit, Loss & Discount",
+                dynamicTag: true,
+                stem: `A vendor marks an enterprise server ${markupPct}% above its Cost Price (CP) and allows a ${discPct}% discount on the Marked Price. If the vendor earns a net profit of ₹${netProfit.toLocaleString('en-IN')}, what is the Cost Price of the server?`,
+                correctText: `₹${cpVal.toLocaleString('en-IN')}`,
+                distractors: [
+                    `₹${(cpVal + 5000).toLocaleString('en-IN')}`,
+                    `₹${(cpVal - 5000).toLocaleString('en-IN')}`,
+                    `₹${(cpVal * 1.5).toLocaleString('en-IN')}`,
+                    `₹${(cpVal + 10000).toLocaleString('en-IN')}`
+                ],
+                explanation: `Selling Price = 1.50 × 0.80 × CP = 1.20 CP (20% net profit). Since 0.20 × CP = ₹${netProfit.toLocaleString('en-IN')}, CP = ₹${cpVal.toLocaleString('en-IN')}.`
+            }));
+
+            // 36. Dynamic Reasoning Coded Inequality (REAS)
+            const syms = shuffleArray(["A", "B", "C", "D", "E", "F", "G", "H"]).slice(0, 6);
             list.push(buildExamMCQ({
                 section: "REAS", phase: "BOTH",
                 topic: "Reasoning Ability • Coded Inequalities",
@@ -612,17 +1111,103 @@
                 explanation: `Along the chain ${syms[0]} ≥ ${syms[1]} = ${syms[2]} > ${syms[3]} ≥ ${syms[4]}, the strict '>' ensures ${syms[0]} > ${syms[4]} (I is true) and ${syms[2]} > ${syms[4]} (making II false).`
             }));
 
+            // 37. Dynamic Linear Row Ranking (REAS)
+            const totalRow = pickOne([45, 49, 53, 57, 61]);
+            const leftPos = randInt(11, 19);
+            const rightPos = (leftPos % 2 === 0) ? 14 : 15; // Ensures (leftPos + rightFromLeft) is even
+            const rightFromLeft = (totalRow - rightPos) + 1;
+            const midPos = (leftPos + rightFromLeft) / 2;
+            list.push(buildExamMCQ({
+                section: "REAS", phase: "BOTH",
+                topic: "Reasoning Ability • Order & Ranking",
+                dynamicTag: true,
+                stem: `In a row of ${totalRow} shortlisted NICL AO (IT) candidates facing North, Arjun is ${leftPos}th from the left end and Meera is ${rightPos}th from the right end. If Karan sits exactly midway between Arjun and Meera, what is Karan's position from the LEFT end?`,
+                correctText: `${midPos}th`,
+                distractors: [`${midPos - 1}th`, `${midPos + 1}th`, `${midPos + 2}th`, `${totalRow - midPos}th`],
+                explanation: `Meera's position from the left end = (${totalRow} - ${rightPos}) + 1 = ${rightFromLeft}th. Arjun is ${leftPos}th from the left. Midway position from left = (${leftPos} + ${rightFromLeft}) / 2 = ${midPos}th.`
+            }));
+
+            // 38. Dynamic Direction Sense & Aerial Distance Calculator (REAS)
+            const pythSets = [
+                { n1: 10, e: 8, s: 16, dist: 10 }, // dx=8, dy=-6 -> 10
+                { n1: 15, e: 12, s: 20, dist: 13 }, // dx=12, dy=-5 -> 13
+                { n1: 14, e: 15, s: 22, dist: 17 }, // dx=15, dy=-8 -> 17
+                { n1: 18, e: 24, s: 25, dist: 25 }  // dx=24, dy=-7 -> 25
+            ];
+            const ps = pickOne(pythSets);
+            list.push(buildExamMCQ({
+                section: "REAS", phase: "BOTH",
+                topic: "Reasoning Ability • Direction & Distance",
+                dynamicTag: true,
+                stem: `An NICL surveyor starts from Office P, drives ${ps.n1} km North to Point Q, turns right and drives ${ps.e} km to Point R, and then turns right again and drives ${ps.s} km to Point S. What is the shortest straight-line distance and direction of Point S from Office P?`,
+                correctText: `${ps.dist} km, South-East`,
+                distractors: [
+                    `${ps.dist} km, North-East`,
+                    `${ps.dist + 4} km, South-East`,
+                    `${ps.dist - 2} km, South-West`,
+                    `${ps.n1 + ps.e} km, South`
+                ],
+                explanation: `Relative to P(0,0), Point S is at (+${ps.e} km East, ${ps.n1 - ps.s} km South). By Pythagoras' theorem, shortest distance = √(${ps.e}² + (${ps.n1 - ps.s})²) = ${ps.dist} km in the South-East direction.`
+            }));
+
+            // 39. Dynamic Alphanumeric Cipher Coding-Decoding Generator (REAS)
+            const wordsList = ["SERVER", "SOCKET", "ROUTER", "PYTHON", "KERNEL", "POLICY", "SCHEMA"];
+            const chosenWord = pickOne(wordsList);
+            const shiftStep = pickOne([1, 2]);
+            const encodedWord = chosenWord.split('').map((ch, idx) => {
+                const code = ch.charCodeAt(0) - 65;
+                const nextCode = (idx % 2 === 0) ? (code + shiftStep) % 26 : (code - shiftStep + 26) % 26;
+                return String.fromCharCode(65 + nextCode);
+            }).join('');
+            const wrongEncoded1 = chosenWord.split('').map(ch => String.fromCharCode(65 + ((ch.charCodeAt(0) - 65 + shiftStep) % 26))).join('');
+            const wrongEncoded2 = encodedWord.split('').reverse().join('');
+            list.push(buildExamMCQ({
+                section: "REAS", phase: "BOTH",
+                topic: "Reasoning Ability • Cryptographic Coding-Decoding",
+                dynamicTag: true,
+                stem: `In a certain code language, every odd-positioned letter (1st, 3rd, 5th...) is shifted forward by +${shiftStep} in the English alphabet, and every even-positioned letter (2nd, 4th, 6th...) is shifted backward by -${shiftStep}. How is the word "${chosenWord}" written in that code?`,
+                correctText: `${encodedWord}`,
+                distractors: [
+                    `${wrongEncoded1}`,
+                    `${wrongEncoded2}`,
+                    `${encodedWord.substring(0, 4)}ZZ`,
+                    `A${encodedWord.substring(1)}`
+                ],
+                explanation: `Applying alternating (+${shiftStep}, -${shiftStep}, +${shiftStep}, -${shiftStep}, +${shiftStep}, -${shiftStep}) letter shifts to "${chosenWord}" yields "${encodedWord}".`
+            }));
+
             return list;
         };
 
         const getCuratedNICLQuestionPool = () => [
-            // PROFESSIONAL KNOWLEDGE (IT)
+            // =================================================================
+            // SECTION 1: PROFESSIONAL KNOWLEDGE (IT SPECIALIST - 42 QUESTIONS)
+            // =================================================================
             {
-                section: "IT", phase: "MAINS", topic: "DBMS • Candidate Keys & BCNF",
+                section: "IT", phase: "MAINS", topic: "DBMS • Candidate Keys & Normalization",
                 stem: "A relation R(A, B, C, D, E) has Functional Dependencies F = { AB → C, C → D, D → B, E → A }. Which of the following accurately lists ALL Candidate Keys of R?",
                 correctText: "{BE, CE, DE}",
                 distractors: ["{AB, CD}", "{BE} only", "{ABE, BCE, BDE}", "{AE, BE}"],
                 explanation: "Attribute E never appears on the RHS of any FD, so E is essential. (BE)+ = BEACD = R. Since C → D and D → B, (CE)+ = CEADB = R and (DE)+ = DEABC = R. All three {BE, CE, DE} are minimal superkeys."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • 3NF vs BCNF",
+                stem: "A relation R(A, B, C) has functional dependencies F = { AB → C, C → B }. Which statement is true regarding R?",
+                correctText: "R is in 3NF, not in BCNF, and has no dependency-preserving BCNF decomposition",
+                distractors: [
+                    "R is in BCNF and requires no decomposition",
+                    "R is in 2NF, not in 3NF, because B is transitively dependent on A",
+                    "R is in 1NF only because C → B is a partial dependency",
+                    "R has only one candidate key, which is AB"
+                ],
+                explanation: "Candidate keys are AB and AC, so both B and C are prime attributes. C → B violates BCNF (C is not a superkey), but satisfies 3NF because B is a prime attribute."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Lossless Join Decomposition",
+                stem: "A relation R(A, B, C, D) is decomposed into R1(A, B, C) and R2(B, C, D). Under which functional dependency is this decomposition guaranteed to be a lossless-join decomposition?",
+                correctText: "BC → D",
+                distractors: ["A → B", "D → C", "A → D", "D → A"],
+                explanation: "By the binary lossless-join test, R1 ∩ R2 = BC must be a superkey of either R1 or R2. Since BC → D holds, (BC)+ = BCD = R2, guaranteeing a lossless join."
             },
             {
                 section: "IT", phase: "MAINS", topic: "SQL • Execution Order & Clauses",
@@ -644,6 +1229,37 @@
                 explanation: "COUNT(*) counts all 10 rows. COUNT(PAYOUT) ignores the 3 NULLs (returning 7). COUNT(DISTINCT PAYOUT) counts unique non-null values {1000, 2000, 3000, 5000} (returning 4)."
             },
             {
+                section: "IT", phase: "MAINS", topic: "SQL • LEFT OUTER JOIN Cardinality",
+                stem: "Table T1 has 8 rows and Table T2 has 5 rows (with unique DeptID). 3 rows in T1 match DeptID in T2, while 5 rows in T1 have DeptIDs absent in T2. How many rows are returned by `T1 LEFT OUTER JOIN T2 ON T1.DeptID = T2.DeptID`?",
+                correctText: "8 rows",
+                distractors: ["3 rows", "5 rows", "13 rows", "40 rows"],
+                explanation: "The 3 matching rows of T1 produce 3 joined rows, and the 5 unmatched rows of T1 are preserved with NULLs for T2 columns. Total = 3 + 5 = 8 rows."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "SQL • Correlated Subquery (Nth Highest)",
+                stem: "What does `SELECT E1.Salary FROM Emp E1 WHERE 3 = (SELECT COUNT(DISTINCT E2.Salary) FROM Emp E2 WHERE E2.Salary >= E1.Salary);` return?",
+                correctText: "The 3rd highest distinct salary in the Emp table",
+                distractors: [
+                    "The 3rd lowest salary in the Emp table",
+                    "The top 3 highest salaries in the Emp table",
+                    "The 4th highest salary in the Emp table",
+                    "The sum of the top 3 salaries"
+                ],
+                explanation: "For the 3rd highest salary E1, there are exactly 3 distinct salaries (1st, 2nd, and 3rd highest) that are ≥ E1.Salary."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Conflict Serializability",
+                stem: "Consider schedule S: R1(X), W1(X), R2(X), W2(X), R1(Y), W1(Y), Commit(T1), Commit(T2). Which statement is true about S?",
+                correctText: "S is conflict serializable and equivalent to the serial schedule T1 → T2",
+                distractors: [
+                    "S is not conflict serializable due to a cycle in the precedence graph",
+                    "S is conflict serializable and equivalent to T2 → T1",
+                    "S suffers from cascading rollback even if T1 commits first",
+                    "S is view serializable but not conflict serializable"
+                ],
+                explanation: "All conflicting operations on X (R1-W2, W1-R2, W1-W2) order T1 before T2, creating a single edge T1 → T2 with no cycle."
+            },
+            {
                 section: "IT", phase: "MAINS", topic: "DBMS • Concurrency & Strict 2PL",
                 stem: "Which concurrency control protocol guarantees BOTH conflict serializability AND freedom from cascading rollbacks?",
                 correctText: "Strict Two-Phase Locking (Strict 2PL), where all exclusive (write) locks are held until commit/abort",
@@ -654,6 +1270,56 @@
                     "Round-Robin lock scheduling"
                 ],
                 explanation: "Holding Exclusive (X) locks until after Commit/Abort prevents dirty reads by concurrent transactions, ensuring strictness and preventing cascading aborts."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Write-Ahead Logging (Steal/No-Force)",
+                stem: "In Write-Ahead Logging (WAL) with a Steal / No-Force buffer management policy, which recovery mechanisms are required after a system crash?",
+                correctText: "Both UNDO and REDO are required",
+                distractors: [
+                    "Neither UNDO nor REDO is required",
+                    "UNDO only (REDO is not required)",
+                    "REDO only (UNDO is not required)",
+                    "Immediate checkpoint truncation without log scan"
+                ],
+                explanation: "'Steal' allows uncommitted dirty pages to be written to disk (requiring UNDO), while 'No-Force' allows commit without flushing all dirty pages immediately to disk (requiring REDO)."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • B+ Tree Indexing",
+                stem: "In a B+ Tree of order p = 5 (maximum 5 pointers and 4 search keys per internal node), what is the minimum number of keys required in a non-root internal node?",
+                correctText: "2 keys",
+                distractors: ["1 key", "3 keys", "4 keys", "5 keys"],
+                explanation: "A non-root internal node in a B+ tree of order p requires at least ceil(p/2) pointers and ceil(p/2) - 1 keys = ceil(5/2) - 1 = 3 - 1 = 2 keys."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Clustered vs Non-Clustered Index",
+                stem: "How many Clustered Indexes can exist on a single relational database table, and why?",
+                correctText: "At most ONE, because a clustered index dictates the physical storage sort order of the rows on disk",
+                distractors: [
+                    "Unlimited, because clustered indexes are stored in separate heap files",
+                    "Up to two (one for Primary Key and one for Foreign Key)",
+                    "Equal to the number of Candidate Keys",
+                    "Zero if the table has a composite primary key"
+                ],
+                explanation: "A clustered index physically sorts the table rows on disk according to the index key; since data rows can only be physically sorted in one order, only one clustered index is possible per table."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Relational Algebra Division",
+                stem: "Which relational algebra operator directly answers queries like: 'Find all policyholders who have purchased EVERY policy type offered by the Marine division'?",
+                correctText: "Division Operator (÷)",
+                distractors: ["Cartesian Product (×)", "Natural Join (⋈)", "Left Outer Join (⟕)", "Set Difference (−)"],
+                explanation: "The Division operator (R ÷ S) returns tuples in R's projection that are associated with EVERY tuple in S."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • OSI Hop-by-Hop Addressing",
+                stem: "When a router forwards an IPv4 packet across an Ethernet LAN hop (without NAT), which addresses in the frame/packet change?",
+                correctText: "Source and Destination MAC addresses are rewritten at each hop, while Source and Destination IP addresses remain unchanged",
+                distractors: [
+                    "Both MAC addresses and IP addresses are rewritten at every hop",
+                    "Source/Destination MAC addresses stay constant while IP addresses change at each hop",
+                    "Only TCP Port numbers are rewritten",
+                    "Nothing changes except the payload"
+                ],
+                explanation: "Layer-2 MAC addresses have local link scope and are rewritten hop-by-hop, whereas Layer-3 IP addresses remain end-to-end (with TTL decremented and header checksum updated)."
             },
             {
                 section: "IT", phase: "MAINS", topic: "Computer Networks • TCP 3-Way Handshake",
@@ -668,6 +1334,90 @@
                 explanation: "The SYN flag consumes 1 sequence number, so Server acknowledges 2400 + 1 = 2401. Client then sends its ACK segment with Seq = 2401 and Ack = 7000 + 1 = 7001."
             },
             {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • Routing Protocols",
+                stem: "Which of the following correctly pairs the routing protocol with its algorithm and transport mechanism?",
+                correctText: "OSPF — Link-State (Dijkstra SPF) — encapsulated directly in IP Protocol 89",
+                distractors: [
+                    "RIP — Link-State — encapsulated in IP Protocol 89",
+                    "BGP — Distance-Vector — runs over UDP Port 520",
+                    "OSPF — Path-Vector — runs over TCP Port 179",
+                    "BGP — Link-State — runs over ICMP"
+                ],
+                explanation: "OSPF uses Dijkstra's Link-State algorithm directly over IP Protocol 89. RIP uses Bellman-Ford Distance-Vector over UDP Port 520, and BGP uses Path-Vector over TCP Port 179."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • TCP Congestion Control",
+                stem: "A TCP sender has Congestion Window (cwnd) = 32 MSS and Slow Start Threshold (ssthresh) = 24 MSS. If a Retransmission Timeout (RTO) occurs, what are the new values of ssthresh and cwnd in TCP Tahoe/Reno?",
+                correctText: "ssthresh = 16 MSS and cwnd = 1 MSS",
+                distractors: [
+                    "ssthresh = 16 MSS and cwnd = 16 MSS",
+                    "ssthresh = 12 MSS and cwnd = 1 MSS",
+                    "ssthresh = 24 MSS and cwnd = 16 MSS",
+                    "ssthresh = 32 MSS and cwnd = 1 MSS"
+                ],
+                explanation: "On a timeout, ssthresh is set to cwnd / 2 = 16 MSS, and cwnd drops all the way to 1 MSS to re-enter Slow Start."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Network Security • TLS / HTTPS Handshake",
+                stem: "During an HTTPS (TLS) session between a browser and the NICL portal, how are Asymmetric and Symmetric cryptography combined?",
+                correctText: "Asymmetric cryptography authenticates the server certificate and exchanges an ephemeral session key, while Symmetric encryption (e.g., AES-GCM) encrypts bulk session traffic",
+                distractors: [
+                    "Symmetric AES authenticates the certificate, and Asymmetric RSA encrypts all bulk HTTP traffic",
+                    "Only Asymmetric RSA is used for the entire session",
+                    "The browser transmits its private key to the server using SHA-256",
+                    "MD5 encrypts the session key while Diffie-Hellman hashes the payload"
+                ],
+                explanation: "TLS uses public-key cryptography during the handshake to authenticate and agree on a shared symmetric session key, then uses fast symmetric encryption (AES-GCM/ChaCha20) for bulk data."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • Standard Port Numbers",
+                stem: "Which of the following protocol-to-default-port mappings is INCORRECT?",
+                correctText: "RDP — TCP Port 161 (RDP actually uses Port 3389; Port 161 is SNMP)",
+                distractors: [
+                    "SSH — TCP Port 22",
+                    "DNS — UDP/TCP Port 53",
+                    "HTTPS — TCP Port 443",
+                    "SMTP — TCP Port 25"
+                ],
+                explanation: "Remote Desktop Protocol (RDP) uses TCP/UDP Port 3389, whereas Port 161 belongs to SNMP."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • ARP Request & Reply",
+                stem: "When a host sends an ARP Request to find the MAC address of a local IPv4 gateway, what are the Layer-2 cast types of the ARP Request and the ARP Reply?",
+                correctText: "ARP Request is Layer-2 Broadcast (FF:FF:FF:FF:FF:FF); ARP Reply is Layer-2 Unicast",
+                distractors: [
+                    "ARP Request is Unicast; ARP Reply is Broadcast",
+                    "Both ARP Request and ARP Reply are Broadcasts",
+                    "ARP Request is Multicast; ARP Reply is Broadcast",
+                    "Both are routed across Layer-3 hops"
+                ],
+                explanation: "Since the target MAC is unknown, the ARP Request is broadcast to all hosts on the subnet (FF:FF:FF:FF:FF:FF), and the target replies directly via Unicast."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • IPv6 Compression",
+                stem: "What is the valid, fully compressed representation of the IPv6 address `2001:0db8:0000:0000:0042:0000:8a2e:0370`?",
+                correctText: "2001:db8::42:0:8a2e:370",
+                distractors: [
+                    "2001:db8::42::8a2e:370",
+                    "2001:db8:0:0:42::8a2e:37",
+                    "2001:0db8::42:0:8a2e:0370",
+                    "2001:db8:0000:42::8a2e:370"
+                ],
+                explanation: "Leading zeros in each hextet are removed (`0db8`→`db8`, `0042`→`42`, `0370`→`370`), and `::` can be used only ONCE for the longest run of zero hextets."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Network Security • NIDS vs NIPS",
+                stem: "What is the key architectural difference between a Network Intrusion Detection System (NIDS) and a Network Intrusion Prevention System (NIPS)?",
+                correctText: "NIDS sits out-of-band (passive tap/SPAN) to monitor and alert, whereas NIPS sits inline to actively drop malicious packets in real time",
+                distractors: [
+                    "NIDS operates at Layer 1 while NIPS operates at Layer 2",
+                    "NIDS blocks DDoS packets inline while NIPS only logs traffic",
+                    "NIDS assigns DHCP leases while NIPS terminates VPNs",
+                    "NIDS inspects only outbound packets"
+                ],
+                explanation: "An IDS monitors mirrored traffic passively out-of-band, whereas an IPS is placed directly inline so it can block/drop malicious traffic before it reaches the target."
+            },
+            {
                 section: "IT", phase: "MAINS", topic: "Network Security • SQL Injection Prevention",
                 stem: "Which programming technique provides the strongest structural defense against SQL Injection (SQLi) on an online insurance portal?",
                 correctText: "Using Parameterized Queries (Prepared Statements) so user inputs are bound strictly as literal values rather than executable SQL syntax",
@@ -678,6 +1428,20 @@
                     "Disabling browser cookies on the login page"
                 ],
                 explanation: "Prepared Statements pre-compile the SQL command tree on the server and bind user input strictly as parameters, preventing malicious payloads from altering query logic."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • Hamming Code Error Correction",
+                stem: "To protect a 16-bit data word against single-bit errors using Hamming Code, what is the minimum number of parity bits r required (satisfying 2^r ≥ m + r + 1)?",
+                correctText: "5 parity bits",
+                distractors: ["3 parity bits", "4 parity bits", "6 parity bits", "8 parity bits"],
+                explanation: "For m = 16: with r = 4, 2^4 = 16 < 16 + 4 + 1 (21). With r = 5, 2^5 = 32 ≥ 16 + 5 + 1 (22). Thus 5 parity bits are required."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • Preemptive SJF (SRTF)",
+                stem: "Four processes arrive with (Arrival Time, Burst Time): P1(0, 8), P2(1, 4), P3(2, 9), P4(3, 5). Under Preemptive Shortest Remaining Time First (SRTF), what is the average waiting time?",
+                correctText: "6.50 ms",
+                distractors: ["5.50 ms", "7.75 ms", "8.25 ms", "4.75 ms"],
+                explanation: "P1 runs (0–1, rem=7). P2 runs (1–5). P4 runs (5–10). P1 runs (10–17). P3 runs (17–26). Waiting times: P1 = 9, P2 = 0, P3 = 15, P4 = 2. Average = (9 + 0 + 15 + 2) / 4 = 6.50 ms."
             },
             {
                 section: "IT", phase: "MAINS", topic: "Operating Systems • Deadlock Safe State",
@@ -692,11 +1456,106 @@
                 explanation: "Allocated = 3 + 2 + 3 = 8, so Available = 10 - 8 = 2. Remaining Needs are P1 = 5, P2 = 3, P3 = 6. Since Available (2) is less than the smallest Need (P2 = 3), no process can guaranteedly finish—Unsafe State!"
             },
             {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • LRU Page Replacement",
+                stem: "For the page reference string `7, 0, 1, 2, 0, 3, 0, 4` with 3 initially empty page frames, how many total page faults occur under Least Recently Used (LRU)?",
+                correctText: "6 page faults",
+                distractors: ["4 page faults", "5 page faults", "7 page faults", "8 page faults"],
+                explanation: "Faults occur on 7, 0, 1, 2 (replaces 7), 3 (replaces 1), and 4 (replaces 2), while the two references to 0 are hits. Total = 6 page faults."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • Counting Semaphores",
+                stem: "A counting semaphore S is initialized to 12. Then 18 P(wait) operations and 10 V(signal) operations are executed on S. What is the final value of S?",
+                correctText: "+4 (with 0 blocked processes)",
+                distractors: ["-4 (with 4 blocked processes)", "+8 (with 0 blocked processes)", "0 (with 4 blocked processes)", "+2 (with 2 blocked processes)"],
+                explanation: "Final value = 12 - 18 + 10 = +4. Since the value is positive, no processes remain blocked."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • Belady's Anomaly",
+                stem: "Which page replacement algorithm can suffer from Belady's Anomaly (where adding more physical page frames increases page faults)?",
+                correctText: "First-In First-Out (FIFO)",
+                distractors: [
+                    "Least Recently Used (LRU)",
+                    "Optimal Page Replacement (OPT)",
+                    "Both LRU and OPT",
+                    "Stack-based LFU"
+                ],
+                explanation: "FIFO is not a stack algorithm and can exhibit Belady's Anomaly, whereas LRU and Optimal satisfy the inclusion property and never suffer from it."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • Linux `chmod` Permissions",
+                stem: "Executing `chmod 750 backup_script.sh` on a Linux server grants which permission set?",
+                correctText: "Owner: rwx | Group: r-x | Others: ---",
+                distractors: [
+                    "Owner: rwx | Group: rw- | Others: r--",
+                    "Owner: r-x | Group: rwx | Others: ---",
+                    "Owner: rwx | Group: r-- | Others: r-x",
+                    "Owner: rw- | Group: r-x | Others: r--"
+                ],
+                explanation: "Octal 7 = rwx (4+2+1) for Owner, 5 = r-x (4+0+1) for Group, and 0 = --- for Others."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • `fork()` System Call",
+                stem: "How many total processes (including the initial parent process) exist after executing `fork(); fork(); fork();` assuming all calls succeed?",
+                correctText: "8 processes (2³)",
+                distractors: ["3 processes", "4 processes", "6 processes", "7 processes"],
+                explanation: "n unconditional fork() calls produce 2^n total processes (and 2^n - 1 child processes). For n = 3, 2^3 = 8."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • Threads vs Processes",
+                stem: "Which resource is PRIVATELY owned by each individual thread rather than shared across all threads of the same process?",
+                correctText: "Program Counter (PC), CPU Registers, and Thread Execution Stack",
+                distractors: [
+                    "Global variables and static data segment",
+                    "Heap memory allocated via malloc/new",
+                    "Open file descriptor table",
+                    "Code (Text) segment"
+                ],
+                explanation: "Threads share the address space (code, data, heap) and open files of their process, but each thread has its own stack, registers, and Program Counter."
+            },
+            {
                 section: "IT", phase: "MAINS", topic: "Data Structures • Binary Tree Traversals",
                 stem: "The Inorder traversal of a binary tree is D B E A F C and its Preorder traversal is A B D E C F. What is its exact Postorder traversal?",
                 correctText: "D E B F C A",
                 distractors: ["D E B C F A", "E D B F C A", "D B E F C A", "F C D E B A"],
                 explanation: "Root from Preorder is A. Inorder splits into Left (D B E) and Right (F C). Left subtree root is B (children D, E → postorder D E B). Right subtree root is C with left child F (postorder F C). Combined Postorder: D E B F C A."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Data Structures • AVL Tree Rotations",
+                stem: "Keys 30, 20, 25 are inserted sequentially into an initially empty AVL Tree. Which rotation restores balance, and which key becomes the new root?",
+                correctText: "Left-Right (LR) Double Rotation; new root is 25",
+                distractors: [
+                    "Single Right (LL) Rotation; new root is 20",
+                    "Right-Left (RL) Double Rotation; new root is 25",
+                    "Single Left (RR) Rotation; new root is 20",
+                    "No rotation required; root stays 30"
+                ],
+                explanation: "Inserting 25 into the right subtree of 20 (which is the left child of 30) causes an LR imbalance at 30. An LR double rotation elevates 25 to the root with left child 20 and right child 30."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Algorithms • Sorting Complexities",
+                stem: "Which sorting algorithm guarantees O(n log n) time complexity in the best, average, AND worst cases while sorting in-place with O(1) auxiliary space?",
+                correctText: "HeapSort",
+                distractors: ["QuickSort", "MergeSort", "Insertion Sort", "Radix Sort"],
+                explanation: "HeapSort runs in O(n log n) in all cases using O(1) auxiliary space. MergeSort uses O(n) space, and QuickSort has an O(n²) worst case."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Algorithms • Dijkstra's Shortest Path",
+                stem: "Why does Dijkstra's single-source shortest path algorithm fail on graphs containing negative-weight edges?",
+                correctText: "Because it greedily finalizes the shortest distance to the extracted minimum vertex assuming future edge extensions can never reduce total path weight",
+                distractors: [
+                    "Because it uses a LIFO stack instead of a min-priority queue",
+                    "Because negative edges always form infinite loops in DAGs",
+                    "Because it only works on unweighted trees",
+                    "Because it has O(V³) space complexity"
+                ],
+                explanation: "Dijkstra's greedy invariant assumes edge weights are non-negative; Bellman-Ford is used when negative edge weights exist."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Data Structures • Binary Heap Array Indexing",
+                stem: "In a 0-indexed array representation of a Binary Heap, if a node is at index i = 9, at which index is its Parent node located?",
+                correctText: "Index 4",
+                distractors: ["Index 3", "Index 5", "Index 18", "Index 19"],
+                explanation: "In a 0-indexed binary heap, Parent(i) = floor((i - 1) / 2) = floor(8 / 2) = 4."
             },
             {
                 section: "IT", phase: "MAINS", topic: "Software Engineering • Cohesion & Coupling",
@@ -710,8 +1569,58 @@
                 ],
                 explanation: "Functional Cohesion (highest cohesion) keeps related responsibilities together, while Data Coupling (loosest coupling) minimizes inter-module dependencies."
             },
+            {
+                section: "IT", phase: "MAINS", topic: "OOPS • Runtime Polymorphism & vtable",
+                stem: "How is Runtime (Dynamic) Polymorphism achieved in C++ when invoking an overridden method via a base-class pointer?",
+                correctText: "Using Virtual Functions resolved at runtime via a Virtual Method Table (vtable) and hidden vptr",
+                distractors: [
+                    "Using function overloading resolved by the linker at compile time",
+                    "Using preprocessor macros",
+                    "Using static member functions and friend classes",
+                    "Using the scope resolution operator (::)"
+                ],
+                explanation: "Declaring a base method `virtual` enables dynamic dispatch via the object's `vptr` and class `vtable` at runtime."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "OOPS • Diamond Inheritance Problem",
+                stem: "Class D inherits from B and C, both of which inherit from Class A. How does C++ prevent D from receiving duplicate copies of A's data members?",
+                correctText: "By using virtual inheritance (`class B : virtual public A` and `class C : virtual public A`)",
+                distractors: [
+                    "By declaring Class A's constructor private",
+                    "By making all variables in Class A static",
+                    "By overloading the assignment operator",
+                    "By using inline destructors"
+                ],
+                explanation: "Virtual inheritance ensures only a single shared subobject of base class A exists inside the most-derived class D."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Software Engineering • SDLC Spiral Model",
+                stem: "For a mission-critical Core Insurance replacement project with high technical & regulatory risks requiring iterative prototyping and formal Risk Analysis at every loop, which SDLC model is best suited?",
+                correctText: "Barry Boehm's Spiral Model",
+                distractors: [
+                    "Classical Waterfall Model",
+                    "Big Bang Model",
+                    "V-Model without prototyping",
+                    "Code-and-Fix Model"
+                ],
+                explanation: "The Spiral Model is explicitly risk-driven, combining iterative prototyping with formal risk identification and mitigation in every cycle."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Software Engineering • Black-Box vs White-Box",
+                stem: "Which of the following is a Black-Box functional testing technique rather than a White-Box structural testing technique?",
+                correctText: "Boundary Value Analysis (BVA) and Equivalence Partitioning",
+                distractors: [
+                    "Basis Path Testing using Cyclomatic Complexity",
+                    "Statement and Branch Coverage Testing",
+                    "Condition & Loop Coverage of source code",
+                    "Data-Flow (Definition-Use) Path Testing"
+                ],
+                explanation: "BVA and Equivalence Partitioning validate input/output behavior against specifications without inspecting internal code paths."
+            },
 
-            // COMPUTER KNOWLEDGE
+            // =================================================================
+            // SECTION 2: COMPUTER KNOWLEDGE (10 QUESTIONS)
+            // =================================================================
             {
                 section: "COMP", phase: "MAINS", topic: "Computer Knowledge • Cache Memory",
                 stem: "Why is CPU L1/L2 Cache constructed using SRAM (Static RAM) instead of DRAM (Dynamic RAM)?",
@@ -725,6 +1634,60 @@
                 explanation: "SRAM uses 6-transistor flip-flop cells that do not require periodic refresh cycles, making it significantly faster than capacitor-based DRAM."
             },
             {
+                section: "COMP", phase: "MAINS", topic: "Computer Architecture • CPU Registers",
+                stem: "During the instruction fetch-execute cycle, which CPU register holds the memory address of the NEXT instruction to be fetched?",
+                correctText: "Program Counter (PC)",
+                distractors: [
+                    "Instruction Register (IR)",
+                    "Memory Buffer Register (MBR)",
+                    "Accumulator (ACC)",
+                    "Arithmetic Logic Unit (ALU)"
+                ],
+                explanation: "The Program Counter (PC) points to the address of the next instruction to be fetched, while the IR holds the currently decoded instruction."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "MS Excel • COUNT vs COUNTA",
+                stem: "In MS Excel, if cells A1:A5 contain `10`, `20`, `\"NICL\"`, `30`, and `TRUE`, what do `=COUNT(A1:A5)` and `=COUNTA(A1:A5)` return?",
+                correctText: "3 and 5",
+                distractors: ["5 and 5", "4 and 5", "3 and 4", "5 and 3"],
+                explanation: "COUNT counts only numeric values (10, 20, 30 → 3), whereas COUNTA counts all non-empty cells including strings and booleans (5)."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "MS Excel • Mixed Cell Referencing",
+                stem: "If the formula `=$B2 + C$3` in cell D4 is copied and pasted into cell F7, what does the formula in cell F7 become?",
+                correctText: "=$B5 + E$3",
+                distractors: ["=$D5 + E$6", "=$B2 + C$3", "=$B7 + F$3", "=$D2 + E$3"],
+                explanation: "Moving from D4 to F7 shifts +2 columns right and +3 rows down. `$B2` becomes `$B5` (column B locked) and `C$3` becomes `E$3` (row 3 locked)."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "MS PowerPoint • Shortcuts",
+                stem: "Which keyboard shortcut starts a PowerPoint slide show directly from the CURRENT slide instead of the first slide?",
+                correctText: "Shift + F5",
+                distractors: ["F5", "Ctrl + F5", "Alt + F5", "Ctrl + Shift + S"],
+                explanation: "F5 starts from Slide 1, whereas Shift + F5 starts the presentation from the currently selected slide."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "Computer Knowledge • Universal Logic Gates",
+                stem: "Which pair of logic gates are called Universal Gates because any Boolean circuit can be built using only gates of either type?",
+                correctText: "NAND and NOR gates",
+                distractors: ["AND and OR gates", "XOR and XNOR gates", "AND and NOT gates", "OR and XOR gates"],
+                explanation: "Both NAND and NOR are functionally complete (Universal Gates)."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "Enterprise Storage • RAID Levels",
+                stem: "Which RAID level uses block-level striping with distributed single parity across a minimum of 3 disks, surviving any single disk failure?",
+                correctText: "RAID 5",
+                distractors: ["RAID 0", "RAID 1", "RAID 2", "JBOD"],
+                explanation: "RAID 5 stripes data and parity across at least 3 drives (offering N-1 usable capacity) and tolerates any 1 drive failure."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "Web Security • Cookie Attributes",
+                stem: "Which flag on a session cookie blocks client-side JavaScript (`document.cookie`) from reading it, protecting against Cross-Site Scripting (XSS) session theft?",
+                correctText: "HttpOnly",
+                distractors: ["SameSite=None", "Keep-Alive", "Cache-Control", "Domain=*"],
+                explanation: "The `HttpOnly` flag prevents client-side scripts from accessing the cookie via `document.cookie`."
+            },
+            {
                 section: "COMP", phase: "MAINS", topic: "Computer Knowledge • Disaster Recovery",
                 stem: "If NICL sets a Recovery Point Objective (RPO) of 15 minutes and a Recovery Time Objective (RTO) of 2 hours for its core database, what does this mean?",
                 correctText: "At most 15 minutes of committed transactions may be lost (RPO), and service must be restored within 2 hours of an outage (RTO)",
@@ -736,8 +1699,22 @@
                 ],
                 explanation: "RPO measures maximum tolerable data loss in time (backup/replication window), while RTO measures maximum tolerable service downtime."
             },
+            {
+                section: "COMP", phase: "MAINS", topic: "Email Protocols • IMAP4 vs POP3",
+                stem: "Why do enterprise users checking mail across multiple devices prefer IMAP4 over POP3?",
+                correctText: "IMAP4 synchronizes emails and folder states centrally on the mail server across all devices, whereas POP3 downloads messages to a single device by default",
+                distractors: [
+                    "IMAP4 sends outgoing mail between servers while POP3 receives mail",
+                    "POP3 supports TLS encryption while IMAP4 does not",
+                    "IMAP4 operates at OSI Layer 2",
+                    "POP3 requires no authentication"
+                ],
+                explanation: "IMAP4 maintains message state on the server so multiple clients stay synchronized."
+            },
 
-            // GENERAL & INSURANCE AWARENESS
+            // =================================================================
+            // SECTION 3: GENERAL, INSURANCE & FINANCIAL AWARENESS (12 QUESTIONS)
+            // =================================================================
             {
                 section: "GA", phase: "MAINS", topic: "Insurance Principles • Subrogation",
                 stem: "After compensating a policyholder for a motor claim caused by a negligent third-party truck, NICL acquires the legal right to recover the payout amount from the liable third party. Which principle of insurance applies?",
@@ -749,6 +1726,30 @@
                     "Principle of Loss Minimization"
                 ],
                 explanation: "Subrogation transfers the insured's legal rights of recovery against negligent third parties to the insurer after the claim is indemnified."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Insurance Principles • Indemnity Exception",
+                stem: "Which of the following insurance contracts is NOT strictly a contract of Indemnity?",
+                correctText: "Life Insurance & Fixed-Benefit Personal Accident Policies",
+                distractors: [
+                    "Marine Cargo Insurance",
+                    "Commercial Fire Insurance",
+                    "Motor Own-Damage Insurance",
+                    "Burglary Insurance"
+                ],
+                explanation: "Human life cannot be valued in exact monetary replacement terms, so Life and Personal Accident Benefit policies are Benefit/Assurance contracts rather than strict Indemnity contracts."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "NICL Corporate History & GIBNA",
+                stem: "National Insurance Company Limited (NICL), headquartered in Kolkata, was founded in which year, and under which Act was General Insurance nationalized in India?",
+                correctText: "Founded in 1906 | Nationalized under GIBNA, 1972 (effective 1 Jan 1973)",
+                distractors: [
+                    "Founded in 1919 | Nationalized under LIC Act, 1956",
+                    "Founded in 1938 | Nationalized under IRDA Act, 1999",
+                    "Founded in 1947 | Nationalized in 1969",
+                    "Founded in 1928 | Nationalized in 1982"
+                ],
+                explanation: "NICL is India's oldest existing general insurer (incorporated 5 Dec 1906 in Kolkata), and General Insurance was nationalized via the General Insurance Business (Nationalisation) Act (GIBNA), 1972."
             },
             {
                 section: "GA", phase: "MAINS", topic: "Insurance Awareness • IRDAI & NICL",
@@ -763,6 +1764,61 @@
                 explanation: "IRDAI mandates a minimum Solvency Ratio of 150% (1.50) for all insurers, and the Insurance Ombudsman can pass awards up to ₹50 Lakhs."
             },
             {
+                section: "GA", phase: "MAINS", topic: "Reinsurance • Indian National Reinsurer",
+                stem: "Which public sector organization serves as the designated national Indian Reinsurer receiving obligatory cessions from domestic general insurers?",
+                correctText: "General Insurance Corporation of India (GIC Re), headquartered in Mumbai",
+                distractors: [
+                    "Life Insurance Corporation of India (LIC)",
+                    "Export Credit Guarantee Corporation (ECGC)",
+                    "Agriculture Insurance Company of India (AIC)",
+                    "DICGC"
+                ],
+                explanation: "GIC Re (Mumbai) is India's designated national reinsurer."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "IRDAI Digital Initiatives • Bima Sugam",
+                stem: "What is 'Bima Sugam' under IRDAI's Bima Trinity initiative?",
+                correctText: "A unified digital e-marketplace protocol for buying, servicing, and settling life, health, and general insurance policies",
+                distractors: [
+                    "An offline training institute for actuaries",
+                    "A pension fund solely for central government employees",
+                    "A sovereign gold bond trading platform",
+                    "A cyber-crime reporting portal for banks"
+                ],
+                explanation: "Bima Sugam is IRDAI's one-stop digital public infrastructure connecting policyholders, insurers, and intermediaries."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Marine Cargo • Insurable Interest Timing",
+                stem: "In Marine Cargo Insurance, at what stage must the policyholder possess Insurable Interest in the insured goods?",
+                correctText: "At the time of the loss (even if not present when the policy was initially issued)",
+                distractors: [
+                    "Only at the time of policy inception, not at the time of loss",
+                    "Only after the ship safely docks at the destination",
+                    "Insurable interest is not applicable to Marine Cargo",
+                    "At least 1 year before shipment"
+                ],
+                explanation: "Because ownership of goods in transit frequently changes via bill-of-lading endorsement, Marine Cargo requires insurable interest strictly at the time of loss."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Insurance Metrics • Combined Ratio",
+                stem: "How is a general insurer's Combined Ratio calculated, and what does a Combined Ratio of 94% indicate?",
+                correctText: "(Incurred Losses + Underwriting Expenses) ÷ Earned Premium; 94% indicates a 6% underwriting profit",
+                distractors: [
+                    "Investment Income ÷ Gross Written Premium; 94% indicates underwriting loss",
+                    "Paid Claims ÷ Total Assets; 94% indicates insolvency",
+                    "Solvency Margin ÷ Capital; 94% indicates regulatory breach",
+                    "Reinsurance Ceded ÷ Net Retention"
+                ],
+                explanation: "Combined Ratio = Loss Ratio + Expense Ratio. A ratio below 100% (e.g., 94%) indicates that the insurer is making an underwriting profit before investment income."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Banking & RBI • DICGC & SLR",
+                stem: "What is the maximum deposit insurance coverage provided by DICGC per depositor per insured bank in India?",
+                correctText: "₹5,00,000 (covering principal and interest combined)",
+                distractors: ["₹1,00,000", "₹2,50,000", "₹10,00,000", "₹25,00,000"],
+                explanation: "DICGC (wholly-owned subsidiary of RBI) insures bank deposits up to ₹5 Lakh per depositor per bank."
+            },
+            {
                 section: "GA", phase: "MAINS", topic: "Data Privacy • DPDP Act 2023",
                 stem: "Under India's Digital Personal Data Protection (DPDP) Act 2023, how are the insurance company (processing data) and the policyholder (whose data is processed) legally designated?",
                 correctText: "Data Fiduciary (Insurer) and Data Principal (Policyholder)",
@@ -774,8 +1830,34 @@
                 ],
                 explanation: "The DPDP Act 2023 designates the entity determining the purpose and means of data processing as the 'Data Fiduciary' and the individual as the 'Data Principal'."
             },
+            {
+                section: "GA", phase: "MAINS", topic: "Insurance Penetration vs Density",
+                stem: "How are Insurance Penetration and Insurance Density officially measured?",
+                correctText: "Penetration = Total Insurance Premium as % of GDP | Density = Per-Capita Insurance Premium (in USD)",
+                distractors: [
+                    "Penetration = Per-Capita Premium | Density = Premium as % of GDP",
+                    "Penetration = Rural branches ÷ Total branches",
+                    "Penetration = Claims Settled ÷ Claims Filed",
+                    "Density = Policies per square kilometer"
+                ],
+                explanation: "Insurance Penetration is the ratio of insurance premiums to GDP (%), while Insurance Density is per-capita premium (Total Premium ÷ Population in USD)."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Underwriting • Moral vs Morale Hazard",
+                stem: "How does Moral Hazard differ from Morale Hazard in insurance underwriting?",
+                correctText: "Moral Hazard involves dishonesty or intentional fraud (staging a claim), whereas Morale Hazard involves carelessness or indifference to loss because one is insured",
+                distractors: [
+                    "Moral Hazard refers to earthquake zones while Morale Hazard refers to flood zones",
+                    "Morale Hazard is intentional arson while Moral Hazard is forgetting keys inside a car",
+                    "Both terms mean the exact same thing",
+                    "Moral Hazard applies only to marine vessels"
+                ],
+                explanation: "Moral Hazard stems from dishonesty/fraud, while Morale Hazard stems from unintentional carelessness due to the existence of insurance cover."
+            },
 
-            // QUANTITATIVE APTITUDE (PRELIMS & MAINS)
+            // =================================================================
+            // SECTION 4: QUANTITATIVE APTITUDE (7 CURATED + 4 PROCEDURAL = 11)
+            // =================================================================
             {
                 section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Compound Interest",
                 stem: "An insurance reserve fund is invested at 20% p.a. for 2 years. If the difference between Compound Interest (annual compounding) and Simple Interest after 2 years is ₹14,400, what is the principal corpus?",
@@ -790,8 +1872,45 @@
                 distractors: ["1/6", "2/3", "3/4", "4/5"],
                 explanation: "Total ways = 10C3 = 120. Ways with 0 DBAs (all 3 from 6 Network Engineers) = 6C3 = 20. Probability(at least 1 DBA) = 1 - 20/120 = 5/6."
             },
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Mixture & Alligation",
+                stem: "A container holds 80 liters of a mixture of Acid and Water in the ratio 3 : 1. How many liters of water must be added to make the ratio of Acid to Water 5 : 3?",
+                correctText: "16 liters",
+                distractors: ["12 liters", "14 liters", "18 liters", "20 liters"],
+                explanation: "Initially Acid = 60 L, Water = 20 L. We need 60 / (20 + x) = 5 / 3 ⇒ 180 = 100 + 5x ⇒ 5x = 80 ⇒ x = 16 liters."
+            },
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Boats & Streams",
+                stem: "A boat takes 5 hours to cover 60 km downstream and 6 hours to cover 48 km upstream. How long will it take to cover 90 km in still water?",
+                correctText: "9.0 hours",
+                distractors: ["8.0 hours", "8.5 hours", "9.5 hours", "10.0 hours"],
+                explanation: "Downstream speed D = 60/5 = 12 km/h; Upstream speed U = 48/6 = 8 km/h. Still-water speed = (12 + 8)/2 = 10 km/h. Time for 90 km = 90/10 = 9.0 hours."
+            },
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Profit, Loss & Markup",
+                stem: "A vendor marks a hardware firewall 50% above its Cost Price and allows a 20% discount. If the vendor earns a net profit of ₹9,000, what is the Cost Price of the firewall?",
+                correctText: "₹45,000",
+                distractors: ["₹40,000", "₹42,000", "₹48,000", "₹50,000"],
+                explanation: "SP = 1.50 × 0.80 × CP = 1.20 CP (20% net profit). Given 0.20 × CP = ₹9,000 ⇒ CP = ₹45,000."
+            },
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Time & Work",
+                stem: "Servers A, B, and C can process a policy renewal batch in 12, 15, and 20 hours respectively. If all three run simultaneously, in how many hours will the batch finish?",
+                correctText: "5 hours",
+                distractors: ["4 hours", "5.5 hours", "6 hours", "4.5 hours"],
+                explanation: "LCM(12, 15, 20) = 60 units. Hourly rates: A = 5, B = 4, C = 3 units/hr. Combined rate = 5 + 4 + 3 = 12 units/hr. Total time = 60 / 12 = 5 hours."
+            },
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Partnership",
+                stem: "A and B invest in an InsurTech venture in the ratio 4 : 5. After 6 months, A increases his capital by 25% while B keeps his unchanged. What is the ratio of their annual profits?",
+                correctText: "9 : 10",
+                distractors: ["4 : 5", "11 : 12", "8 : 9", "5 : 6"],
+                explanation: "A's share = (4 × 6) + (5 × 6) = 54. B's share = (5 × 12) = 60. Ratio = 54 : 60 = 9 : 10."
+            },
 
-            // REASONING ABILITY (PRELIMS & MAINS)
+            // =================================================================
+            // SECTION 5: REASONING ABILITY (8 CURATED + 2 PROCEDURAL = 10)
+            // =================================================================
             {
                 section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Syllogism ('Only a Few')",
                 stem: "Statements:\n1. Only a few Servers are Routers.\n2. All Routers are Switches.\n3. No Switch is a Firewall.\nConclusions:\nI. Some Servers are definitely not Firewalls.\nII. All Servers being Switches is a possibility.",
@@ -805,7 +1924,19 @@
                 explanation: "Since Some Servers are Routers and All Routers are Switches, those Servers are Switches and cannot be Firewalls (I follows). Also, 'Only a few Servers are Routers' does not restrict all Servers from being inside Switches (II follows)."
             },
             {
-                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Floor Puzzle",
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Syllogism ('Only')",
+                stem: "Statements:\n1. Only Policies are Claims.\n2. Some Policies are Audits.\n3. All Audits are Bonds.\nConclusions:\nI. Some Claims being Audits is a possibility.\nII. Some Bonds are Policies.",
+                correctText: "Only Conclusion II follows",
+                distractors: [
+                    "Only Conclusion I follows",
+                    "Both Conclusions I and II follow",
+                    "Neither Conclusion I nor II follows",
+                    "Either Conclusion I or II follows"
+                ],
+                explanation: "'Only Policies are Claims' means All Claims are Policies AND Claims cannot intersect with any other set (making I false). Since Some Policies are Audits and All Audits are Bonds, Some Bonds are definitely Policies (II follows)."
+            },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Floor Puzzle (Set Q1)",
                 stem: "Six NICL IT Officers (P, Q, R, S, T, U) live on floors 1 to 6. R (Cloud) lives on an even floor below 4. Two officers live between R and S (ERP). P (Network) lives immediately below S, and T (Cyber) lives immediately above S. Q (Database) lives on Floor 1. Who lives on Floor 4 and Floor 3 respectively?",
                 correctText: "Floor 4: P (Network) | Floor 3: U (AI)",
                 distractors: [
@@ -816,14 +1947,87 @@
                 ],
                 explanation: "R is on Floor 2 (even floor < 4). Two floors between R(2) and S places S on Floor 5. T is above S (Floor 6), P is below S (Floor 4). Q is on Floor 1, leaving U on Floor 3."
             },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Floor Puzzle (Set Q2)",
+                stem: "Using the same 6-Floor NICL IT Officer arrangement (6: T-Cyber, 5: S-ERP, 4: P-Network, 3: U-AI, 2: R-Cloud, 1: Q-Database), how many floors are there between the officer managing Cyber and the officer managing Cloud?",
+                correctText: "Three floors (Floors 5, 4, and 3)",
+                distractors: ["One floor", "Two floors", "Four floors", "None"],
+                explanation: "T (Cyber) is on Floor 6 and R (Cloud) is on Floor 2, leaving Floors 5, 4, and 3 (3 floors) between them."
+            },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Coded Blood Relations",
+                stem: "If A + B means A is father of B; A - B means A is sister of B; A * B means A is mother of B; and A / B means A is brother of B, then in `P + Q / R - S * T`, how is P related to T?",
+                correctText: "Maternal Grandfather",
+                distractors: ["Paternal Grandfather", "Maternal Uncle", "Father", "Brother-in-law"],
+                explanation: "P is the father of Q, R, and S. S is the mother of T. Therefore, P is the father of T's mother (S), i.e., Maternal Grandfather."
+            },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Direction Sense",
+                stem: "An IT auditor walks 8 km North from Branch X to Y, turns right and walks 6 km to Z, then turns right again and walks 16 km to W. What is the shortest aerial distance and direction of W from Branch X?",
+                correctText: "10 km, South-East",
+                distractors: ["10 km, North-East", "14 km, South-East", "12 km, South-West", "8 km, South"],
+                explanation: "Relative to X(0,0), W is at (+6, -8). Distance = √(6² + (-8)²) = √(36 + 64) = 10 km in the South-East quadrant."
+            },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Data Sufficiency",
+                stem: "Question: Among 5 branches A, B, C, D, E with distinct settlement ratios, which ranks 2nd highest?\nStatement I: B ranks higher than only 2 branches, and A ranks higher than B but lower than D.\nStatement II: E ranks lower than C, and C is not the highest.",
+                correctText: "Statement I alone is sufficient, while Statement II alone is not sufficient",
+                distractors: [
+                    "Statement II alone is sufficient",
+                    "Both I and II together are required",
+                    "Either I alone or II alone is sufficient",
+                    "Even both I and II together are not sufficient"
+                ],
+                explanation: "From Statement I alone: B is 3rd highest (higher than only 2), and since D > A > B, D must be 1st and A must be 2nd highest."
+            },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Critical Reasoning",
+                stem: "Statement: 38% of branch staff reused weak passwords across internal underwriting portals, causing two credential-stuffing incidents.\nCourses of Action:\nI. Enforce Multi-Factor Authentication (MFA) and SSO password policies across all portals immediately.\nII. Permanently shut down digital policy issuance and revert to paper ledgers.",
+                correctText: "Only Course of Action I logically follows",
+                distractors: [
+                    "Only Course of Action II logically follows",
+                    "Both I and II follow",
+                    "Neither I nor II follows",
+                    "Either I or II follows"
+                ],
+                explanation: "Course I directly remedies the security vulnerability, whereas Course II is an extreme, impractical reaction."
+            },
 
-            // ENGLISH LANGUAGE (PRELIMS & MAINS)
+            // =================================================================
+            // SECTION 6: ENGLISH LANGUAGE (8 QUESTIONS)
+            // =================================================================
             {
                 section: "ENG", phase: "BOTH", topic: "English Language • Error Spotting",
                 stem: "Identify the segment with a grammatical error:\n(A) Neither the Chief Information Security Officer / (B) nor the database administrators / (C) was apprised of the schema migration / (D) before the maintenance window.",
                 correctText: "Segment (C) — 'was apprised' should be 'were apprised'",
                 distractors: ["Segment (A)", "Segment (B)", "Segment (D)", "No Error"],
                 explanation: "With 'Neither... nor', the verb agrees with the closer subject ('database administrators', plural), so 'were apprised' is required."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Latinate Comparatives",
+                stem: "Identify the segment with a grammatical error:\n(A) The new AI fraud-detection engine is not only superior than / (B) legacy rule-based scripts / (C) in flagging duplicate claims / (D) but also faster.",
+                correctText: "Segment (A) — 'superior than' must be 'superior to'",
+                distractors: ["Segment (B)", "Segment (C)", "Segment (D)", "No Error"],
+                explanation: "Adjectives ending in '-ior' (superior, inferior, prior, senior, junior) always take the preposition 'to' instead of 'than'."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Inverted Conditionals",
+                stem: "Identify the segment with a grammatical error:\n(A) Had the disaster recovery cluster been configured with synchronous replication, / (B) the regional office / (C) would not have lost / (D) any committed transactions.",
+                correctText: "No Error",
+                distractors: ["Segment (A)", "Segment (B)", "Segment (C)", "Segment (D)"],
+                explanation: "`Had + Subject + V3, Subject + would not have + V3` is a grammatically correct Type-3 conditional."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Negative Adverb Inversion",
+                stem: "Replace the bold phrase to make the sentence grammatically correct:\nScarcely **the actuarial team had submitted** the tariff report when the regulator announced new norms.",
+                correctText: "had the actuarial team submitted",
+                distractors: [
+                    "the actuarial team submitted",
+                    "did the actuarial team had submitted",
+                    "have the actuarial team submitted",
+                    "No correction required"
+                ],
+                explanation: "Sentences beginning with 'Scarcely', 'Hardly', or 'No sooner' require auxiliary-subject inversion: `Scarcely had + Subject + V3 ... when`."
             },
             {
                 section: "ENG", phase: "BOTH", topic: "English Language • Contextual Fillers",
@@ -836,12 +2040,45 @@
                     "aggravate — superfluous"
                 ],
                 explanation: "'Expedite' (speed up) and 'indispensable' (essential) fit the logical contrast introduced by 'While'."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Insurance Vocabulary Fillers",
+                stem: "To curb moral hazard, the insurer introduced a mandatory ________ clause, ensuring the policyholder retains a financial stake in ________ preventable losses.",
+                correctText: "deductible — averting",
+                distractors: [
+                    "subrogation — amplifying",
+                    "indemnity — provoking",
+                    "salvage — neglecting",
+                    "annuity — escalating"
+                ],
+                explanation: "A 'deductible' makes the insured bear initial loss costs, incentivizing them in 'averting' (preventing) avoidable damage."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Para Jumbles",
+                stem: "Rearrange P, Q, R, S, T into a coherent paragraph:\nP. Consequently, legacy monolithic databases often buckle under concurrency spikes during March renewals.\nQ. Modern InsurTech architectures solve this by decoupling microservices and enabling cloud auto-scaling.\nR. General insurance traffic is bursty, with sharp peaks during monsoons and fiscal year-end closings.\nS. However, migrating policy ledgers to cloud clusters requires strict ACID compliance.\nT. Only when elasticity is paired with transactional integrity can insurers modernize safely.",
+                correctText: "R - P - Q - S - T",
+                distractors: ["Q - R - P - T - S", "P - R - Q - S - T", "R - Q - P - S - T", "S - T - R - P - Q"],
+                explanation: "R introduces the bursty traffic pattern; P states its effect on legacy monoliths; Q gives the cloud solution; S adds the ACID caveat; T synthesizes Q and S."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Reading Comprehension (Silent Cyber)",
+                stem: "In commercial cyber insurance underwriting, what does the term 'Silent Cyber' (Non-Affirmative Cyber Exposure) refer to?",
+                correctText: "Potential cyber-related claim liabilities arising unintentionally from traditional property/casualty policies that neither explicitly cover nor explicitly exclude cyber perils",
+                distractors: [
+                    "Cyber attacks that mute audio hardware on servers",
+                    "Encrypted VPN tunnels used by remote insurance surveyors",
+                    "Policies sold online without agent commission",
+                    "AI chatbots handling customer queries silently"
+                ],
+                explanation: "'Silent Cyber' refers to unintended exposure in legacy property/casualty policies whose wording neither explicitly grants nor excludes cyber-triggered damage."
             }
         ];
 
         const NICLExamSimulator = ({ user, notify }) => {
             const [examPhase, setExamPhase] = useState('MAINS'); // 'PRELIMS', 'MAINS', 'INTERVIEW'
+            const [paperScope, setPaperScope] = useState('FULL_BANK'); // 'FULL_BANK' (103 Qns), 'IT_CORE' (50+ IT Qns), 'QUICK_MOCK' (35 Qns)
             const [sectionFilter, setSectionFilter] = useState('ALL');
+            const [searchQuery, setSearchQuery] = useState('');
             const [questions, setQuestions] = useState([]);
             const [answers, setAnswers] = useState({});
             const [reviewMarks, setReviewMarks] = useState({});
@@ -855,6 +2092,8 @@
             const [precisText, setPrecisText] = useState('');
             const [showModelDesc, setShowModelDesc] = useState(false);
             const [attemptHistory, setAttemptHistory] = useState([]);
+            const [isAiGenerating, setIsAiGenerating] = useState(false);
+            const [seenTrackerCount, setSeenTrackerCount] = useState(0);
 
             useEffect(() => {
                 try {
@@ -863,7 +2102,7 @@
                 } catch (e) {}
             }, [user]);
 
-            const generateFreshPaper = (targetPhase = examPhase) => {
+            const generateFreshPaper = (targetPhase = examPhase, targetScope = paperScope) => {
                 setSubmitted(false);
                 setAnswers({});
                 setReviewMarks({});
@@ -872,25 +2111,138 @@
                 setAttemptNo(nextAttempt);
                 setPaperSeed(Math.random().toString(36).substring(2, 8).toUpperCase());
 
-                const procedural = generateProceduralNICLQuestions();
-                const curated = shuffleArray(getCuratedNICLQuestionPool()).map(item => buildExamMCQ(item));
-                const combined = [...procedural, ...curated];
+                // 1. Generate 39+ Brand-New Procedural Questions (100% Fresh Numbers & Combinations Every Reload)
+                const procedural = shuffleArray(generateProceduralNICLQuestions());
 
-                const filteredByPhase = targetPhase === 'PRELIMS'
-                    ? combined.filter(q => ['QUANT', 'REAS', 'ENG'].includes(q.section))
-                    : combined;
+                // 2. Zero-Repeat Rotation for Curated Pool (prioritizes questions not seen in previous paper)
+                let seenStems = [];
+                try {
+                    seenStems = JSON.parse(localStorage.getItem('atlas_nicl_seen_stems') || '[]');
+                } catch (e) { seenStems = []; }
+
+                const rawCurated = getCuratedNICLQuestionPool();
+                const unseenPool = rawCurated.filter(q => !seenStems.includes(q.stem.substring(0, 40)));
+                const seenPool = rawCurated.filter(q => seenStems.includes(q.stem.substring(0, 40)));
+
+                // If user has exhausted unseen pool, reset tracker automatically for a fresh cycle
+                const prioritizedCurated = unseenPool.length >= 25
+                    ? [...shuffleArray(unseenPool), ...shuffleArray(seenPool)]
+                    : shuffleArray(rawCurated);
+
+                const curated = prioritizedCurated.map(item => buildExamMCQ(item));
+                let combined = [...procedural, ...curated];
+
+                if (targetPhase === 'PRELIMS') {
+                    combined = combined.filter(q => ['QUANT', 'REAS', 'ENG'].includes(q.section));
+                } else if (targetScope === 'PROCEDURAL_ONLY') {
+                    combined = procedural;
+                } else if (targetScope === 'IT_CORE') {
+                    combined = combined.filter(q => ['IT', 'COMP'].includes(q.section));
+                } else if (targetScope === 'QUICK_MOCK') {
+                    // Prioritize all procedural questions + fresh unseen curated items
+                    combined = shuffleArray([...procedural, ...curated.slice(0, 20)]).slice(0, 45);
+                }
+
+                // Update seen stems tracker so next reload rotates fresh curated items first
+                const newlySeen = combined.slice(0, 35).map(q => q.stem.substring(0, 40));
+                const updatedSeen = [...new Set([...seenStems, ...newlySeen])].slice(-75);
+                try {
+                    localStorage.setItem('atlas_nicl_seen_stems', JSON.stringify(updatedSeen));
+                } catch (e) {}
+                setSeenTrackerCount(updatedSeen.length);
 
                 const order = { IT: 1, COMP: 2, GA: 3, QUANT: 4, REAS: 5, ENG: 6 };
-                filteredByPhase.sort((a, b) => (order[a.section] || 9) - (order[b.section] || 9));
+                combined.sort((a, b) => (order[a.section] || 9) - (order[b.section] || 9));
 
-                setQuestions(filteredByPhase);
+                setQuestions(combined);
                 setTimeLeft(targetPhase === 'PRELIMS' ? 60 * 60 : 180 * 60);
                 setTimerRunning(true);
             };
 
+            // Live AI Question Generator using Gemini API for truly infinite new questions on demand
+            const handleGenerateLiveAIQuestions = async () => {
+                if (isAiGenerating) return;
+                setIsAiGenerating(true);
+                const targetSec = (sectionFilter !== 'ALL' && sectionFilter !== 'DESC') ? sectionFilter : 'IT';
+                const secPromptMap = {
+                    IT: "Professional Knowledge (IT Specialist: DBMS, SQL, Computer Networks, Operating Systems, Data Structures, OOPS, Cyber Security)",
+                    COMP: "Computer Knowledge (Number Systems, Computer Architecture, MS Office Excel/Word, RAID, Networking)",
+                    GA: "General & Insurance Awareness (Principles of Insurance, IRDAI norms, NICL history, Banking & RBI, DPDP Act)",
+                    QUANT: "Quantitative Aptitude (Arithmetic word problems, Series, Quadratic equations, Data Interpretation)",
+                    REAS: "Reasoning Ability (Syllogisms, Coded Inequalities, Blood Relations, Seating Puzzles, Direction Sense)",
+                    ENG: "English Language (Error Spotting, Double Fillers, Para Jumbles, Insurance/Tech Vocabulary)"
+                };
+
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{
+                        parts: [{
+                            text: `Generate 5 brand-new, high-difficulty NICL AO (IT Specialist) exam multiple-choice questions for section: ${secPromptMap[targetSec] || secPromptMap.IT}. Each question must have 1 correct answer, 4 plausible distractors, and a clear technical explanation.`
+                        }]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    section: { type: "STRING" },
+                                    topic: { type: "STRING" },
+                                    stem: { type: "STRING" },
+                                    correctText: { type: "STRING" },
+                                    distractors: { type: "ARRAY", items: { type: "STRING" } },
+                                    explanation: { type: "STRING" }
+                                },
+                                required: ["topic", "stem", "correctText", "distractors", "explanation"]
+                            }
+                        }
+                    }
+                };
+
+                try {
+                    let response = null;
+                    for (let delay of [1000, 2000, 4000]) {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                        await new Promise(r => setTimeout(r, delay));
+                    }
+                    const result = await response.json();
+                    const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (jsonText) {
+                        const parsed = JSON.parse(jsonText);
+                        const aiMCQs = parsed.map(item => buildExamMCQ({
+                            section: targetSec,
+                            phase: "BOTH",
+                            topic: `🤖 AI Live • ${item.topic}`,
+                            dynamicTag: true,
+                            stem: item.stem,
+                            correctText: item.correctText,
+                            distractors: item.distractors || ["Option 1", "Option 2", "Option 3", "Option 4"],
+                            explanation: item.explanation
+                        }));
+                        setQuestions(prev => [...aiMCQs, ...prev]);
+                        notify(`Added ${aiMCQs.length} brand-new AI-generated ${targetSec} questions to the top of your paper!`, 'success');
+                    } else {
+                        throw new Error("Fallback to procedural");
+                    }
+                } catch (err) {
+                    const extraProcedural = shuffleArray(generateProceduralNICLQuestions()).slice(0, 10);
+                    setQuestions(prev => [...extraProcedural, ...prev]);
+                    notify(`Injected 10 newly synthesized procedural questions into your paper!`, 'success');
+                } finally {
+                    setIsAiGenerating(false);
+                }
+            };
+
             useEffect(() => {
-                generateFreshPaper(examPhase);
-            }, [examPhase]);
+                generateFreshPaper(examPhase, paperScope);
+            }, [examPhase, paperScope]);
 
             useEffect(() => {
                 if (!timerRunning || submitted || examPhase === 'INTERVIEW') return;
@@ -960,7 +2312,7 @@
 
             const letters = ['A', 'B', 'C', 'D', 'E'];
             const secNames = {
-                ALL: 'All Sections',
+                ALL: `All Sections (${questions.length} Qns)`,
                 IT: 'Sec 1: Professional IT (Core)',
                 COMP: 'Sec 2: Computer Knowledge',
                 GA: 'Sec 3: Insurance & Banking GA',
@@ -977,9 +2329,19 @@
                     a: "Atomicity ensures that if a policyholder's UPI debit succeeds but policy ledger insertion fails, the entire transaction rolls back automatically. Consistency preserves ledger constraints; Isolation (via Strict 2PL/MVCC) prevents race conditions on concurrent renewals; Durability (Write-Ahead Logging) guarantees committed policies survive power outages."
                 },
                 {
+                    cat: "Core IT & Database Indexing",
+                    q: "Why do enterprise insurance databases use B+ Trees instead of binary search trees, and what is a Clustered Index?",
+                    a: "B+ Trees pack hundreds of routing keys into a single disk block, keeping tree height to 3–4 levels for millions of policies and linking leaf nodes for fast range queries (e.g., policies expiring this month). A Clustered Index dictates the physical storage order of rows on disk (at most one per table)."
+                },
+                {
                     cat: "Cyber Security & DPDP Act 2023",
                     q: "How do you secure NICL's web portals against SQL Injection, XSS, and DDoS, and what is NICL's role under the DPDP Act 2023?",
                     a: "Use Parameterized Queries (Prepared Statements) to neutralize SQLi, Content-Security-Policy + HttpOnly cookies + output encoding against XSS, and WAF + Anycast CDN rate-limiting against DDoS. Under the DPDP Act 2023, NICL is a 'Data Fiduciary' obligated to protect 'Data Principals' (policyholders) with explicit consent and breach reporting."
+                },
+                {
+                    cat: "Network Architecture & Zero-Trust",
+                    q: "How does an enterprise NIPS differ from a Firewall, and how does TLS 1.3 secure policyholder data in transit?",
+                    a: "A firewall filters traffic based on stateful IP/Port/Protocol rules, whereas an inline NIPS performs deep packet inspection (DPI) against exploit signatures and anomalies. TLS 1.3 uses ECDHE asymmetric key exchange for forward secrecy and authenticates the server via PKI before encrypting bulk payloads with symmetric AES-GCM."
                 },
                 {
                     cat: "General Insurance & Actuarial Principles",
@@ -987,9 +2349,29 @@
                     a: "Contribution applies when a warehouse is insured with multiple insurers (each pays in proportion to Sum Insured). Subrogation applies after NICL pays a claim caused by a negligent third party—NICL steps into the insured's legal shoes to recover the payout from the third party."
                 },
                 {
+                    cat: "NICL Domain & IRDAI Regulations",
+                    q: "What is NICL's founding history, IRDAI's required Solvency Margin, and the Combined Ratio benchmark?",
+                    a: "NICL was founded in 1906 in Kolkata (India's oldest general insurer) and nationalized under GIBNA 1972. IRDAI mandates a minimum Solvency Margin Ratio of 150% (1.50). Combined Ratio = (Incurred Losses + Expenses) / Earned Premium; a ratio below 100% indicates underwriting profitability."
+                },
+                {
                     cat: "Disaster Recovery & High Availability",
-                    q: "What is the operational difference between RTO and RPO in a Core Insurance Data Center?",
-                    a: "RPO (Recovery Point Objective) is the maximum age of data that can be lost (e.g., 15 minutes, dictating synchronous/near-sync database replication). RTO (Recovery Time Objective) is the maximum tolerable downtime before operations resume at the DR site (e.g., 2 hours)."
+                    q: "What is the operational difference between RTO and RPO in a Core Insurance Data Center, and why is RAID 6 used?",
+                    a: "RPO (Recovery Point Objective) is the maximum age of data that can be lost (e.g., 15 minutes, dictating synchronous/near-sync database replication). RTO (Recovery Time Objective) is the maximum tolerable downtime before operations resume at the DR site. RAID 6 stripes data with dual distributed parity, surviving 2 simultaneous disk failures."
+                },
+                {
+                    cat: "InsurTech, Bima Sugam & AI Automation",
+                    q: "How can AI, OCR, and IRDAI's Bima Sugam transform motor and health claim settlement at NICL?",
+                    a: "Computer Vision assesses vehicle damage from uploaded photos, OCR + NLP parse hospital discharge summaries on the National Health Claims Exchange (NHCX) to flag inflated billing, and Bima Sugam provides a unified API marketplace connecting policyholders, insurers, and surveyors with dematerialized e-Insurance Accounts."
+                },
+                {
+                    cat: "Software Engineering & Microservices",
+                    q: "Why are legacy insurance monoliths being refactored into microservices, and how do REST and SOAP coexist?",
+                    a: "Insurance traffic spikes sharply during monsoon claims and March renewals; microservices allow independent auto-scaling of the claim and quote engines while keeping legacy SOAP core-ledger integrations intact behind an API Gateway."
+                },
+                {
+                    cat: "HR & Situational Leadership",
+                    q: "If a regional branch server crashes during peak March year-end policy closing, how will you triage the incident as an AO (IT)?",
+                    a: "1) Trigger failover to the warm standby/DR replica to restore branch continuity within RTO; 2) Isolate the faulty node and preserve logs; 3) Verify WAL transaction integrity so no committed premiums are lost (RPO); 4) Communicate clear status ETAs in non-technical language to the Regional Manager."
                 }
             ];
 
@@ -1003,16 +2385,18 @@
                                     <span>NATIONAL INSURANCE CO. LTD. (NICL)</span>
                                     <span>•</span>
                                     <span>Attempt #{attemptNo} (Seed: {paperSeed})</span>
+                                    <span>•</span>
+                                    <span className="text-emerald-400 font-bold">{questions.length} Active Questions Loaded</span>
                                 </div>
                                 <h2 className="text-2xl md:text-3xl font-extrabold gradient-text">
-                                    NICL AO (IT Specialist) Real-Time Exam Simulator
+                                    NICL AO (IT Specialist) Unlimited Real-Exam Paper Generator
                                 </h2>
                                 <p className="text-xs text-gray-400 mt-1">
-                                    Official 5-Option (A–E) Pattern • +1.00 Correct | -0.25 Negative Marking • Fresh Dynamic Numbers Every Attempt
+                                    39 Procedural Numericals + Zero-Repeat Curated Rotation ({seenTrackerCount} Tracked) + Live AI Generator • 5 Options (A–E) • +1.00 / -0.25
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-2.5">
                                 {examPhase !== 'INTERVIEW' && (
                                     <div className="px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-lg flex items-center gap-2">
                                         <span>⏱ {formatTimer(timeLeft)}</span>
@@ -1026,13 +2410,23 @@
                                 )}
                                 <button
                                     onClick={() => {
-                                        generateFreshPaper(examPhase);
-                                        notify(`Loaded Fresh Exam Paper (Attempt #${attemptNo + 1})!`, 'success');
+                                        generateFreshPaper(examPhase, paperScope);
+                                        notify(`Generated Unlimited Fresh NICL AO IT Paper (Attempt #${attemptNo + 1})!`, 'success');
                                     }}
                                     className="px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 rounded-xl font-bold text-xs uppercase tracking-wider transition"
                                 >
-                                    ⚡ Load New Questions (Attempt #{attemptNo + 1})
+                                    ⚡ Generate New Paper (Attempt #{attemptNo + 1})
                                 </button>
+                                {examPhase !== 'INTERVIEW' && (
+                                    <button
+                                        onClick={handleGenerateLiveAIQuestions}
+                                        disabled={isAiGenerating}
+                                        className="px-4 py-2.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/50 text-purple-200 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center gap-1.5 disabled:opacity-50"
+                                    >
+                                        {isAiGenerating ? <Icons.Spinner /> : <span>🤖</span>}
+                                        <span>{isAiGenerating ? 'Synthesizing...' : '+5 Live AI Questions'}</span>
+                                    </button>
+                                )}
                                 {examPhase !== 'INTERVIEW' && !submitted && (
                                     <button
                                         onClick={handleSubmitExam}
@@ -1044,8 +2438,9 @@
                             </div>
                         </div>
 
-                        {/* Phase Switcher */}
-                        <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-white/10 justify-between items-center">
+                        {}
+                        {/* Phase Switcher & Paper Scope Selector */}
+                        <div className="flex flex-wrap gap-3 mt-5 pt-4 border-t border-white/10 justify-between items-center">
                             <div className="flex flex-wrap gap-2">
                                 <button
                                     onClick={() => { setExamPhase('PRELIMS'); setSectionFilter('ALL'); }}
@@ -1063,41 +2458,80 @@
                                     onClick={() => setExamPhase('INTERVIEW')}
                                     className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'INTERVIEW' ? 'bg-purple-500 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
                                 >
-                                    Phase III: Personal Interview Bank
+                                    Phase III: Personal Interview Bank (10 Q&As)
                                 </button>
                             </div>
 
-                            {examPhase !== 'INTERVIEW' && (
-                                <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
-                                    <input
-                                        type="checkbox"
-                                        checked={instantCheck}
-                                        onChange={e => setInstantCheck(e.target.checked)}
-                                        className="accent-cyan-400 w-4 h-4"
-                                    />
-                                    <span>Instant Answer & Explanation Mode</span>
-                                </label>
+                            {examPhase === 'MAINS' && (
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="text-xs text-gray-400 font-semibold">Generator Mode:</span>
+                                    <button
+                                        onClick={() => setPaperScope('PROCEDURAL_ONLY')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'PROCEDURAL_ONLY' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
+                                    >
+                                        ⚡ 100% Procedural (39 Brand-New Qns Every Click)
+                                    </button>
+                                    <button
+                                        onClick={() => setPaperScope('FULL_BANK')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'FULL_BANK' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
+                                    >
+                                        Full 124-Q Bank
+                                    </button>
+                                    <button
+                                        onClick={() => setPaperScope('IT_CORE')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'IT_CORE' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
+                                    >
+                                        IT & Computer Only (76 Qns)
+                                    </button>
+                                    <button
+                                        onClick={() => setPaperScope('QUICK_MOCK')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${paperScope === 'QUICK_MOCK' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-black/30 border-white/10 text-gray-400'}`}
+                                    >
+                                        Fresh 45-Q Mock
+                                    </button>
+                                </div>
                             )}
                         </div>
 
-                        {/* Section Filter Pills */}
+                        {/* Section Filter Pills + Search + Instant Check */}
                         {examPhase !== 'INTERVIEW' && (
-                            <div className="flex flex-wrap gap-2 mt-4">
-                                {Object.entries(secNames)
-                                    .filter(([key]) => examPhase === 'MAINS' || ['ALL', 'QUANT', 'REAS', 'ENG'].includes(key))
-                                    .map(([key, label]) => (
-                                        <button
-                                            key={key}
-                                            onClick={() => setSectionFilter(key)}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition border ${
-                                                sectionFilter === key
-                                                    ? 'bg-brand/20 border-brand text-brand'
-                                                    : 'bg-black/30 border-white/10 text-gray-400 hover:text-white'
-                                            }`}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mt-4">
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(secNames)
+                                        .filter(([key]) => examPhase === 'MAINS' || ['ALL', 'QUANT', 'REAS', 'ENG'].includes(key))
+                                        .map(([key, label]) => (
+                                            <button
+                                                key={key}
+                                                onClick={() => setSectionFilter(key)}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition border ${
+                                                    sectionFilter === key
+                                                        ? 'bg-brand/20 border-brand text-brand'
+                                                        : 'bg-black/30 border-white/10 text-gray-400 hover:text-white'
+                                                }`}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={e => setSearchQuery(e.target.value)}
+                                        placeholder="Search topic (e.g. BCNF, OSPF, LRU, IRDAI)..."
+                                        className="bg-black/40 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand w-full sm:w-64"
+                                    />
+                                    <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none whitespace-nowrap">
+                                        <input
+                                            type="checkbox"
+                                            checked={instantCheck}
+                                            onChange={e => setInstantCheck(e.target.checked)}
+                                            className="accent-cyan-400 w-4 h-4"
+                                        />
+                                        <span>Instant Solution Mode</span>
+                                    </label>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -1110,7 +2544,7 @@
                                     📊 Official NICL AO IT Evaluation — Attempt #{attemptNo}
                                 </h3>
                                 <button
-                                    onClick={() => generateFreshPaper(examPhase)}
+                                    onClick={() => generateFreshPaper(examPhase, paperScope)}
                                     className="px-4 py-2 bg-emerald-500 text-black font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition"
                                 >
                                     🔄 Start Next Attempt with New Questions
@@ -1162,6 +2596,13 @@
                             <div className="lg:col-span-2 space-y-5">
                                 {sectionFilter !== 'DESC' && questions.map((q, qIdx) => {
                                     if (sectionFilter !== 'ALL' && q.section !== sectionFilter) return null;
+                                    if (searchQuery.trim()) {
+                                        const qLower = searchQuery.toLowerCase();
+                                        const matches = q.stem.toLowerCase().includes(qLower) ||
+                                            q.topic.toLowerCase().includes(qLower) ||
+                                            q.explanation.toLowerCase().includes(qLower);
+                                        if (!matches) return null;
+                                    }
                                     const userPick = answers[qIdx];
                                     const isReviewed = reviewMarks[qIdx];
                                     const reveal = submitted || (instantCheck && userPick !== undefined);
@@ -1174,7 +2615,7 @@
                                                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-200">{q.topic}</span>
                                                     {q.dynamicTag && (
                                                         <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                                            ⚡ Procedural Numerical
+                                                            ⚡ Procedural Numerical (New Every Reload)
                                                         </span>
                                                     )}
                                                 </div>
@@ -1323,7 +2764,7 @@
                                     <h4 className="text-sm font-bold text-brand uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
                                         Live Question Palette ({scoreMetrics.attempted} / {questions.length})
                                     </h4>
-                                    <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto pr-1">
+                                    <div className="grid grid-cols-6 gap-2 max-h-72 overflow-y-auto pr-1">
                                         {questions.map((q, idx) => {
                                             let pillCls = "bg-white/5 border-white/10 text-gray-400";
                                             if (submitted) {
@@ -1338,6 +2779,7 @@
                                                     key={idx}
                                                     onClick={() => {
                                                         setSectionFilter('ALL');
+                                                        setSearchQuery('');
                                                         setTimeout(() => {
                                                             const el = document.getElementById(`nicl-q-${idx}`);
                                                             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
