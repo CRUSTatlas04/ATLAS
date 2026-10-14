@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta name="description" content="Bhuvnendra Singh - Professional Frontend & Full Stack Developer Portfolio">
-    <meta name="keywords" content="Frontend, Full Stack, React, Tailwind, Developer, ATLAS, Bhuvnendra Singh">
+    <meta name="description" content="Bhuvnendra Singh - Professional Frontend & Full Stack Developer Portfolio + NICL AO IT Real-Time Exam Simulator">
+    <meta name="keywords" content="Frontend, Full Stack, React, Tailwind, Developer, ATLAS, Bhuvnendra Singh, NICL AO IT Specialist">
     <meta property="og:title" content="ATLAS | Bhuvnendra Singh">
-    <meta property="og:description" content="Interactive AI-integrated developer portfolio and system dashboard.">
+    <meta property="og:description" content="Interactive AI-integrated developer portfolio, system dashboard, and NICL AO IT Exam Simulator.">
     <meta property="og:type" content="website">
     
-    <title>ATLAS | Bhuvnendra Singh</title>
+    <title>ATLAS | Bhuvnendra Singh — System & NICL AO IT Hub</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -57,7 +56,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -97,7 +96,7 @@
             text-shadow: 0 0 10px rgba(255, 0, 128, 0.6), 0 0 20px rgba(255, 0, 128, 0.3);
         }
 
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         .neon-mode ::-webkit-scrollbar-thumb { background: rgba(255,0,128,0.3); }
@@ -127,7 +126,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, Component } = React;
+        const { useState, useEffect, useRef, useMemo, Component } = React;
 
         class ErrorBoundary extends Component {
             constructor(props) { super(props); this.state = { hasError: false, errorInfo: null }; }
@@ -154,14 +153,25 @@
             Back: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>,
             X: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>,
             Pen: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>,
-            Upload: () => <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>,
+            Upload: () => <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>,
             Send: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>,
             Message: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>,
-            Google: () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>,
+            Google: () => (
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/>
+                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/>
+                    <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/>
+                    <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5L1.6 17c1.9 3.9 5.8 7 10.4 7z"/>
+                </svg>
+            ),
             Github: () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>,
             LinkedIn: () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>,
             Spinner: () => <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>,
-            Lock: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            Lock: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>,
+            Eye: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
+            EyeOff: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>,
+            Academic: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>,
+            UserPlus: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
         };
 
         const Definitions = {
@@ -189,11 +199,10 @@
 
         let db = null;
         let auth = null;
-        let fb = null; 
+        let fb = null;
+        let authMod = null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'atlas-default-app';
-        const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // REAL FIREBASE CONFIGURATION - Injected globally
         const PRODUCTION_FIREBASE_CONFIG = {
             apiKey: "AIzaSyBKWQvr8rQeQ9dXNQ2wv-i1hgrrVeCsiDc",
             authDomain: "atlas-6e2ca.firebaseapp.com",
@@ -209,6 +218,95 @@
             ? JSON.parse(__firebase_config) 
             : (isRealKeyAssigned ? PRODUCTION_FIREBASE_CONFIG : null);
 
+        // Compress any uploaded image to a crisp 320x320 JPEG data URL so it never exceeds Firestore or storage limits
+        const compressImageFile = (file, maxDim = 320, quality = 0.84) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxDim) { height = Math.round((height * maxDim) / width); width = maxDim; }
+                        } else {
+                            if (height > maxDim) { width = Math.round((width * maxDim) / height); height = maxDim; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => resolve(event.target.result);
+                    img.src = event.target.result;
+                };
+                reader.onerror = (err) => reject(err);
+                reader.readAsDataURL(file);
+            });
+        };
+
+        // Persistent Per-User Profile Cache (ensures Google, Gmail, and Guest users ALWAYS keep their custom name, bio & photo across reloads)
+        const saveUserProfileCache = (userObj) => {
+            if (!userObj || !userObj.uid) return;
+            try {
+                const mapRaw = localStorage.getItem('atlas_user_profiles_v2');
+                const map = mapRaw ? JSON.parse(mapRaw) : {};
+                map[userObj.uid] = {
+                    uid: userObj.uid,
+                    email: userObj.email || '',
+                    name: userObj.name || 'Explorer',
+                    bio: userObj.bio || '',
+                    avatar: userObj.avatar || null,
+                    role: userObj.role || 'user',
+                    updatedAt: Date.now()
+                };
+                localStorage.setItem('atlas_user_profiles_v2', JSON.stringify(map));
+                localStorage.setItem('atlas_active_session_v2', JSON.stringify(userObj));
+            } catch (e) {
+                console.warn("Profile cache save warning:", e);
+            }
+        };
+
+        const getUserProfileCache = (uid) => {
+            if (!uid) return null;
+            try {
+                const mapRaw = localStorage.getItem('atlas_user_profiles_v2');
+                if (!mapRaw) return null;
+                const map = JSON.parse(mapRaw);
+                return map[uid] || null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const PasswordInput = ({ value, onChange, placeholder = "Password", className = "", required = true, name = "" }) => {
+            const [show, setShow] = useState(false);
+            return (
+                <div className="relative w-full">
+                    <input
+                        type={show ? "text" : "password"}
+                        name={name}
+                        value={value}
+                        onChange={onChange}
+                        placeholder={placeholder}
+                        required={required}
+                        className={`w-full pr-11 ${className}`}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShow(!show)}
+                        title={show ? "Hide password" : "Show password"}
+                        aria-label={show ? "Hide password" : "Show password"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand transition p-1 rounded focus:outline-none"
+                    >
+                        {show ? <Icons.EyeOff /> : <Icons.Eye />}
+                    </button>
+                </div>
+            );
+        };
+
         const ToastNotification = ({ message, type, onClose }) => {
             useEffect(() => { 
                 if(message) {
@@ -221,9 +319,9 @@
             return (
                 <div className={`fixed top-6 right-6 z-[100] px-6 py-4 rounded-xl shadow-2xl animate-slide-in-3d flex items-center gap-3 border ${type === 'error' ? 'bg-red-500/20 border-red-500 text-red-100' : 'bg-brand/20 border-brand text-white'}`}>
                     {type === 'error' ? (
-                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path></svg>
+                        <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path></svg>
                     ) : (
-                        <svg className="w-5 h-5 text-brand" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+                        <svg className="w-5 h-5 text-brand flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
                     )}
                     <span className="text-sm font-medium tracking-wide">{message}</span>
                     <button onClick={onClose} className="ml-2 hover:opacity-70"><Icons.X /></button>
@@ -267,8 +365,1032 @@
             );
         };
 
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const pickOne = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const shuffleArray = (arr) => {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        };
+
+        const buildExamMCQ = ({ section, phase = "BOTH", topic, dynamicTag = false, contextHTML = "", stem, code = "", correctText, distractors, explanation }) => {
+            const uniqueDistractors = [...new Set(distractors.map(String))].filter(d => d !== String(correctText));
+            while (uniqueDistractors.length < 4) {
+                uniqueDistractors.push(`None of these (${uniqueDistractors.length + 1})`);
+            }
+            const rawOptions = [String(correctText), ...uniqueDistractors.slice(0, 4)];
+            const shuffledOptions = shuffleArray(rawOptions);
+            const answerIndex = shuffledOptions.indexOf(String(correctText));
+            return {
+                section,
+                phase,
+                topic,
+                dynamicTag,
+                contextHTML,
+                stem,
+                code,
+                options: shuffledOptions,
+                answerIndex,
+                explanation
+            };
+        };
+
+        const generateProceduralNICLQuestions = () => {
+            const list = [];
+
+            // 1. Dynamic IPv4 Subnetting (IT)
+            const prefixes = [
+                { cidr: 25, mask: "255.255.255.128", block: 128, hosts: 126, subnets: 2 },
+                { cidr: 26, mask: "255.255.255.192", block: 64,  hosts: 62,  subnets: 4 },
+                { cidr: 27, mask: "255.255.255.224", block: 32,  hosts: 30,  subnets: 8 },
+                { cidr: 28, mask: "255.255.255.240", block: 16,  hosts: 14,  subnets: 16 },
+                { cidr: 29, mask: "255.255.255.248", block: 8,   hosts: 6,   subnets: 32 }
+            ];
+            const p = pickOne(prefixes);
+            const oct3 = randInt(10, 240);
+            const subIdx = randInt(0, Math.min(p.subnets - 1, 3));
+            const netStart = subIdx * p.block;
+            const hostOffset = randInt(1, p.hosts);
+            const ip = `172.16.${oct3}.${netStart + hostOffset}/${p.cidr}`;
+            const netID = `172.16.${oct3}.${netStart}`;
+            const bcast = `172.16.${oct3}.${netStart + p.block - 1}`;
+
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Computer Networks • CIDR Subnetting",
+                dynamicTag: true,
+                stem: `An NICL Regional Data Center host is assigned the IPv4 address ${ip}. Identify its Subnet Mask, Usable Host capacity, Network ID, and Directed Broadcast Address.`,
+                correctText: `Mask: ${p.mask} | Hosts: ${p.hosts} | NetID: ${netID} | Broadcast: ${bcast}`,
+                distractors: [
+                    `Mask: ${p.mask} | Hosts: ${p.block} | NetID: ${netID} | Broadcast: 172.16.${oct3}.${netStart + p.block}`,
+                    `Mask: 255.255.255.0 | Hosts: 254 | NetID: 172.16.${oct3}.0 | Broadcast: 172.16.${oct3}.255`,
+                    `Mask: ${p.mask} | Hosts: ${p.hosts} | NetID: 172.16.${oct3}.${netStart + 1} | Broadcast: ${bcast}`,
+                    `Mask: ${p.mask} | Hosts: ${p.hosts - 2} | NetID: ${netID} | Broadcast: 172.16.${oct3}.${netStart + p.hosts}`
+                ],
+                explanation: `/${p.cidr} leaves ${32 - p.cidr} host bits. Block size = 2^${32 - p.cidr} = ${p.block}, Usable hosts = ${p.block} - 2 = ${p.hosts}. The subnet containing .${netStart + hostOffset} starts at ${netID} and broadcasts at ${bcast}.`
+            }));
+
+            // 2. Dynamic OS TLB Effective Memory Access Time (IT)
+            const hitRate = pickOne([80, 85, 90, 92, 95]);
+            const tlbNs = pickOne([10, 15, 20]);
+            const memNs = pickOne([100, 120, 150]);
+            const h = hitRate / 100;
+            const eat = +(h * (tlbNs + memNs) + (1 - h) * (tlbNs + 2 * memNs)).toFixed(2);
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Operating Systems • Virtual Memory & TLB",
+                dynamicTag: true,
+                stem: `A paging system uses a Translation Lookaside Buffer (TLB) with access time ${tlbNs} ns and main RAM access time ${memNs} ns (single-level page table in RAM). If the TLB hit ratio is ${hitRate}%, calculate the Effective Access Time (EAT).`,
+                correctText: `${eat} ns`,
+                distractors: [
+                    `${+(eat + tlbNs).toFixed(2)} ns`,
+                    `${+(tlbNs + memNs).toFixed(2)} ns`,
+                    `${+(h * memNs + (1 - h) * 2 * memNs).toFixed(2)} ns`,
+                    `${+(eat + 15).toFixed(2)} ns`
+                ],
+                explanation: `EAT = h × (T_tlb + T_mem) + (1 - h) × (T_tlb + 2 × T_mem) = ${h} × (${tlbNs + memNs}) + ${(1 - h).toFixed(2)} × (${tlbNs + 2 * memNs}) = ${eat} ns.`
+            }));
+
+            // 3. Dynamic 2D Array Memory Address Calculation (IT)
+            const rows = randInt(12, 24);
+            const cols = randInt(15, 30);
+            const baseAddr = pickOne([1000, 2000, 4000]);
+            const elemSize = pickOne([4, 8]);
+            const r = randInt(3, rows - 3);
+            const c = randInt(3, cols - 3);
+            const rowMajor = baseAddr + ((r * cols) + c) * elemSize;
+            const colMajor = baseAddr + ((c * rows) + r) * elemSize;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Data Structures • 2D Array Addressing",
+                dynamicTag: true,
+                stem: `A 0-indexed 2D array A[${rows}][${cols}] is stored in Row-Major Order starting at base address ${baseAddr}, where each element occupies ${elemSize} bytes. What is the exact memory address of A[${r}][${c}]?`,
+                correctText: `${rowMajor}`,
+                distractors: [`${colMajor}`, `${rowMajor - elemSize}`, `${rowMajor + cols * elemSize}`, `${baseAddr + r * c * elemSize}`],
+                explanation: `In 0-indexed Row-Major Order: Address(A[i][j]) = Base + (i × Total_Columns + j) × Size = ${baseAddr} + (${r} × ${cols} + ${c}) × ${elemSize} = ${rowMajor}.`
+            }));
+
+            // 4. Dynamic Stack Postfix Evaluation (IT)
+            const pA = randInt(4, 9), pB = randInt(2, 6), pC = randInt(3, 5), pD = randInt(2, 7);
+            const postVal = pA + (pB * pC) - pD;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Data Structures • Stack Postfix Evaluation",
+                dynamicTag: true,
+                stem: `What is the result of evaluating the following Postfix (Reverse Polish Notation) expression using a stack?\nExpression:  ${pA}  ${pB}  ${pC}  *  +  ${pD}  -`,
+                correctText: `${postVal}`,
+                distractors: [`${(pA + pB) * pC - pD}`, `${pA * pB + pC - pD}`, `${postVal + pD}`, `${pA + pB * (pC - pD)}`],
+                explanation: `Push ${pA}, ${pB}, ${pC}. '*' pops ${pC} & ${pB} → ${pB * pC}. '+' pops ${pB * pC} & ${pA} → ${pA + pB * pC}. Push ${pD}. '-' computes ${pA + pB * pC} - ${pD} = ${postVal}.`
+            }));
+
+            // 5. Dynamic Software Engineering Cyclomatic Complexity (IT)
+            const cfgN = randInt(12, 26);
+            const cfgPred = randInt(4, 9);
+            const cfgE = cfgN + cfgPred - 1;
+            const vg = cfgE - cfgN + 2;
+            list.push(buildExamMCQ({
+                section: "IT", phase: "MAINS",
+                topic: "Software Engineering • Cyclomatic Complexity",
+                dynamicTag: true,
+                stem: `A claim-processing module's Control Flow Graph (CFG) has E = ${cfgE} edges, N = ${cfgN} nodes, and P = 1 connected component. What is McCabe's Cyclomatic Complexity V(G)?`,
+                correctText: `${vg}`,
+                distractors: [`${vg - 1}`, `${vg + 1}`, `${cfgE - cfgN}`, `${vg + 2}`],
+                explanation: `McCabe's Cyclomatic Complexity V(G) = E - N + 2P = ${cfgE} - ${cfgN} + 2(1) = ${vg}.`
+            }));
+
+            // 6. Dynamic Computer Knowledge Number Conversion (COMP)
+            const decNum = randInt(50, 240);
+            const hexStr = decNum.toString(16).toUpperCase();
+            const binStr = decNum.toString(2).padStart(8, '0');
+            const octStr = decNum.toString(8);
+            list.push(buildExamMCQ({
+                section: "COMP", phase: "MAINS",
+                topic: "Computer Knowledge • Number Systems",
+                dynamicTag: true,
+                stem: `Convert the hexadecimal value (0x${hexStr})₁₆ into its exact 8-bit Binary and Octal equivalents:`,
+                correctText: `Binary: (${binStr})₂ | Octal: (${octStr})₈`,
+                distractors: [
+                    `Binary: (${(decNum + 2).toString(2).padStart(8, '0')})₂ | Octal: (${octStr})₈`,
+                    `Binary: (${binStr})₂ | Octal: (${(decNum + 8).toString(8)})₈`,
+                    `Binary: (${(decNum - 1).toString(2).padStart(8, '0')})₂ | Octal: (${(decNum - 1).toString(8)})₈`,
+                    `Binary: (${binStr.split('').reverse().join('')})₂ | Octal: (${octStr})₈`
+                ],
+                explanation: `0x${hexStr} equals ${decNum} in decimal, which converts to (${binStr})₂ in 8-bit binary and (${octStr})₈ in base-8 octal.`
+            }));
+
+            // 7. Dynamic Insurance Contribution Numerical (GA)
+            const insA = pickOne([20, 30, 40]);
+            const insB = pickOne([40, 60]);
+            const totIns = insA + insB;
+            const claimLoss = pickOne([16, 24, 32]);
+            const payA = +((insA / totIns) * claimLoss).toFixed(2);
+            const payB = +((insB / totIns) * claimLoss).toFixed(2);
+            list.push(buildExamMCQ({
+                section: "GA", phase: "MAINS",
+                topic: "Insurance Awareness • Principle of Contribution",
+                dynamicTag: true,
+                stem: `A factory owner insures a property with Insurer A for ₹${insA} Lakhs and with NICL (Insurer B) for ₹${insB} Lakhs. A fire causes a verified loss of ₹${claimLoss} Lakhs. Under the Principle of Contribution, how much must each insurer pay?`,
+                correctText: `Insurer A: ₹${payA} Lakhs | NICL (Insurer B): ₹${payB} Lakhs`,
+                distractors: [
+                    `Insurer A: ₹${claimLoss} Lakhs | NICL: ₹${claimLoss} Lakhs`,
+                    `Insurer A: ₹${(claimLoss / 2).toFixed(2)} Lakhs | NICL: ₹${(claimLoss / 2).toFixed(2)} Lakhs`,
+                    `Insurer A: ₹${payB} Lakhs | NICL: ₹${payA} Lakhs`,
+                    `Insurer A: ₹${insA} Lakhs | NICL: ₹0 Lakhs`
+                ],
+                explanation: `Total Sum Insured = ₹${insA}L + ₹${insB}L = ₹${totIns}L. Insurer A pays (${insA}/${totIns}) × ${claimLoss} = ₹${payA} Lakhs, and NICL pays (${insB}/${totIns}) × ${claimLoss} = ₹${payB} Lakhs.`
+            }));
+
+            // 8. Dynamic Quantitative Aptitude Tabular DI + Series + Quadratics (QUANT - Prelims & Mains)
+            const zA = randInt(4, 8) * 100, zB = randInt(5, 9) * 100, zC = randInt(6, 10) * 100;
+            const pA_pct = pickOne([75, 80]), pB_pct = pickOne([70, 80]), pC_pct = pickOne([80, 90]);
+            const setA = (zA * pA_pct) / 100, setB = (zB * pB_pct) / 100, setC = (zC * pC_pct) / 100;
+            const diContext = `
+                <div class="text-xs text-brand font-bold mb-1">DYNAMIC NICL ZONAL CLAIMS TABLE:</div>
+                <table class="w-full text-xs border-collapse border border-white/20">
+                    <thead><tr class="bg-white/10"><th class="border border-white/20 p-1">Zone</th><th class="border border-white/20 p-1">Policies Issued</th><th class="border border-white/20 p-1">% Settled</th></tr></thead>
+                    <tbody>
+                        <tr><td class="border border-white/20 p-1">North Zone</td><td class="border border-white/20 p-1">${zA}</td><td class="border border-white/20 p-1">${pA_pct}%</td></tr>
+                        <tr><td class="border border-white/20 p-1">West Zone</td><td class="border border-white/20 p-1">${zB}</td><td class="border border-white/20 p-1">${pB_pct}%</td></tr>
+                        <tr><td class="border border-white/20 p-1">South Zone</td><td class="border border-white/20 p-1">${zC}</td><td class="border border-white/20 p-1">${pC_pct}%</td></tr>
+                    </tbody>
+                </table>
+            `;
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Tabular Data Interpretation",
+                dynamicTag: true,
+                contextHTML: diContext,
+                stem: `What is the total number of SETTLED claims across North Zone, West Zone, and South Zone combined?`,
+                correctText: `${setA + setB + setC}`,
+                distractors: [`${setA + setB + setC + 40}`, `${setA + setB + setC - 30}`, `${zA + zB + zC - (setA + setB + setC)}`, `${setA + setC}`],
+                explanation: `North = ${setA}, West = ${setB}, South = ${setC}. Total settled = ${setA} + ${setB} + ${setC} = ${setA + setB + setC}.`
+            }));
+
+            // Missing Number Series
+            const s0 = randInt(12, 30), kOff = randInt(2, 5);
+            const sArr = [s0];
+            for (let i = 1; i <= 5; i++) sArr.push(sArr[i - 1] + i * i + kOff);
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Missing Number Series",
+                dynamicTag: true,
+                stem: `Find the missing term (?) in the number series:\n${sArr[0]}, ${sArr[1]}, ${sArr[2]}, ${sArr[3]}, ${sArr[4]}, ?`,
+                correctText: `${sArr[5]}`,
+                distractors: [`${sArr[5] + 4}`, `${sArr[5] - 3}`, `${sArr[5] + 9}`, `${sArr[5] - 6}`],
+                explanation: `Successive differences follow (n² + ${kOff}): +${1 + kOff}, +${4 + kOff}, +${9 + kOff}, +${16 + kOff}, +${25 + kOff}. Next term = ${sArr[4]} + ${25 + kOff} = ${sArr[5]}.`
+            }));
+
+            // Quadratic Equations
+            const r1 = randInt(7, 11), r2 = randInt(12, 16), r3 = randInt(2, 5), r4 = randInt(5, 6);
+            list.push(buildExamMCQ({
+                section: "QUANT", phase: "BOTH",
+                topic: "Quantitative Aptitude • Quadratic Equations",
+                dynamicTag: true,
+                stem: `Solve equations I and II and choose the correct relation between x and y:\nI.  x² - ${r1 + r2}x + ${r1 * r2} = 0\nII. y² - ${r3 + r4}y + ${r3 * r4} = 0`,
+                correctText: `x > y`,
+                distractors: [`x ≥ y`, `x < y`, `x ≤ y`, `x = y or no relation can be established`],
+                explanation: `From I: x = ${r1}, ${r2}. From II: y = ${r3}, ${r4}. Since both roots of x are strictly greater than both roots of y, x > y.`
+            }));
+
+            // 9. Dynamic Reasoning Coded Inequality (REAS - Prelims & Mains)
+            const syms = shuffleArray(["A", "B", "C", "D", "E", "F", "G"]).slice(0, 6);
+            list.push(buildExamMCQ({
+                section: "REAS", phase: "BOTH",
+                topic: "Reasoning Ability • Coded Inequalities",
+                dynamicTag: true,
+                stem: `Statement:  ${syms[0]} ≥ ${syms[1]} = ${syms[2]} > ${syms[3]} ≥ ${syms[4]} < ${syms[5]}\nConclusions:\nI.  ${syms[0]} > ${syms[4]}\nII. ${syms[2]} ≥ ${syms[4]}`,
+                correctText: `Only Conclusion I is true`,
+                distractors: [
+                    `Only Conclusion II is true`,
+                    `Both Conclusions I and II are true`,
+                    `Either Conclusion I or II is true`,
+                    `Neither Conclusion I nor II is true`
+                ],
+                explanation: `Along the chain ${syms[0]} ≥ ${syms[1]} = ${syms[2]} > ${syms[3]} ≥ ${syms[4]}, the strict '>' ensures ${syms[0]} > ${syms[4]} (I is true) and ${syms[2]} > ${syms[4]} (making II false).`
+            }));
+
+            return list;
+        };
+
+        const getCuratedNICLQuestionPool = () => [
+            // PROFESSIONAL KNOWLEDGE (IT)
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Candidate Keys & BCNF",
+                stem: "A relation R(A, B, C, D, E) has Functional Dependencies F = { AB → C, C → D, D → B, E → A }. Which of the following accurately lists ALL Candidate Keys of R?",
+                correctText: "{BE, CE, DE}",
+                distractors: ["{AB, CD}", "{BE} only", "{ABE, BCE, BDE}", "{AE, BE}"],
+                explanation: "Attribute E never appears on the RHS of any FD, so E is essential. (BE)+ = BEACD = R. Since C → D and D → B, (CE)+ = CEADB = R and (DE)+ = DEABC = R. All three {BE, CE, DE} are minimal superkeys."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "SQL • Execution Order & Clauses",
+                stem: "What is the exact logical query processing order of SQL clauses inside an RDBMS query engine?",
+                correctText: "FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY",
+                distractors: [
+                    "SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY",
+                    "FROM → GROUP BY → WHERE → HAVING → SELECT → ORDER BY",
+                    "WHERE → FROM → GROUP BY → HAVING → SELECT → ORDER BY",
+                    "FROM → WHERE → HAVING → GROUP BY → ORDER BY → SELECT"
+                ],
+                explanation: "The SQL engine first resolves source tables (FROM/JOIN), filters base rows (WHERE), aggregates groups (GROUP BY), filters groups (HAVING), projects expressions (SELECT), and finally sorts (ORDER BY)."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "SQL • NULL & Aggregate Functions",
+                stem: "A table CLAIMS has 10 rows. The PAYOUT column holds: (1000, 2000, NULL, 1000, NULL, 3000, 2000, NULL, 5000, 1000). What do COUNT(*), COUNT(PAYOUT), and COUNT(DISTINCT PAYOUT) return?",
+                correctText: "10, 7, and 4",
+                distractors: ["10, 10, and 4", "7, 7, and 5", "10, 7, and 5", "7, 4, and 4"],
+                explanation: "COUNT(*) counts all 10 rows. COUNT(PAYOUT) ignores the 3 NULLs (returning 7). COUNT(DISTINCT PAYOUT) counts unique non-null values {1000, 2000, 3000, 5000} (returning 4)."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "DBMS • Concurrency & Strict 2PL",
+                stem: "Which concurrency control protocol guarantees BOTH conflict serializability AND freedom from cascading rollbacks?",
+                correctText: "Strict Two-Phase Locking (Strict 2PL), where all exclusive (write) locks are held until commit/abort",
+                distractors: [
+                    "Basic 2PL, where locks are released right after the growing phase",
+                    "Read Uncommitted isolation level",
+                    "Validation-based concurrency without write-phase locking",
+                    "Round-Robin lock scheduling"
+                ],
+                explanation: "Holding Exclusive (X) locks until after Commit/Abort prevents dirty reads by concurrent transactions, ensuring strictness and preventing cascading aborts."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Computer Networks • TCP 3-Way Handshake",
+                stem: "Client A initiates a TCP connection to Server B with SYN (Seq = 2400). Server B replies with SYN-ACK (Seq = 7000, Ack = ?). What is the Ack number sent by Server B, and what Seq number does Client A send in the third segment?",
+                correctText: "Server Ack = 2401 | Client Seq = 2401 (with Ack = 7001)",
+                distractors: [
+                    "Server Ack = 2400 | Client Seq = 2400",
+                    "Server Ack = 2401 | Client Seq = 7001",
+                    "Server Ack = 7001 | Client Seq = 2401",
+                    "Server Ack = 2402 | Client Seq = 2402"
+                ],
+                explanation: "The SYN flag consumes 1 sequence number, so Server acknowledges 2400 + 1 = 2401. Client then sends its ACK segment with Seq = 2401 and Ack = 7000 + 1 = 7001."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Network Security • SQL Injection Prevention",
+                stem: "Which programming technique provides the strongest structural defense against SQL Injection (SQLi) on an online insurance portal?",
+                correctText: "Using Parameterized Queries (Prepared Statements) so user inputs are bound strictly as literal values rather than executable SQL syntax",
+                distractors: [
+                    "Validating input fields solely with client-side JavaScript",
+                    "Switching the web server port from 80 to 8080",
+                    "Encoding SQL queries in URL query strings",
+                    "Disabling browser cookies on the login page"
+                ],
+                explanation: "Prepared Statements pre-compile the SQL command tree on the server and bind user input strictly as parameters, preventing malicious payloads from altering query logic."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Operating Systems • Deadlock Safe State",
+                stem: "In a system with 10 total instances of a resource and 3 processes: P1(Max=8, Alloc=3), P2(Max=5, Alloc=2), P3(Max=9, Alloc=3), how many instances are Available, and is the system in a Safe State?",
+                correctText: "Available = 2 | Unsafe State (since Available < every process's remaining Need)",
+                distractors: [
+                    "Available = 2 | Safe State with sequence <P2, P1, P3>",
+                    "Available = 3 | Safe State with sequence <P1, P2, P3>",
+                    "Available = 2 | Safe State with sequence <P3, P2, P1>",
+                    "Available = 0 | Safe State"
+                ],
+                explanation: "Allocated = 3 + 2 + 3 = 8, so Available = 10 - 8 = 2. Remaining Needs are P1 = 5, P2 = 3, P3 = 6. Since Available (2) is less than the smallest Need (P2 = 3), no process can guaranteedly finish—Unsafe State!"
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Data Structures • Binary Tree Traversals",
+                stem: "The Inorder traversal of a binary tree is D B E A F C and its Preorder traversal is A B D E C F. What is its exact Postorder traversal?",
+                correctText: "D E B F C A",
+                distractors: ["D E B C F A", "E D B F C A", "D B E F C A", "F C D E B A"],
+                explanation: "Root from Preorder is A. Inorder splits into Left (D B E) and Right (F C). Left subtree root is B (children D, E → postorder D E B). Right subtree root is C with left child F (postorder F C). Combined Postorder: D E B F C A."
+            },
+            {
+                section: "IT", phase: "MAINS", topic: "Software Engineering • Cohesion & Coupling",
+                stem: "High-quality modular software design strives for which combination of Cohesion and Coupling?",
+                correctText: "High Cohesion (Functional Cohesion) and Low Coupling (Data Coupling)",
+                distractors: [
+                    "Low Cohesion (Coincidental) and High Coupling (Content Coupling)",
+                    "High Cohesion and High Coupling (Common Coupling)",
+                    "Low Cohesion and Low Coupling (Control Coupling)",
+                    "Stamp Coupling with Temporal Cohesion"
+                ],
+                explanation: "Functional Cohesion (highest cohesion) keeps related responsibilities together, while Data Coupling (loosest coupling) minimizes inter-module dependencies."
+            },
+
+            // COMPUTER KNOWLEDGE
+            {
+                section: "COMP", phase: "MAINS", topic: "Computer Knowledge • Cache Memory",
+                stem: "Why is CPU L1/L2 Cache constructed using SRAM (Static RAM) instead of DRAM (Dynamic RAM)?",
+                correctText: "SRAM uses bistable flip-flop latches that retain data without periodic refresh cycles, delivering much lower access latency than capacitor-based DRAM",
+                distractors: [
+                    "SRAM stores bits in leaky capacitors that refresh every millisecond",
+                    "SRAM is non-volatile and retains data when power is turned off",
+                    "SRAM has higher storage density and lower cost per gigabyte than DRAM",
+                    "DRAM cannot be addressed by a 64-bit CPU"
+                ],
+                explanation: "SRAM uses 6-transistor flip-flop cells that do not require periodic refresh cycles, making it significantly faster than capacitor-based DRAM."
+            },
+            {
+                section: "COMP", phase: "MAINS", topic: "Computer Knowledge • Disaster Recovery",
+                stem: "If NICL sets a Recovery Point Objective (RPO) of 15 minutes and a Recovery Time Objective (RTO) of 2 hours for its core database, what does this mean?",
+                correctText: "At most 15 minutes of committed transactions may be lost (RPO), and service must be restored within 2 hours of an outage (RTO)",
+                distractors: [
+                    "Backups run every 2 hours and recovery takes 15 days",
+                    "The server must reboot every 15 minutes for 2 hours",
+                    "At most 2 hours of data may be lost and recovery takes 15 minutes",
+                    "Network latency cannot exceed 15 ms"
+                ],
+                explanation: "RPO measures maximum tolerable data loss in time (backup/replication window), while RTO measures maximum tolerable service downtime."
+            },
+
+            // GENERAL & INSURANCE AWARENESS
+            {
+                section: "GA", phase: "MAINS", topic: "Insurance Principles • Subrogation",
+                stem: "After compensating a policyholder for a motor claim caused by a negligent third-party truck, NICL acquires the legal right to recover the payout amount from the liable third party. Which principle of insurance applies?",
+                correctText: "Principle of Subrogation",
+                distractors: [
+                    "Principle of Contribution",
+                    "Principle of Utmost Good Faith (Uberrimae Fidei)",
+                    "Principle of Insurable Interest",
+                    "Principle of Loss Minimization"
+                ],
+                explanation: "Subrogation transfers the insured's legal rights of recovery against negligent third parties to the insurer after the claim is indemnified."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Insurance Awareness • IRDAI & NICL",
+                stem: "What is the minimum Required Solvency Margin Ratio mandated by IRDAI for general insurers in India, and what is the maximum award limit of the Insurance Ombudsman?",
+                correctText: "Minimum Solvency Ratio: 150% (1.50) | Insurance Ombudsman Limit: ₹50 Lakhs",
+                distractors: [
+                    "Minimum Solvency Ratio: 100% (1.00) | Ombudsman Limit: ₹20 Lakhs",
+                    "Minimum Solvency Ratio: 150% (1.50) | Ombudsman Limit: ₹30 Lakhs",
+                    "Minimum Solvency Ratio: 200% (2.00) | Ombudsman Limit: ₹1 Crore",
+                    "Minimum Solvency Ratio: 125% (1.25) | Ombudsman Limit: ₹25 Lakhs"
+                ],
+                explanation: "IRDAI mandates a minimum Solvency Ratio of 150% (1.50) for all insurers, and the Insurance Ombudsman can pass awards up to ₹50 Lakhs."
+            },
+            {
+                section: "GA", phase: "MAINS", topic: "Data Privacy • DPDP Act 2023",
+                stem: "Under India's Digital Personal Data Protection (DPDP) Act 2023, how are the insurance company (processing data) and the policyholder (whose data is processed) legally designated?",
+                correctText: "Data Fiduciary (Insurer) and Data Principal (Policyholder)",
+                distractors: [
+                    "Data Trustee and Data Beneficiary",
+                    "Data Controller and Data Subject",
+                    "Data Broker and Data Custodian",
+                    "Information Auditor and Information Client"
+                ],
+                explanation: "The DPDP Act 2023 designates the entity determining the purpose and means of data processing as the 'Data Fiduciary' and the individual as the 'Data Principal'."
+            },
+
+            // QUANTITATIVE APTITUDE (PRELIMS & MAINS)
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Compound Interest",
+                stem: "An insurance reserve fund is invested at 20% p.a. for 2 years. If the difference between Compound Interest (annual compounding) and Simple Interest after 2 years is ₹14,400, what is the principal corpus?",
+                correctText: "₹3,60,000",
+                distractors: ["₹2,88,000", "₹3,20,000", "₹4,00,000", "₹4,50,000"],
+                explanation: "For 2 years, CI - SI = P(R/100)² = P(0.20)² = 0.04P. Given 0.04P = 14,400 ⇒ P = 14,400 / 0.04 = ₹3,60,000."
+            },
+            {
+                section: "QUANT", phase: "BOTH", topic: "Quantitative Aptitude • Probability",
+                stem: "An incident response pool has 6 Network Engineers and 4 Database Administrators. If a 3-member team is chosen at random, what is the probability that at least ONE Database Administrator is included?",
+                correctText: "5/6",
+                distractors: ["1/6", "2/3", "3/4", "4/5"],
+                explanation: "Total ways = 10C3 = 120. Ways with 0 DBAs (all 3 from 6 Network Engineers) = 6C3 = 20. Probability(at least 1 DBA) = 1 - 20/120 = 5/6."
+            },
+
+            // REASONING ABILITY (PRELIMS & MAINS)
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Syllogism ('Only a Few')",
+                stem: "Statements:\n1. Only a few Servers are Routers.\n2. All Routers are Switches.\n3. No Switch is a Firewall.\nConclusions:\nI. Some Servers are definitely not Firewalls.\nII. All Servers being Switches is a possibility.",
+                correctText: "Both Conclusions I and II follow",
+                distractors: [
+                    "Only Conclusion I follows",
+                    "Only Conclusion II follows",
+                    "Either Conclusion I or II follows",
+                    "Neither Conclusion I nor II follows"
+                ],
+                explanation: "Since Some Servers are Routers and All Routers are Switches, those Servers are Switches and cannot be Firewalls (I follows). Also, 'Only a few Servers are Routers' does not restrict all Servers from being inside Switches (II follows)."
+            },
+            {
+                section: "REAS", phase: "BOTH", topic: "Reasoning Ability • Floor Puzzle",
+                stem: "Six NICL IT Officers (P, Q, R, S, T, U) live on floors 1 to 6. R (Cloud) lives on an even floor below 4. Two officers live between R and S (ERP). P (Network) lives immediately below S, and T (Cyber) lives immediately above S. Q (Database) lives on Floor 1. Who lives on Floor 4 and Floor 3 respectively?",
+                correctText: "Floor 4: P (Network) | Floor 3: U (AI)",
+                distractors: [
+                    "Floor 4: S (ERP) | Floor 3: P (Network)",
+                    "Floor 4: U (AI) | Floor 3: R (Cloud)",
+                    "Floor 4: T (Cyber) | Floor 3: S (ERP)",
+                    "Floor 4: P (Network) | Floor 3: Q (Database)"
+                ],
+                explanation: "R is on Floor 2 (even floor < 4). Two floors between R(2) and S places S on Floor 5. T is above S (Floor 6), P is below S (Floor 4). Q is on Floor 1, leaving U on Floor 3."
+            },
+
+            // ENGLISH LANGUAGE (PRELIMS & MAINS)
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Error Spotting",
+                stem: "Identify the segment with a grammatical error:\n(A) Neither the Chief Information Security Officer / (B) nor the database administrators / (C) was apprised of the schema migration / (D) before the maintenance window.",
+                correctText: "Segment (C) — 'was apprised' should be 'were apprised'",
+                distractors: ["Segment (A)", "Segment (B)", "Segment (D)", "No Error"],
+                explanation: "With 'Neither... nor', the verb agrees with the closer subject ('database administrators', plural), so 'were apprised' is required."
+            },
+            {
+                section: "ENG", phase: "BOTH", topic: "English Language • Contextual Fillers",
+                stem: "While generative AI can ________ routine claim documentation, human underwriters remain ________ for evaluating bespoke industrial and marine risks.",
+                correctText: "expedite — indispensable",
+                distractors: [
+                    "obstruct — redundant",
+                    "fabricate — obsolete",
+                    "stagnate — peripheral",
+                    "aggravate — superfluous"
+                ],
+                explanation: "'Expedite' (speed up) and 'indispensable' (essential) fit the logical contrast introduced by 'While'."
+            }
+        ];
+
+        const NICLExamSimulator = ({ user, notify }) => {
+            const [examPhase, setExamPhase] = useState('MAINS'); // 'PRELIMS', 'MAINS', 'INTERVIEW'
+            const [sectionFilter, setSectionFilter] = useState('ALL');
+            const [questions, setQuestions] = useState([]);
+            const [answers, setAnswers] = useState({});
+            const [reviewMarks, setReviewMarks] = useState({});
+            const [submitted, setSubmitted] = useState(false);
+            const [instantCheck, setInstantCheck] = useState(false);
+            const [attemptNo, setAttemptNo] = useState(1);
+            const [paperSeed, setPaperSeed] = useState('');
+            const [timeLeft, setTimeLeft] = useState(180 * 60);
+            const [timerRunning, setTimerRunning] = useState(true);
+            const [essayText, setEssayText] = useState('');
+            const [precisText, setPrecisText] = useState('');
+            const [showModelDesc, setShowModelDesc] = useState(false);
+            const [attemptHistory, setAttemptHistory] = useState([]);
+
+            useEffect(() => {
+                try {
+                    const savedHist = localStorage.getItem(`atlas_nicl_history_${user?.uid || 'guest'}`);
+                    if (savedHist) setAttemptHistory(JSON.parse(savedHist));
+                } catch (e) {}
+            }, [user]);
+
+            const generateFreshPaper = (targetPhase = examPhase) => {
+                setSubmitted(false);
+                setAnswers({});
+                setReviewMarks({});
+                const nextAttempt = parseInt(localStorage.getItem('atlas_nicl_attempt_count') || '0', 10) + 1;
+                localStorage.setItem('atlas_nicl_attempt_count', String(nextAttempt));
+                setAttemptNo(nextAttempt);
+                setPaperSeed(Math.random().toString(36).substring(2, 8).toUpperCase());
+
+                const procedural = generateProceduralNICLQuestions();
+                const curated = shuffleArray(getCuratedNICLQuestionPool()).map(item => buildExamMCQ(item));
+                const combined = [...procedural, ...curated];
+
+                const filteredByPhase = targetPhase === 'PRELIMS'
+                    ? combined.filter(q => ['QUANT', 'REAS', 'ENG'].includes(q.section))
+                    : combined;
+
+                const order = { IT: 1, COMP: 2, GA: 3, QUANT: 4, REAS: 5, ENG: 6 };
+                filteredByPhase.sort((a, b) => (order[a.section] || 9) - (order[b.section] || 9));
+
+                setQuestions(filteredByPhase);
+                setTimeLeft(targetPhase === 'PRELIMS' ? 60 * 60 : 180 * 60);
+                setTimerRunning(true);
+            };
+
+            useEffect(() => {
+                generateFreshPaper(examPhase);
+            }, [examPhase]);
+
+            useEffect(() => {
+                if (!timerRunning || submitted || examPhase === 'INTERVIEW') return;
+                const t = setInterval(() => {
+                    setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+                }, 1000);
+                return () => clearInterval(t);
+            }, [timerRunning, submitted, examPhase]);
+
+            const formatTimer = (sec) => {
+                const m = String(Math.floor(sec / 60)).padStart(2, '0');
+                const s = String(sec % 60).padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            const handleSelectOption = (qIdx, optIdx) => {
+                if (submitted) return;
+                setAnswers(prev => ({ ...prev, [qIdx]: optIdx }));
+            };
+
+            const handleClearOption = (qIdx) => {
+                if (submitted) return;
+                setAnswers(prev => {
+                    const copy = { ...prev };
+                    delete copy[qIdx];
+                    return copy;
+                });
+            };
+
+            const handleToggleReview = (qIdx) => {
+                setReviewMarks(prev => ({ ...prev, [qIdx]: !prev[qIdx] }));
+            };
+
+            const scoreMetrics = useMemo(() => {
+                let correct = 0, wrong = 0, unattempted = 0;
+                questions.forEach((q, idx) => {
+                    if (answers[idx] === undefined) unattempted++;
+                    else if (answers[idx] === q.answerIndex) correct++;
+                    else wrong++;
+                });
+                const netScore = +(correct * 1.0 - wrong * 0.25).toFixed(2);
+                const attempted = correct + wrong;
+                const accuracy = attempted > 0 ? ((correct / attempted) * 100).toFixed(1) : '0.0';
+                return { correct, wrong, unattempted, attempted, netScore, accuracy };
+            }, [questions, answers]);
+
+            const handleSubmitExam = () => {
+                setSubmitted(true);
+                setTimerRunning(false);
+                const record = {
+                    attempt: attemptNo,
+                    seed: paperSeed,
+                    phase: examPhase,
+                    score: scoreMetrics.netScore,
+                    total: questions.length,
+                    accuracy: scoreMetrics.accuracy,
+                    date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+                const updatedHist = [record, ...attemptHistory].slice(0, 8);
+                setAttemptHistory(updatedHist);
+                try {
+                    localStorage.setItem(`atlas_nicl_history_${user?.uid || 'guest'}`, JSON.stringify(updatedHist));
+                } catch (e) {}
+                notify(`Exam Evaluated! Net Score: ${scoreMetrics.netScore} / ${questions.length}`, 'success');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+            const secNames = {
+                ALL: 'All Sections',
+                IT: 'Sec 1: Professional IT (Core)',
+                COMP: 'Sec 2: Computer Knowledge',
+                GA: 'Sec 3: Insurance & Banking GA',
+                QUANT: 'Sec 4: Quantitative Aptitude',
+                REAS: 'Sec 5: Reasoning Ability',
+                ENG: 'Sec 6: English Language',
+                DESC: 'Sec 7: Descriptive Typing (30M)'
+            };
+
+            const interviewQuestions = [
+                {
+                    cat: "Core IT & Database Architecture",
+                    q: "Explain ACID properties using an online NICL insurance premium payment failure scenario.",
+                    a: "Atomicity ensures that if a policyholder's UPI debit succeeds but policy ledger insertion fails, the entire transaction rolls back automatically. Consistency preserves ledger constraints; Isolation (via Strict 2PL/MVCC) prevents race conditions on concurrent renewals; Durability (Write-Ahead Logging) guarantees committed policies survive power outages."
+                },
+                {
+                    cat: "Cyber Security & DPDP Act 2023",
+                    q: "How do you secure NICL's web portals against SQL Injection, XSS, and DDoS, and what is NICL's role under the DPDP Act 2023?",
+                    a: "Use Parameterized Queries (Prepared Statements) to neutralize SQLi, Content-Security-Policy + HttpOnly cookies + output encoding against XSS, and WAF + Anycast CDN rate-limiting against DDoS. Under the DPDP Act 2023, NICL is a 'Data Fiduciary' obligated to protect 'Data Principals' (policyholders) with explicit consent and breach reporting."
+                },
+                {
+                    cat: "General Insurance & Actuarial Principles",
+                    q: "Differentiate between Subrogation and Contribution with a real claim example.",
+                    a: "Contribution applies when a warehouse is insured with multiple insurers (each pays in proportion to Sum Insured). Subrogation applies after NICL pays a claim caused by a negligent third party—NICL steps into the insured's legal shoes to recover the payout from the third party."
+                },
+                {
+                    cat: "Disaster Recovery & High Availability",
+                    q: "What is the operational difference between RTO and RPO in a Core Insurance Data Center?",
+                    a: "RPO (Recovery Point Objective) is the maximum age of data that can be lost (e.g., 15 minutes, dictating synchronous/near-sync database replication). RTO (Recovery Time Objective) is the maximum tolerable downtime before operations resume at the DR site (e.g., 2 hours)."
+                }
+            ];
+
+            return (
+                <div className="animate-slide-in-3d max-w-6xl mx-auto px-4 py-8">
+                    {/* Top Exam Control Banner */}
+                    <div className="glass-panel p-6 rounded-3xl mb-6 border-t-2 border-brand">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                            <div>
+                                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-brand mb-1">
+                                    <span>NATIONAL INSURANCE CO. LTD. (NICL)</span>
+                                    <span>•</span>
+                                    <span>Attempt #{attemptNo} (Seed: {paperSeed})</span>
+                                </div>
+                                <h2 className="text-2xl md:text-3xl font-extrabold gradient-text">
+                                    NICL AO (IT Specialist) Real-Time Exam Simulator
+                                </h2>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    Official 5-Option (A–E) Pattern • +1.00 Correct | -0.25 Negative Marking • Fresh Dynamic Numbers Every Attempt
+                                </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                {examPhase !== 'INTERVIEW' && (
+                                    <div className="px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-lg flex items-center gap-2">
+                                        <span>⏱ {formatTimer(timeLeft)}</span>
+                                        <button
+                                            onClick={() => setTimerRunning(!timerRunning)}
+                                            className="text-xs px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-white"
+                                        >
+                                            {timerRunning ? 'Pause' : 'Resume'}
+                                        </button>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        generateFreshPaper(examPhase);
+                                        notify(`Loaded Fresh Exam Paper (Attempt #${attemptNo + 1})!`, 'success');
+                                    }}
+                                    className="px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 rounded-xl font-bold text-xs uppercase tracking-wider transition"
+                                >
+                                    ⚡ Load New Questions (Attempt #{attemptNo + 1})
+                                </button>
+                                {examPhase !== 'INTERVIEW' && !submitted && (
+                                    <button
+                                        onClick={handleSubmitExam}
+                                        className="px-5 py-2.5 bg-brand text-black hover:bg-brandDark rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(0,242,254,0.4)]"
+                                    >
+                                        ✔ Submit & Evaluate
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Phase Switcher */}
+                        <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-white/10 justify-between items-center">
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    onClick={() => { setExamPhase('PRELIMS'); setSectionFilter('ALL'); }}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'PRELIMS' ? 'bg-brand text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                                >
+                                    Phase I: Prelims (Quant / Reas / Eng)
+                                </button>
+                                <button
+                                    onClick={() => { setExamPhase('MAINS'); setSectionFilter('ALL'); }}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'MAINS' ? 'bg-brand text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                                >
+                                    Phase II: Mains (IT Core + All Sections + Desc)
+                                </button>
+                                <button
+                                    onClick={() => setExamPhase('INTERVIEW')}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${examPhase === 'INTERVIEW' ? 'bg-purple-500 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                                >
+                                    Phase III: Personal Interview Bank
+                                </button>
+                            </div>
+
+                            {examPhase !== 'INTERVIEW' && (
+                                <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={instantCheck}
+                                        onChange={e => setInstantCheck(e.target.checked)}
+                                        className="accent-cyan-400 w-4 h-4"
+                                    />
+                                    <span>Instant Answer & Explanation Mode</span>
+                                </label>
+                            )}
+                        </div>
+
+                        {/* Section Filter Pills */}
+                        {examPhase !== 'INTERVIEW' && (
+                            <div className="flex flex-wrap gap-2 mt-4">
+                                {Object.entries(secNames)
+                                    .filter(([key]) => examPhase === 'MAINS' || ['ALL', 'QUANT', 'REAS', 'ENG'].includes(key))
+                                    .map(([key, label]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => setSectionFilter(key)}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition border ${
+                                                sectionFilter === key
+                                                    ? 'bg-brand/20 border-brand text-brand'
+                                                    : 'bg-black/30 border-white/10 text-gray-400 hover:text-white'
+                                            }`}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Score Summary Card (if Submitted) */}
+                    {submitted && examPhase !== 'INTERVIEW' && (
+                        <div className="glass-panel p-6 rounded-3xl mb-6 border border-emerald-500/40 bg-emerald-950/20 animate-slide-up">
+                            <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+                                <h3 className="text-xl font-bold text-emerald-400">
+                                    📊 Official NICL AO IT Evaluation — Attempt #{attemptNo}
+                                </h3>
+                                <button
+                                    onClick={() => generateFreshPaper(examPhase)}
+                                    className="px-4 py-2 bg-emerald-500 text-black font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition"
+                                >
+                                    🔄 Start Next Attempt with New Questions
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+                                <div className="p-3 rounded-xl bg-black/40 border border-white/10">
+                                    <div className="text-2xl font-black text-brand">{scoreMetrics.netScore} / {questions.length}</div>
+                                    <div className="text-[11px] text-gray-400 uppercase">Net Score (-0.25 Neg)</div>
+                                </div>
+                                <div className="p-3 rounded-xl bg-black/40 border border-white/10">
+                                    <div className="text-2xl font-black text-emerald-400">{scoreMetrics.correct}</div>
+                                    <div className="text-[11px] text-gray-400 uppercase">Correct (+1.00)</div>
+                                </div>
+                                <div className="p-3 rounded-xl bg-black/40 border border-white/10">
+                                    <div className="text-2xl font-black text-red-400">{scoreMetrics.wrong}</div>
+                                    <div className="text-[11px] text-gray-400 uppercase">Wrong (-0.25)</div>
+                                </div>
+                                <div className="p-3 rounded-xl bg-black/40 border border-white/10">
+                                    <div className="text-2xl font-black text-gray-300">{scoreMetrics.unattempted}</div>
+                                    <div className="text-[11px] text-gray-400 uppercase">Unattempted</div>
+                                </div>
+                                <div className="p-3 rounded-xl bg-black/40 border border-white/10">
+                                    <div className="text-2xl font-black text-amber-400">{scoreMetrics.accuracy}%</div>
+                                    <div className="text-[11px] text-gray-400 uppercase">Accuracy</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Phase III Interview View */}
+                    {examPhase === 'INTERVIEW' ? (
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {interviewQuestions.map((item, idx) => (
+                                <div key={idx} className="glass-panel p-6 rounded-2xl border-l-4 border-purple-500">
+                                    <span className="text-xs font-mono uppercase tracking-wider text-purple-400 block mb-2">{item.cat}</span>
+                                    <h3 className="text-lg font-bold text-white mb-3">Q{idx + 1}. {item.q}</h3>
+                                    <div className="p-4 rounded-xl bg-black/40 border border-white/10 text-sm text-gray-300 leading-relaxed">
+                                        <strong className="text-brand block mb-1">Panel Model Response:</strong>
+                                        {item.a}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        /* Phase I & II Main Exam Grid */
+                        <div className="grid lg:grid-cols-3 gap-6 items-start">
+                            {/* Left 2 Columns: Questions + Descriptive */}
+                            <div className="lg:col-span-2 space-y-5">
+                                {sectionFilter !== 'DESC' && questions.map((q, qIdx) => {
+                                    if (sectionFilter !== 'ALL' && q.section !== sectionFilter) return null;
+                                    const userPick = answers[qIdx];
+                                    const isReviewed = reviewMarks[qIdx];
+                                    const reveal = submitted || (instantCheck && userPick !== undefined);
+
+                                    return (
+                                        <div key={qIdx} id={`nicl-q-${qIdx}`} className="glass-panel p-6 rounded-2xl border border-white/10">
+                                            <div className="flex flex-wrap justify-between items-center gap-2 pb-3 mb-3 border-b border-white/10">
+                                                <span className="font-extrabold text-brand text-sm">Question {qIdx + 1}</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-200">{q.topic}</span>
+                                                    {q.dynamicTag && (
+                                                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                                            ⚡ Procedural Numerical
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {q.contextHTML && (
+                                                <div
+                                                    className="mb-4 p-3 rounded-xl bg-black/40 border border-brand/20"
+                                                    dangerouslySetInnerHTML={{ __html: q.contextHTML }}
+                                                />
+                                            )}
+
+                                            <p className="text-sm md:text-base font-semibold text-gray-100 whitespace-pre-line mb-4 leading-relaxed">
+                                                {q.stem}
+                                            </p>
+
+                                            <div className="space-y-2.5">
+                                                {q.options.map((optText, oIdx) => {
+                                                    let btnStyle = "border-white/10 bg-black/30 hover:bg-white/10 text-gray-200";
+                                                    if (userPick === oIdx) {
+                                                        btnStyle = "border-brand bg-brand/15 text-white font-semibold";
+                                                    }
+                                                    if (reveal) {
+                                                        if (oIdx === q.answerIndex) {
+                                                            btnStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold";
+                                                        } else if (userPick === oIdx && oIdx !== q.answerIndex) {
+                                                            btnStyle = "border-red-500 bg-red-500/20 text-red-200";
+                                                        }
+                                                    }
+
+                                                    return (
+                                                        <button
+                                                            key={oIdx}
+                                                            type="button"
+                                                            onClick={() => handleSelectOption(qIdx, oIdx)}
+                                                            className={`w-full text-left p-3 rounded-xl border transition flex items-start gap-3 text-sm ${btnStyle}`}
+                                                        >
+                                                            <span className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                                                {letters[oIdx]}
+                                                            </span>
+                                                            <span>{optText}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            <div className="flex flex-wrap justify-between items-center gap-2 mt-4 pt-3 border-t border-white/10 text-xs">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleToggleReview(qIdx)}
+                                                        className={`px-3 py-1.5 rounded-lg border transition ${isReviewed ? 'bg-purple-500/20 border-purple-400 text-purple-300' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
+                                                    >
+                                                        {isReviewed ? '★ Marked for Review' : '☆ Mark for Review'}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleClearOption(qIdx)}
+                                                        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white transition"
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                </div>
+                                                <span className="text-gray-500 font-mono">+1.00 / -0.25</span>
+                                            </div>
+
+                                            {reveal && (
+                                                <div className="mt-4 p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-200 leading-relaxed">
+                                                    <div className="font-bold text-emerald-400 mb-1">
+                                                        ✔ Correct Answer: ({letters[q.answerIndex]}) {q.options[q.answerIndex]}
+                                                    </div>
+                                                    <div>{q.explanation}</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Descriptive Paper Section (Mains) */}
+                                {(sectionFilter === 'ALL' || sectionFilter === 'DESC') && examPhase === 'MAINS' && (
+                                    <div className="glass-panel p-6 rounded-2xl border-l-4 border-brand space-y-4">
+                                        <div className="flex justify-between items-center flex-wrap gap-2">
+                                            <h3 className="text-lg font-bold text-brand">
+                                                Phase II — Descriptive English Test (30 Marks • 30 Mins)
+                                            </h3>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowModelDesc(!showModelDesc)}
+                                                className="px-3 py-1.5 rounded-lg bg-brand/20 text-brand border border-brand/40 text-xs font-bold"
+                                            >
+                                                {showModelDesc ? 'Hide Model Answers' : 'Show Model Essay & Précis'}
+                                            </button>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-300 mb-1">
+                                                Task 1: Essay Writing (10 Marks | ~200–250 Words) — "Role of AI, Telematics & Zero-Trust Cyber Resilience in India's General Insurance Sector"
+                                            </label>
+                                            <textarea
+                                                value={essayText}
+                                                onChange={e => setEssayText(e.target.value)}
+                                                rows="5"
+                                                placeholder="Type your Essay response here..."
+                                                className="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand"
+                                            />
+                                            <div className="text-right text-[11px] text-gray-400 mt-1">
+                                                Word Count: {essayText.trim() ? essayText.trim().split(/\s+/).length : 0} words
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-300 mb-1">
+                                                Task 2: Précis Writing (10 Marks | ~90 Words + Title) — Summarize how Parametric Insurance overcomes traditional climate-disaster claim bottlenecks.
+                                            </label>
+                                            <textarea
+                                                value={precisText}
+                                                onChange={e => setPrecisText(e.target.value)}
+                                                rows="4"
+                                                placeholder="Provide a suitable Title and condense into ~90 words..."
+                                                className="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand"
+                                            />
+                                            <div className="text-right text-[11px] text-gray-400 mt-1">
+                                                Word Count: {precisText.trim() ? precisText.trim().split(/\s+/).length : 0} words
+                                            </div>
+                                        </div>
+
+                                        {showModelDesc && (
+                                            <div className="p-4 rounded-xl bg-black/50 border border-brand/30 text-xs text-gray-300 space-y-3 leading-relaxed">
+                                                <div>
+                                                    <strong className="text-brand block">Model Essay Key Points:</strong>
+                                                    1) Predictive AI & IoT Telematics ("Pay-As-You-Drive") enable dynamic risk pricing. 2) Computer Vision & NHCX automate hospital/motor claim settlements and detect fraud. 3) Compliance with IRDAI Cyber Security Guidelines and the DPDP Act 2023 (Data Fiduciary obligations) requires Zero-Trust network segmentation, MFA, and strict RTO/RPO disaster recovery.
+                                                </div>
+                                                <div>
+                                                    <strong className="text-brand block">Model Précis Title & Summary:</strong>
+                                                    <em>Title: Parametric Insurance: Bridging the Climate Protection Gap.</em> Escalating climate perils have invalidated historical actuarial baselines and slowed physical claim surveys. Parametric insurance disburses pre-agreed payouts automatically when independently verified weather parameters (rainfall or wind speed) breach set thresholds, delivering rapid post-disaster liquidity.
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Right Column: Live Palette & Attempt History */}
+                            <div className="space-y-6 lg:sticky lg:top-24">
+                                <div className="glass-panel p-5 rounded-2xl">
+                                    <h4 className="text-sm font-bold text-brand uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
+                                        Live Question Palette ({scoreMetrics.attempted} / {questions.length})
+                                    </h4>
+                                    <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto pr-1">
+                                        {questions.map((q, idx) => {
+                                            let pillCls = "bg-white/5 border-white/10 text-gray-400";
+                                            if (submitted) {
+                                                if (answers[idx] === q.answerIndex) pillCls = "bg-emerald-500 text-black font-bold border-emerald-400";
+                                                else if (answers[idx] !== undefined) pillCls = "bg-red-500 text-white font-bold border-red-400";
+                                            } else {
+                                                if (reviewMarks[idx]) pillCls = "bg-purple-500 text-white font-bold border-purple-400";
+                                                else if (answers[idx] !== undefined) pillCls = "bg-brand text-black font-bold border-brand";
+                                            }
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => {
+                                                        setSectionFilter('ALL');
+                                                        setTimeout(() => {
+                                                            const el = document.getElementById(`nicl-q-${idx}`);
+                                                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                        }, 50);
+                                                    }}
+                                                    className={`py-1.5 rounded-lg text-xs border transition ${pillCls}`}
+                                                >
+                                                    {idx + 1}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/10 text-[11px] text-gray-400">
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-brand inline-block"></span> Answered</div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-purple-500 inline-block"></span> Review</div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-white/10 inline-block"></span> Unvisited</div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-red-500 inline-block"></span> Wrong</div>
+                                    </div>
+                                </div>
+
+                                {/* Past Attempts Log */}
+                                <div className="glass-panel p-5 rounded-2xl">
+                                    <h4 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-3 border-b border-white/10 pb-2">
+                                        Your Recent Attempts
+                                    </h4>
+                                    {attemptHistory.length === 0 ? (
+                                        <p className="text-xs text-gray-400">Submit an attempt to log your score history here.</p>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {attemptHistory.map((h, i) => (
+                                                <div key={i} className="p-2.5 rounded-xl bg-black/40 border border-white/10 flex justify-between items-center text-xs">
+                                                    <div>
+                                                        <span className="font-bold text-white">Attempt #{h.attempt}</span>
+                                                        <span className="text-gray-400 ml-2">({h.phase})</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="font-bold text-brand">{h.score}/{h.total}</span>
+                                                        <span className="text-emerald-400 ml-2">({h.accuracy}%)</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
         const InteractiveTerminal = () => {
-            const [history, setHistory] = useState([{ cmd: 'sys --version', output: 'ATLAS OS v2.0.4. Type "help" for commands.' }]);
+            const [history, setHistory] = useState([{ cmd: 'sys --version', output: 'ATLAS OS v2.5.0. Type "help" for commands.' }]);
             const [input, setInput] = useState('');
             const endRef = useRef(null);
 
@@ -280,10 +1402,11 @@
                 let output = '';
 
                 switch(cmd) {
-                    case 'help': output = 'Commands: help, clear, whoami, ping, joke, matrix'; break;
+                    case 'help': output = 'Commands: help, clear, whoami, ping, joke, matrix, nicl'; break;
                     case 'clear': setHistory([]); setInput(''); return;
-                    case 'whoami': output = 'You are a guest explorer traversing the ATLAS system.'; break;
+                    case 'whoami': output = 'You are an authenticated explorer traversing the ATLAS system.'; break;
                     case 'ping': output = 'PONG! Latency: ' + Math.floor(Math.random() * 50) + 'ms'; break;
+                    case 'nicl': output = 'NICL AO (IT Specialist) Exam Simulator is ONLINE. Open "NICL Exam" from the navigation bar.'; break;
                     case 'joke': 
                         const jokes = ['Why do programmers prefer dark mode? Because light attracts bugs.', 'I would tell you a UDP joke, but you might not get it.'];
                         output = jokes[Math.floor(Math.random() * jokes.length)]; 
@@ -328,20 +1451,45 @@
             );
         };
 
-        const Home = ({ adminProfile }) => (
+        const Home = ({ adminProfile, user, onNavigate }) => (
             <div className="animate-slide-in-3d flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
                 <div className="glass-panel p-8 md:p-12 rounded-3xl max-w-4xl w-full border-t border-l border-white/20">
                     <div className="flex flex-col items-center mb-6">
-                        <img src={adminProfile?.avatar || 'https://placehold.co/200x200/0a0a0a/00f2fe?text=ATLAS'} alt="Bhuvnendra Singh" className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-brand/50 object-cover shadow-[0_0_30px_rgba(0,242,254,0.4)] mb-6" />
+                        <img
+                            src={adminProfile?.avatar || user?.avatar || 'https://placehold.co/200x200/0a0a0a/00f2fe?text=ATLAS'}
+                            alt="Bhuvnendra Singh"
+                            className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-brand/50 object-cover shadow-[0_0_30px_rgba(0,242,254,0.4)] mb-6"
+                        />
                         <h1 className="text-4xl md:text-6xl font-extrabold mb-2 tracking-tight">
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-purple-500">
                                 BHUVNENDRA SINGH
                             </span>
                         </h1>
                     </div>
-                    <h2 className="text-xl md:text-2xl font-light text-gray-300 mb-8">
+                    <h2 className="text-xl md:text-2xl font-light text-gray-300 mb-6">
                         Frontend Developer / Full Stack Developer
                     </h2>
+
+                    {/* Quick Launch Banner for NICL AO IT Real-Time Exam Simulator */}
+                    <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-cyan-500/15 via-blue-500/10 to-purple-500/15 border border-brand/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+                        <div>
+                            <span className="text-[11px] font-mono uppercase tracking-widest text-brand block">
+                                ★ NEW INTEGRATED MODULE
+                            </span>
+                            <h3 className="text-lg font-bold text-white">
+                                NICL AO (IT Specialist) Real-Time Exam Practice Hub
+                            </h3>
+                            <p className="text-xs text-gray-300">
+                                Practice Phase I Prelims, Phase II Mains (50-Mark IT Core + Descriptive), and Phase III Interview with procedural questions that regenerate every attempt.
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => onNavigate('nicl_exam')}
+                            className="px-5 py-3 bg-brand text-black font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-brandDark transition whitespace-nowrap shadow-[0_0_15px_rgba(0,242,254,0.4)]"
+                        >
+                            Launch Exam Simulator →
+                        </button>
+                    </div>
                     
                     <div className="grid md:grid-cols-3 gap-6 text-left">
                         <div className="glass-panel p-6 rounded-2xl bg-white/5">
@@ -538,12 +1686,12 @@
                             {simData?.type === 'Project Ben' ? (
                                 <p>
                                     <strong className="text-brand block mb-2">Architecture & Vision:</strong>
-                                    Project Ben is engineered as a privacy-first, fully localized AI voice assistant. Unlike conventional cloud-dependent assistants, it operates entirely offline utilizing open-weight models like Gemma and Ollama. This architecture ensures absolute data privacy and zero latency from network requests. The system features a custom-built Python speech recognition pipeline that seamlessly translates voice commands into actionable system scripts, allowing for comprehensive desktop automation.
+                                    Project Ben is engineered as a privacy-first, fully localized AI voice assistant. Unlike conventional cloud-dependent assistants, it operates entirely offline utilizing open-weight models like Gemma and Ollama. This architecture ensures absolute data privacy and zero latency from network requests.
                                 </p>
                             ) : (
                                 <p>
                                     <strong className="text-purple-400 block mb-2">Architecture & Vision:</strong>
-                                    Zync Scans (Vivid) is engineered as a dynamic, high-performance content delivery platform. It utilizes a modern React (Vite) frontend paired with a robust Python API backend to handle massive concurrent traffic. The architecture integrates deeply with MangaDex API endpoints for seamless content caching and delivery. Gamification elements and responsive visual themes are built directly into the UI state, maximizing user retention.
+                                    Zync Scans (Vivid) is engineered as a dynamic, high-performance content delivery platform. It utilizes a modern React (Vite) frontend paired with a robust Python API backend to handle massive concurrent traffic.
                                 </p>
                             )}
                         </div>
@@ -568,7 +1716,6 @@
                     snapshot.forEach(doc => loadedUsers.push(doc.data()));
                     setUsers(loadedUsers);
                 }, (error) => {
-                    console.warn("Admin UI gracefully falling back to mock mode.");
                     setUsers([{ id: 'err_auth', name: 'DB Auth Mock Data', status: 'offline' }]);
                 });
                 return () => unsubscribe();
@@ -581,7 +1728,7 @@
                         localStorage.setItem('atlas_local_users', JSON.stringify(updated));
                         return updated;
                     });
-                    notify(`Action [${action.toUpperCase()}] saved securely to local storage for user ${id}.`, 'success');
+                    notify(`Action [${action.toUpperCase()}] saved for user ${id}.`, 'success');
                     return;
                 }
                 try {
@@ -611,7 +1758,7 @@
                             <tbody>
                                 {users.map(u => (
                                     <tr key={u.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition">
-                                        <td className="py-4 px-2 font-mono">#{u.id.substring(0,8)}...</td>
+                                        <td className="py-4 px-2 font-mono">#{String(u.id).substring(0,8)}...</td>
                                         <td className="py-4 px-2 font-bold">{u.name}</td>
                                         <td className="py-4 px-2">
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${u.status==='active'?'bg-green-500/20 text-green-400': 'bg-red-500/20 text-red-400'}`}>
@@ -632,84 +1779,115 @@
             );
         };
 
-        const ProfileSettings = ({ user, setUser, theme, setTheme, notify }) => {
+        // UPDATED ProfileSettings: No cooldown lockouts, automatic image compression, works 100% for Google/Gmail/Guest/Admin users
+        const ProfileSettings = ({ user, setUser, setAdminProfile, theme, setTheme, notify }) => {
             const [activeTab, setActiveTab] = useState('profile');
             const [localName, setLocalName] = useState(user?.name || '');
             const [localBio, setLocalBio] = useState(user?.bio || '');
+            const [isSaving, setIsSaving] = useState(false);
             const [soundEnabled, setSoundEnabled] = useState(true);
             const [dataSaver, setDataSaver] = useState(false);
-            const [publicProfile, setPublicProfile] = useState(true);
 
-            const COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000;
-            const checkCooldown = () => {
-                if (user?.role === 'admin') return true; 
-                if (!user?.lastProfileUpdate) return true;
-                const remaining = COOLDOWN_MS - (Date.now() - user.lastProfileUpdate);
-                if (remaining > 0) {
-                    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((remaining / (1000 * 60 * 60)) % 24);
-                    notify(`Update locked. Try again in ${days}d ${hours}h.`, 'error');
-                    return false;
-                }
-                return true;
-            };
+            useEffect(() => {
+                setLocalName(user?.name || '');
+                setLocalBio(user?.bio || '');
+            }, [user]);
 
-            const handleImageUpload = (e) => {
-                if (!checkCooldown()) return;
-                const file = e.target.files[0];
-                if(file) {
-                    const reader = new FileReader();
-                    reader.onload = async (event) => {
-                        const newAvatar = event.target.result;
-                        const now = Date.now();
-                        setUser({...user, avatar: newAvatar, lastProfileUpdate: user.role === 'admin' ? user.lastProfileUpdate : now});
-                        
-                        if (db && fb && user && user.uid && user.uid !== 'local' && user.uid !== 'local_admin') {
-                            try {
-                                if (user.role === 'admin') {
-                                    const adminRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'site_config', 'admin_data');
-                                    await fb.setDoc(adminRef, { avatar: newAvatar }, { merge: true });
-                                    notify('Global Admin Avatar updated.', 'success');
-                                } else {
-                                    const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
-                                    await fb.setDoc(userRef, { avatar: newAvatar, lastProfileUpdate: now }, { merge: true });
-                                    notify('Avatar updated successfully.', 'success');
-                                }
-                            } catch (err) {
-                                notify('Avatar sync failed. Check permissions.', 'error');
-                            }
-                        } else {
-                            localStorage.setItem(user.role === 'admin' ? 'atlas_admin_avatar' : 'atlas_local_avatar', newAvatar);
-                            if (user.role !== 'admin') localStorage.setItem('atlas_last_profile_update', now);
-                            notify('Saved securely locally.', 'success');
-                        }
+            const handleImageUpload = async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                    const compressedAvatar = await compressImageFile(file, 320, 0.85);
+                    const updatedUser = {
+                        ...user,
+                        avatar: compressedAvatar,
+                        lastProfileUpdate: Date.now()
                     };
-                    reader.readAsDataURL(file);
+                    setUser(updatedUser);
+                    saveUserProfileCache(updatedUser);
+
+                    if (user?.role === 'admin') {
+                        localStorage.setItem('atlas_admin_avatar', compressedAvatar);
+                        setAdminProfile({ avatar: compressedAvatar });
+                    }
+
+                    // Sync with Firebase Auth & Firestore if available
+                    if (auth && auth.currentUser && authMod?.updateProfile) {
+                        try {
+                            await authMod.updateProfile(auth.currentUser, { displayName: updatedUser.name });
+                        } catch (ignore) {}
+                    }
+                    if (db && fb && user?.uid) {
+                        try {
+                            if (user.role === 'admin') {
+                                const adminRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'site_config', 'admin_data');
+                                await fb.setDoc(adminRef, { avatar: compressedAvatar }, { merge: true });
+                            }
+                            const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
+                            await fb.setDoc(userRef, { id: user.uid, name: updatedUser.name, avatar: compressedAvatar, bio: updatedUser.bio || '', lastProfileUpdate: Date.now() }, { merge: true });
+                        } catch (cloudErr) {
+                            console.warn("Cloud avatar sync skipped, saved in persistent user cache.");
+                        }
+                    }
+                    notify('Profile picture updated and saved!', 'success');
+                } catch (err) {
+                    notify('Could not process image file.', 'error');
                 }
             };
 
-            const handleSaveProfile = async () => {
-                const isChanged = localName !== user.name || localBio !== user.bio;
-                if (!isChanged) return;
-                if (!checkCooldown()) return;
-                
-                const now = Date.now();
-                setUser({...user, name: localName, bio: localBio, lastProfileUpdate: user.role === 'admin' ? user.lastProfileUpdate : now});
-                
-                if (db && fb && user && user.uid && user.uid !== 'local' && user.uid !== 'local_admin') {
+            const handleSaveProfile = async (e) => {
+                if (e) e.preventDefault();
+                if (!localName.trim()) {
+                    notify('Display Name cannot be empty.', 'error');
+                    return;
+                }
+                setIsSaving(true);
+                const updatedUser = {
+                    ...user,
+                    name: localName.trim(),
+                    bio: localBio,
+                    lastProfileUpdate: Date.now()
+                };
+                setUser(updatedUser);
+                saveUserProfileCache(updatedUser);
+
+                // Also update local Gmail registry if user signed up via Gmail flow
+                try {
+                    const regRaw = localStorage.getItem('atlas_gmail_accounts_v2');
+                    if (regRaw && user?.email) {
+                        const reg = JSON.parse(regRaw);
+                        if (reg[user.email.toLowerCase()]) {
+                            reg[user.email.toLowerCase()].name = updatedUser.name;
+                            reg[user.email.toLowerCase()].bio = updatedUser.bio;
+                            reg[user.email.toLowerCase()].avatar = updatedUser.avatar;
+                            localStorage.setItem('atlas_gmail_accounts_v2', JSON.stringify(reg));
+                        }
+                    }
+                } catch (ignore) {}
+
+                if (auth && auth.currentUser && authMod?.updateProfile) {
+                    try {
+                        await authMod.updateProfile(auth.currentUser, { displayName: updatedUser.name });
+                    } catch (ignore) {}
+                }
+
+                if (db && fb && user?.uid) {
                     try {
                         const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
-                        await fb.setDoc(userRef, { name: localName, bio: localBio, lastProfileUpdate: now }, { merge: true });
-                        notify('Profile updated successfully.', 'success');
-                    } catch (e) {
-                        notify('Profile update failed or offline.', 'error');
+                        await fb.setDoc(userRef, {
+                            id: user.uid,
+                            name: updatedUser.name,
+                            bio: updatedUser.bio,
+                            avatar: updatedUser.avatar || null,
+                            lastProfileUpdate: Date.now()
+                        }, { merge: true });
+                    } catch (cloudErr) {
+                        console.warn("Firestore sync offline, saved locally.");
                     }
-                } else {
-                    localStorage.setItem('atlas_local_name', localName);
-                    localStorage.setItem('atlas_local_bio', localBio);
-                    if (user.role !== 'admin') localStorage.setItem('atlas_last_profile_update', now);
-                    notify('Profile saved to local storage.', 'success');
                 }
+
+                setIsSaving(false);
+                notify('Profile name & bio updated successfully!', 'success');
             };
 
             return (
@@ -722,30 +1900,60 @@
 
                     <div className="glass-panel p-6 sm:p-10 rounded-3xl">
                         {activeTab === 'profile' && (
-                            <div className="flex flex-col md:flex-row gap-10 items-start">
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="relative group mb-4">
-                                        <img src={user?.avatar || 'https://placehold.co/150x150/2a2a2a/fff?text=U'} alt="Profile" className="w-32 h-32 rounded-full border-4 border-brand/50 object-cover shadow-[0_0_20px_rgba(0,242,254,0.3)] transition-all group-hover:border-brand" />
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity text-sm font-bold">
+                            <form onSubmit={handleSaveProfile} className="flex flex-col md:flex-row gap-10 items-start">
+                                <div className="flex flex-col items-center text-center w-full md:w-auto">
+                                    <div className="relative group mb-3">
+                                        <img
+                                            src={user?.avatar || `https://placehold.co/150x150/0f2942/00f2fe?text=${encodeURIComponent((user?.name || 'U').charAt(0).toUpperCase())}`}
+                                            alt="Profile"
+                                            className="w-32 h-32 rounded-full border-4 border-brand/50 object-cover shadow-[0_0_20px_rgba(0,242,254,0.3)] transition-all group-hover:border-brand"
+                                        />
+                                        <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/65 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity text-xs font-bold text-brand">
                                             <Icons.Upload />
+                                            <span className="mt-1">Change Photo</span>
                                             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                                         </label>
                                     </div>
-                                    <p className="text-brand text-xs mb-2 font-mono tracking-widest uppercase">{user?.role === 'admin' ? 'Omega Admin' : 'Explorer'}</p>
+                                    <label className="px-3 py-1.5 rounded-lg bg-brand/15 hover:bg-brand/25 text-brand border border-brand/30 text-xs font-semibold cursor-pointer transition mb-2">
+                                        Upload New Image
+                                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                    </label>
+                                    <p className="text-brand text-xs font-mono tracking-widest uppercase">
+                                        {user?.role === 'admin' ? 'Omega Admin' : (user?.provider || 'Verified Google Account')}
+                                    </p>
+                                    {user?.email && <p className="text-xs text-gray-400 mt-1">{user.email}</p>}
                                 </div>
                                 
                                 <div className="flex-1 w-full space-y-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Display Name</label>
-                                        <input type="text" value={localName} onChange={e => setLocalName(e.target.value)} className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand transition" placeholder="Your Name" />
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Display Name (Editable Anytime)</label>
+                                        <input
+                                            type="text"
+                                            value={localName}
+                                            onChange={e => setLocalName(e.target.value)}
+                                            className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand transition"
+                                            placeholder="Enter your custom display name"
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Bio / Status</label>
-                                        <textarea value={localBio} onChange={e => setLocalBio(e.target.value)} rows="3" className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand transition resize-none" placeholder="Tell us about your mission..."></textarea>
+                                        <textarea
+                                            value={localBio}
+                                            onChange={e => setLocalBio(e.target.value)}
+                                            rows="3"
+                                            className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand transition resize-none"
+                                            placeholder="Tell us about your mission or NICL target..."
+                                        ></textarea>
                                     </div>
-                                    <button onClick={handleSaveProfile} className="px-6 py-3 bg-brand/20 hover:bg-brand/30 border border-brand/50 text-brand font-bold rounded-xl transition w-full md:w-auto">Save Changes</button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSaving}
+                                        className="px-6 py-3 bg-brand text-black hover:bg-brandDark font-bold rounded-xl transition w-full md:w-auto shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                                    >
+                                        {isSaving ? 'Saving...' : 'Save Profile Changes'}
+                                    </button>
                                 </div>
-                            </div>
+                            </form>
                         )}
 
                         {activeTab === 'settings' && (
@@ -789,7 +1997,7 @@
                 if (!db || !fb || !currentUser || currentUser.uid === 'local' || currentUser.uid === 'local_admin') {
                     const localChat = localStorage.getItem('atlas_local_chat');
                     if (localChat) setMessages(JSON.parse(localChat));
-                    else setMessages([{ id: 'mock_sys', sender: 'ATLAS OS', text: 'Running in Local Offline Mode. Data saved securely locally.', isSystem: true, timestamp: Date.now() }]);
+                    else setMessages([{ id: 'mock_sys', sender: 'ATLAS OS', text: 'Secure Comms Ready. Messages persist across sessions.', isSystem: true, timestamp: Date.now() }]);
                     return;
                 }
                 
@@ -799,16 +2007,14 @@
                     snapshot.forEach(doc => loadedMsgs.push({ id: doc.id, ...doc.data() }));
                     loadedMsgs.sort((a, b) => a.timestamp - b.timestamp);
                     setMessages(loadedMsgs);
-                }, (error) => {
-                    console.warn("Chat falling back to local mode.");
-                });
+                }, (error) => {});
 
                 let unsubUser = () => {};
                 if (currentUser && currentUser.uid) {
                     const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
                     unsubUser = fb.onSnapshot(userRef, (doc) => {
                         if (doc.exists()) setUserStatus(doc.data().status || 'active');
-                    }, (err) => console.warn("User sync offline."));
+                    }, (err) => {});
                 }
                 return () => { unsubChat(); unsubUser(); };
             }, [currentUser]);
@@ -906,30 +2112,13 @@
                         <p className="text-xs mt-2 opacity-60 max-w-lg">
                             © {new Date().getFullYear()} ATLAS | Bhuvnendra Singh. All Rights Reserved. ATLAS™ is a trademark of Bhuvnendra Singh and represents his sole, independent project.
                         </p>
-                        <button onClick={() => setIsDeployGuideOpen(true)} className="mt-6 px-5 py-2 border border-brand/30 text-brand bg-brand/5 rounded-full hover:bg-brand/20 transition text-xs font-mono shadow-[0_0_10px_rgba(0,242,254,0.1)] hover:shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+                        <button onClick={() => setIsDeployGuideOpen(true)} className="mt-4 px-5 py-2 border border-brand/30 text-brand bg-brand/5 rounded-full hover:bg-brand/20 transition text-xs font-mono">
                             [ DEPLOYMENT & API GUIDE ]
                         </button>
                     </div>
                     <Modal isOpen={isDeployGuideOpen} onClose={() => setIsDeployGuideOpen(false)} title="System Deployment Protocol">
                         <div className="space-y-4 text-sm text-gray-300 text-left">
-                            <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-lg text-red-300 mb-4 font-mono text-xs">
-                                <strong>CRITICAL NOTE:</strong> HTML files cannot inherently share data between different users across the world. To activate the "Live Chat" and "Admin Broadcasts" for real when hosting, you MUST connect the Firebase API.
-                            </div>
-                            <h4 className="text-brand font-bold text-base border-b border-white/10 pb-1">Phase 1: Acquire Free Firebase Core</h4>
-                            <ol className="list-decimal list-inside space-y-2 ml-2">
-                                <li>Navigate to the <a href="https://console.firebase.google.com/" target="_blank" className="text-purple-400 hover:text-purple-300">Firebase Console</a> and authenticate via Google.</li>
-                                <li>Select <b>"Add Project"</b>.</li>
-                                <li>Click the <b>Web icon (&lt;/&gt;)</b> to initialize a web application.</li>
-                                <li>Register the app to reveal your <code>firebaseConfig</code> object.</li>
-                                <li>Navigate to <b>Build &gt; Firestore Database</b> and instantiate it (Enable <b>Test Mode</b>).</li>
-                                <li>Navigate to <b>Build &gt; Authentication</b> and enable <b>Google OAuth</b> sign-in.</li>
-                            </ol>
-                            <h4 className="text-brand font-bold text-base border-b border-white/10 pb-1 mt-6">Phase 2: Inject Configuration</h4>
-                            <p className="ml-2 leading-relaxed">
-                                Access the source code of this file. Locate the <code>PRODUCTION_FIREBASE_CONFIG</code> dictionary and replace the placeholder keys with your newly generated credentials.
-                            </p>
-                            <h4 className="text-brand font-bold text-base border-b border-white/10 pb-1 mt-6">Phase 3: Global Deployment</h4>
-                            <p className="ml-2 leading-relaxed">Upload this HTML file to Vercel, Netlify, or GitHub Pages. With the API key active, the chat and profile syncs will be globally unified!</p>
+                            <p>Sessions, custom display names, uploaded profile images, and NICL exam attempts automatically persist across reloads. When deployed with Firebase Auth & Firestore enabled, profiles and chat messages sync globally in real time.</p>
                         </div>
                     </Modal>
                 </footer>
@@ -937,47 +2126,123 @@
         };
 
         const App = () => {
-            const [theme, setTheme] = useState('dark');
-            const [view, setView] = useState('login'); 
-            const [user, setUser] = useState(null);
+            const [theme, setTheme] = useState(() => localStorage.getItem('atlas_theme_v2') || 'dark');
+            
+            // Restore logged-in user and last active view immediately on page load/refresh!
+            const [user, setUser] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('atlas_active_session_v2');
+                    return saved ? JSON.parse(saved) : null;
+                } catch (e) { return null; }
+            });
+            const [view, setView] = useState(() => {
+                try {
+                    const savedUser = localStorage.getItem('atlas_active_session_v2');
+                    const savedView = localStorage.getItem('atlas_active_view_v2');
+                    if (savedUser) return (savedView && savedView !== 'login') ? savedView : 'home';
+                    return 'login';
+                } catch (e) { return 'login'; }
+            });
+
             const [menuOpen, setMenuOpen] = useState(false);
             const [bgMedia, setBgMedia] = useState(null); 
             const [fbReady, setFbReady] = useState(false);
             const [isAuthenticating, setIsAuthenticating] = useState(false);
             const [toastData, setToastData] = useState({ message: '', type: 'success' });
             
-            const [showAdminLogin, setShowAdminLogin] = useState(false);
+            // Auth screen modes: 'options' | 'gmail_signin' | 'gmail_create' | 'admin'
+            const [authScreenMode, setAuthScreenMode] = useState('options');
             const [adminId, setAdminId] = useState('');
             const [adminPass, setAdminPass] = useState('');
-            const [adminProfile, setAdminProfile] = useState({ avatar: null });
+            const [adminProfile, setAdminProfile] = useState({ avatar: localStorage.getItem('atlas_admin_avatar') || null });
+
+            // Gmail Sign-In & Google-Style Create Account Form States
+            const [signInEmail, setSignInEmail] = useState('');
+            const [signInPassword, setSignInPassword] = useState('');
+            const [firstName, setFirstName] = useState('');
+            const [lastName, setLastName] = useState('');
+            const [gmailUsername, setGmailUsername] = useState('');
+            const [createPassword, setCreatePassword] = useState('');
+            const [confirmPassword, setConfirmPassword] = useState('');
+            const [signupAvatar, setSignupAvatar] = useState(null);
 
             const triggerToast = (msg, type = 'success') => setToastData({ message: msg, type });
 
             useEffect(() => {
+                localStorage.setItem('atlas_theme_v2', theme);
                 if (theme === 'neon') document.body.classList.add('neon-mode');
                 else document.body.classList.remove('neon-mode');
             }, [theme]);
 
-            // 1. Initialize Firebase
+            // Persist current view whenever it changes so page reload keeps user on the exact same page
+            useEffect(() => {
+                if (view && view !== 'login') {
+                    localStorage.setItem('atlas_active_view_v2', view);
+                }
+            }, [view]);
+
+            // Persist user whenever user state changes
+            useEffect(() => {
+                if (user) {
+                    saveUserProfileCache(user);
+                }
+            }, [user]);
+
             useEffect(() => {
                 const initFb = async () => {
                     if (!fbConfig) { setFbReady(true); return; }
                     try {
                         const appModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
                         const fsModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                        const authModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
                         const app = appModule.initializeApp(fbConfig);
                         
                         try {
                             db = fsModule.initializeFirestore(app, { localCache: fsModule.persistentLocalCache({tabManager: fsModule.persistentMultipleTabManager()}) });
                         } catch (cacheErr) { db = fsModule.getFirestore(app); }
                         
-                        fb = fsModule; setFbReady(true);
+                        auth = authModule.getAuth(app);
+                        authMod = authModule;
+                        fb = fsModule;
+
+                        // Listen for Firebase Auth state so Google/Email sessions stay active across refreshes
+                        authModule.onAuthStateChanged(auth, async (fbUser) => {
+                            if (fbUser && !fbUser.isAnonymous) {
+                                const cached = getUserProfileCache(fbUser.uid);
+                                let mergedUser = {
+                                    uid: fbUser.uid,
+                                    email: fbUser.email || cached?.email || '',
+                                    name: cached?.name || fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : 'Explorer'),
+                                    avatar: cached?.avatar || fbUser.photoURL || null,
+                                    bio: cached?.bio || '',
+                                    role: cached?.role || 'user',
+                                    provider: 'Google Account'
+                                };
+                                // Check Firestore for any cloud-saved custom name/avatar
+                                if (db && fb) {
+                                    try {
+                                        const uSnap = await fb.getDoc(fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', fbUser.uid));
+                                        if (uSnap.exists()) {
+                                            const d = uSnap.data();
+                                            mergedUser.name = cached?.name || d.name || mergedUser.name;
+                                            mergedUser.avatar = cached?.avatar || d.avatar || mergedUser.avatar;
+                                            mergedUser.bio = cached?.bio || d.bio || mergedUser.bio;
+                                        }
+                                    } catch (ignore) {}
+                                }
+                                setUser(mergedUser);
+                                saveUserProfileCache(mergedUser);
+                                setView(prev => (prev === 'login' ? (localStorage.getItem('atlas_active_view_v2') || 'home') : prev));
+                            }
+                        });
+
+                        setFbReady(true);
                     } catch (e) { setFbReady(true); }
                 };
                 initFb();
             }, []);
 
-            // 2. Fetch Global Admin Avatar (Only runs AFTER auth happens)
+            // Fetch Global Admin Avatar
             useEffect(() => {
                 if (!fbReady || !db || !fb || !user) {
                     const localAvatar = localStorage.getItem('atlas_admin_avatar');
@@ -986,8 +2251,8 @@
                 }
                 const adminRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'site_config', 'admin_data');
                 const unsub = fb.onSnapshot(adminRef, (doc) => {
-                    if (doc.exists()) setAdminProfile(doc.data());
-                }, (error) => console.warn("Admin profile sync offline."));
+                    if (doc.exists() && doc.data().avatar) setAdminProfile(doc.data());
+                }, (error) => {});
                 return () => unsub();
             }, [fbReady, user]);
 
@@ -995,21 +2260,17 @@
                 e.preventDefault();
                 if (adminId === 'crust.atlas.exe' && adminPass === 'CRUST2004atlas') {
                     setIsAuthenticating(true);
-                    let globalAvatar = null;
+                    let globalAvatar = localStorage.getItem('atlas_admin_avatar') || null;
                     let finalUid = 'local_admin';
 
-                    if (db && fb) {
+                    if (db && fb && authMod && auth) {
                         try {
-                            const authModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-                            auth = authModule.getAuth();
-                            await authModule.signInAnonymously(auth); 
+                            await authMod.signInAnonymously(auth); 
                             finalUid = auth.currentUser.uid;
-                            
                             const adminRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'site_config', 'admin_data');
                             const snap = await fb.getDoc(adminRef);
-                            if (snap.exists()) globalAvatar = snap.data().avatar;
+                            if (snap.exists() && snap.data().avatar) globalAvatar = snap.data().avatar;
                             
-                            // GLOBAL BROADCAST TO ALL ONLINE USERS
                             const chatRef = fb.doc(fb.collection(db, 'artifacts', appId, 'public', 'data', 'chat'));
                             await fb.setDoc(chatRef, {
                                 sender: 'SYSTEM OMEGA',
@@ -1018,11 +2279,20 @@
                                 isWarning: false,
                                 timestamp: Date.now()
                             });
-                        } catch(err) { console.warn("Offline admin login fallback", err); }
+                        } catch(err) {}
                     }
-                    if (!globalAvatar) globalAvatar = localStorage.getItem('atlas_admin_avatar');
 
-                    setUser({ uid: finalUid, name: 'ATLAS OMEGA', role: 'admin', avatar: globalAvatar, bio: 'System God' });
+                    const cachedAdmin = getUserProfileCache(finalUid);
+                    const adminUserObj = {
+                        uid: finalUid,
+                        name: cachedAdmin?.name || 'ATLAS OMEGA',
+                        role: 'admin',
+                        avatar: cachedAdmin?.avatar || globalAvatar,
+                        bio: cachedAdmin?.bio || 'System God',
+                        provider: 'Omega Core'
+                    };
+                    setUser(adminUserObj);
+                    saveUserProfileCache(adminUserObj);
                     triggerToast("God Mode Engaged. Welcome Creator.", "success");
                     setView('home');
                     setIsAuthenticating(false);
@@ -1031,84 +2301,257 @@
                 }
             };
 
+            const handleCreateGmailAccount = async (e) => {
+                e.preventDefault();
+                const cleanFirst = firstName.trim();
+                const cleanLast = lastName.trim();
+                let cleanEmail = gmailUsername.trim().toLowerCase();
+                if (!cleanEmail) {
+                    triggerToast("Please choose a Gmail username.", "error");
+                    return;
+                }
+                if (!cleanEmail.includes('@')) {
+                    cleanEmail = `${cleanEmail}@gmail.com`;
+                }
+                if (createPassword.length < 6) {
+                    triggerToast("Use 6 or more characters for your password.", "error");
+                    return;
+                }
+                if (createPassword !== confirmPassword) {
+                    triggerToast("Passwords do not match. Please verify.", "error");
+                    return;
+                }
+
+                setIsAuthenticating(true);
+                const fullName = `${cleanFirst} ${cleanLast}`.trim() || cleanEmail.split('@')[0];
+                let uid = 'gmail_' + btoa(cleanEmail).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+
+                // Try Firebase Email/Password creation first, with seamless fallback to local persistent Gmail registry
+                if (auth && authMod?.createUserWithEmailAndPassword) {
+                    try {
+                        const cred = await authMod.createUserWithEmailAndPassword(auth, cleanEmail, createPassword);
+                        uid = cred.user.uid;
+                        if (authMod.updateProfile) {
+                            await authMod.updateProfile(cred.user, { displayName: fullName });
+                        }
+                    } catch (fbErr) {
+                        // If Email/Password provider is not enabled in Firebase console or offline, store in local Gmail registry seamlessly
+                        console.warn("Using built-in Gmail account registry:", fbErr.code);
+                    }
+                }
+
+                // Save in local Gmail accounts registry so user can sign in anytime with email & password
+                try {
+                    const regRaw = localStorage.getItem('atlas_gmail_accounts_v2');
+                    const reg = regRaw ? JSON.parse(regRaw) : {};
+                    reg[cleanEmail] = {
+                        uid,
+                        email: cleanEmail,
+                        password: createPassword,
+                        name: fullName,
+                        avatar: signupAvatar || null,
+                        bio: 'Google Account Explorer',
+                        role: 'user',
+                        provider: 'Google Account'
+                    };
+                    localStorage.setItem('atlas_gmail_accounts_v2', JSON.stringify(reg));
+                } catch (err) {}
+
+                const newUserObj = {
+                    uid,
+                    email: cleanEmail,
+                    name: fullName,
+                    avatar: signupAvatar || null,
+                    bio: 'Google Account Explorer',
+                    role: 'user',
+                    provider: 'Google Account'
+                };
+
+                // Sync to Firestore users collection if available
+                if (db && fb) {
+                    try {
+                        const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+                        await fb.setDoc(userRef, {
+                            id: uid,
+                            email: cleanEmail,
+                            name: fullName,
+                            role: 'user',
+                            status: 'active',
+                            avatar: signupAvatar || null,
+                            lastLogin: Date.now()
+                        }, { merge: true });
+                    } catch (ignore) {}
+                }
+
+                setUser(newUserObj);
+                saveUserProfileCache(newUserObj);
+                setIsAuthenticating(false);
+                triggerToast(`Google Account (${cleanEmail}) created! Welcome, ${fullName}.`, 'success');
+                setView('home');
+            };
+
+            const handleGmailSignIn = async (e) => {
+                e.preventDefault();
+                let cleanEmail = signInEmail.trim().toLowerCase();
+                if (!cleanEmail.includes('@')) cleanEmail = `${cleanEmail}@gmail.com`;
+
+                setIsAuthenticating(true);
+
+                // 1. Check local Gmail registry first
+                try {
+                    const regRaw = localStorage.getItem('atlas_gmail_accounts_v2');
+                    const reg = regRaw ? JSON.parse(regRaw) : {};
+                    if (reg[cleanEmail]) {
+                        if (reg[cleanEmail].password !== signInPassword) {
+                            setIsAuthenticating(false);
+                            triggerToast("Incorrect password. Click the eye icon to verify your password.", "error");
+                            return;
+                        }
+                        const cached = getUserProfileCache(reg[cleanEmail].uid);
+                        const signedInUser = {
+                            ...reg[cleanEmail],
+                            name: cached?.name || reg[cleanEmail].name,
+                            avatar: cached?.avatar || reg[cleanEmail].avatar,
+                            bio: cached?.bio || reg[cleanEmail].bio
+                        };
+                        setUser(signedInUser);
+                        saveUserProfileCache(signedInUser);
+                        setIsAuthenticating(false);
+                        triggerToast(`Welcome back, ${signedInUser.name}!`, 'success');
+                        setView('home');
+                        return;
+                    }
+                } catch (e) {}
+
+                // 2. Try Firebase Email/Password signIn
+                if (auth && authMod?.signInWithEmailAndPassword) {
+                    try {
+                        const cred = await authMod.signInWithEmailAndPassword(auth, cleanEmail, signInPassword);
+                        const fbUser = cred.user;
+                        const cached = getUserProfileCache(fbUser.uid);
+                        const signedInUser = {
+                            uid: fbUser.uid,
+                            email: cleanEmail,
+                            name: cached?.name || fbUser.displayName || cleanEmail.split('@')[0],
+                            avatar: cached?.avatar || fbUser.photoURL || null,
+                            bio: cached?.bio || '',
+                            role: 'user',
+                            provider: 'Google Account'
+                        };
+                        setUser(signedInUser);
+                        saveUserProfileCache(signedInUser);
+                        setIsAuthenticating(false);
+                        triggerToast(`Signed in as ${signedInUser.name}!`, 'success');
+                        setView('home');
+                        return;
+                    } catch (fbErr) {
+                        setIsAuthenticating(false);
+                        triggerToast("Account not found or wrong password. Click 'Create a Google Account' to register.", "error");
+                        return;
+                    }
+                }
+
+                setIsAuthenticating(false);
+                triggerToast("Account not found. Please click 'Create a Google Account' below.", "error");
+            };
+
             const handleLogin = async (provider) => {
-                // If they click 'guest', bypass Firebase entirely and load from Local Storage
                 if (provider === 'guest') {
-                    const savedName = localStorage.getItem('atlas_local_name') || 'Guest Explorer';
-                    const savedBio = localStorage.getItem('atlas_local_bio') || '';
-                    const savedAvatar = localStorage.getItem('atlas_local_avatar') || null;
-                    const savedLastUpdate = parseInt(localStorage.getItem('atlas_last_profile_update')) || null;
-                    setUser({ uid: 'local', name: savedName, role: 'user', avatar: savedAvatar, bio: savedBio, lastProfileUpdate: savedLastUpdate });
-                    triggerToast("Guest mode activated.", "success");
+                    const cachedGuest = getUserProfileCache('local_guest');
+                    const guestUser = {
+                        uid: 'local_guest',
+                        name: cachedGuest?.name || localStorage.getItem('atlas_local_name') || 'Guest Explorer',
+                        role: 'user',
+                        avatar: cachedGuest?.avatar || localStorage.getItem('atlas_local_avatar') || null,
+                        bio: cachedGuest?.bio || localStorage.getItem('atlas_local_bio') || '',
+                        provider: 'Guest Session'
+                    };
+                    setUser(guestUser);
+                    saveUserProfileCache(guestUser);
+                    triggerToast("Guest session active. You can freely customize your name & avatar!", "success");
                     setView('home');
                     return;
                 }
 
                 if (!fbReady) return;
                 setIsAuthenticating(true);
-                let role = 'user';
 
                 try {
-                    if (db && fb && fbConfig !== null) {
-                        const authModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-                        auth = authModule.getAuth();
+                    if (db && fb && auth && authMod) {
+                        const googleProvider = new authMod.GoogleAuthProvider();
+                        googleProvider.setCustomParameters({ prompt: 'select_account' });
+                        const result = await authMod.signInWithPopup(auth, googleProvider);
+                        const currentUser = result.user;
                         
-                        let currentUser;
-
-                        // TRUE GOOGLE OAUTH LOGIN POPUP
-                        if (provider === 'google') {
-                            const googleProvider = new authModule.GoogleAuthProvider();
-                            const result = await authModule.signInWithPopup(auth, googleProvider);
-                            currentUser = result.user;
-                        } else {
-                            await authModule.signInAnonymously(auth);
-                            currentUser = auth.currentUser;
-                        }
-                        
-                        const userName = currentUser.displayName || `Explorer_${currentUser.uid.substring(0,5)}`;
-                        const realAvatar = currentUser.photoURL || null;
+                        // Prioritize user's custom saved name & avatar so Google login never overwrites their edits!
+                        const cached = getUserProfileCache(currentUser.uid);
+                        let finalName = cached?.name || currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : `Explorer_${currentUser.uid.substring(0,5)}`);
+                        let finalAvatar = cached?.avatar || currentUser.photoURL || null;
+                        let finalBio = cached?.bio || '';
 
                         const userRef = fb.doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
-                        let finalName = userName;
-                        let finalAvatar = realAvatar;
-                        let lastProfileUpdate = null;
-                        
                         try {
                             const userSnap = await fb.getDoc(userRef);
                             if (userSnap.exists()) {
-                                finalName = userSnap.data().name !== `Explorer_${currentUser.uid.substring(0,5)}` ? userSnap.data().name : userName;
-                                finalAvatar = userSnap.data().avatar || realAvatar;
-                                lastProfileUpdate = userSnap.data().lastProfileUpdate || null;
+                                const data = userSnap.data();
+                                if (!cached?.name && data.name) finalName = data.name;
+                                if (!cached?.avatar && data.avatar) finalAvatar = data.avatar;
+                                if (!cached?.bio && data.bio) finalBio = data.bio;
                             }
                             await fb.setDoc(userRef, {
-                                id: currentUser.uid, 
-                                name: finalName, 
-                                role: role, 
-                                status: userSnap.exists() ? userSnap.data().status : 'active', 
-                                avatar: finalAvatar, 
+                                id: currentUser.uid,
+                                email: currentUser.email || '',
+                                name: finalName,
+                                role: 'user',
+                                status: userSnap.exists() ? userSnap.data().status : 'active',
+                                avatar: finalAvatar,
+                                bio: finalBio,
                                 lastLogin: Date.now()
                             }, { merge: true });
-                        } catch(err) { console.warn("User record sync offline."); }
+                        } catch(err) {}
 
-                        setUser({ uid: currentUser.uid, name: finalName, role: role, avatar: finalAvatar, lastProfileUpdate });
-                        triggerToast(`Authenticated via Google. Welcome, ${finalName}.`, 'success');
+                        const googleUserObj = {
+                            uid: currentUser.uid,
+                            email: currentUser.email || '',
+                            name: finalName,
+                            role: 'user',
+                            avatar: finalAvatar,
+                            bio: finalBio,
+                            provider: 'Google Account'
+                        };
+                        setUser(googleUserObj);
+                        saveUserProfileCache(googleUserObj);
+                        triggerToast(`Authenticated via Google. Welcome, ${finalName}!`, 'success');
                         setView('home');
                     }
                 } catch (e) {
-                    console.error(e);
-                    let errorMessage = "Authentication Failed.";
-                    // Specifically catch the "file://" local testing error
-                    if (e.message && e.message.includes("network")) {
-                        errorMessage = "Google Login blocked on Local Files. Use 'Continue as Guest' or host the file on a web server.";
-                    }
-                    
-                    triggerToast(errorMessage, 'error');
+                    console.warn("Google OAuth Popup Notice:", e);
+                    triggerToast("Popup blocked or running locally — use 'Sign in / Create Gmail Account' below!", 'error');
+                    setAuthScreenMode('gmail_signin');
                 } finally {
                     setIsAuthenticating(false);
                 }
             };
 
-            const navigate = (page) => { setView(page); setMenuOpen(false); window.scrollTo(0,0); };
+            const handleLogout = async () => {
+                if (auth && authMod?.signOut) {
+                    try { await authMod.signOut(auth); } catch (ignore) {}
+                }
+                localStorage.removeItem('atlas_active_session_v2');
+                localStorage.removeItem('atlas_active_view_v2');
+                setUser(null);
+                setMenuOpen(false);
+                setAuthScreenMode('options');
+                setView('login');
+                triggerToast("Logged out safely.", "success");
+            };
+
+            const navigate = (page) => {
+                setView(page);
+                localStorage.setItem('atlas_active_view_v2', page);
+                setMenuOpen(false);
+                window.scrollTo(0, 0);
+            };
 
             const handleBgUpload = (e) => {
                 const file = e.target.files[0];
@@ -1119,42 +2562,285 @@
                 }
             };
 
-            if (view === 'login') {
+            const handleSignupAvatarUpload = async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                    const compressed = await compressImageFile(file, 300, 0.85);
+                    setSignupAvatar(compressed);
+                } catch (err) {}
+            };
+
+            if (view === 'login' || !user) {
                 return (
-                    <div className="h-screen w-screen flex items-center justify-center relative overflow-hidden bg-dark">
+                    <div className="min-h-screen w-screen flex items-center justify-center relative overflow-y-auto py-10 px-4 bg-dark">
                         <ToastNotification message={toastData.message} type={toastData.type} onClose={() => setToastData({message: ''})} />
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-800 via-dark to-black opacity-60"></div>
-                        <div className="glass-panel p-10 rounded-3xl max-w-md w-full relative z-10 text-center shadow-2xl border-t border-brand/30 transition-all">
-                            <h1 className="text-5xl font-black mb-8 neon-text tracking-widest uppercase">ATLAS</h1>
-                            {!showAdminLogin ? (
-                                <>
-                                    <p className="text-gray-400 mb-8 text-sm">System authentication required. Select provider.</p>
-                                    <div className="space-y-4">
-                                        <button disabled={!fbReady || isAuthenticating} onClick={() => handleLogin('google')} className="w-full py-3 glass-panel hover:bg-white/10 rounded-xl flex items-center justify-center gap-3 transition font-medium disabled:opacity-50 text-white border border-white/10">
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-800 via-dark to-black opacity-60 pointer-events-none"></div>
+                        
+                        <div className="glass-panel p-8 sm:p-10 rounded-3xl max-w-md w-full relative z-10 text-center shadow-2xl border-t border-brand/30 transition-all">
+                            <h1 className="text-5xl font-black mb-3 neon-text tracking-widest uppercase">ATLAS</h1>
+                            
+                            {/* MODE 1: MAIN AUTH OPTIONS */}
+                            {authScreenMode === 'options' && (
+                                <div className="animate-fade-in">
+                                    <p className="text-gray-400 mb-6 text-sm">System authentication required. Choose your sign-in method.</p>
+                                    <div className="space-y-3.5">
+                                        <button
+                                            disabled={!fbReady || isAuthenticating}
+                                            onClick={() => handleLogin('google')}
+                                            className="w-full py-3.5 px-4 glass-panel hover:bg-white/10 rounded-xl flex items-center justify-center gap-3 transition font-semibold disabled:opacity-50 text-white border border-white/15"
+                                        >
                                             {isAuthenticating ? <Icons.Spinner /> : <Icons.Google />} 
-                                            {isAuthenticating ? 'Authenticating...' : fbReady ? 'Continue with Google account' : 'Connecting to Core...'}
+                                            <span>{isAuthenticating ? 'Connecting to Google...' : 'Continue with Google Popup'}</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthScreenMode('gmail_signin')}
+                                            className="w-full py-3.5 px-4 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-400/40 rounded-xl flex items-center justify-center gap-3 transition font-semibold text-blue-200"
+                                        >
+                                            <Icons.Google />
+                                            <span>Sign in with Gmail & Password</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthScreenMode('gmail_create')}
+                                            className="w-full py-3.5 px-4 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/40 rounded-xl flex items-center justify-center gap-2 transition font-semibold text-emerald-300"
+                                        >
+                                            <Icons.UserPlus />
+                                            <span>Create a New Google / Gmail Account</span>
                                         </button>
                                         
-                                        <button disabled={isAuthenticating} onClick={() => handleLogin('guest')} className="w-full py-3 glass-panel hover:bg-white/10 rounded-xl flex items-center justify-center gap-3 transition font-medium disabled:opacity-50 text-gray-300">
-                                            Continue as Guest
+                                        <button
+                                            disabled={isAuthenticating}
+                                            onClick={() => handleLogin('guest')}
+                                            className="w-full py-3 glass-panel hover:bg-white/10 rounded-xl flex items-center justify-center gap-3 transition font-medium disabled:opacity-50 text-gray-300 text-sm"
+                                        >
+                                            Continue as Guest Explorer
                                         </button>
                                         
-                                        <div className="py-4 border-t border-white/10 mt-4">
-                                            <button onClick={() => setShowAdminLogin(true)} className="w-full py-3 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand rounded-xl transition text-sm font-mono tracking-wider flex justify-center items-center gap-2">
+                                        <div className="pt-4 border-t border-white/10 mt-4">
+                                            <button
+                                                onClick={() => setAuthScreenMode('admin')}
+                                                className="w-full py-3 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand rounded-xl transition text-xs font-mono tracking-wider flex justify-center items-center gap-2"
+                                            >
                                                 <Icons.Lock /> [ OMEGA ACCESS ]
                                             </button>
                                         </div>
                                     </div>
-                                </>
-                            ) : (
+                                </div>
+                            )}
+
+                            {/* MODE 2: SIGN IN WITH GMAIL & PASSWORD (WITH EYE BUTTON) */}
+                            {authScreenMode === 'gmail_signin' && (
+                                <form onSubmit={handleGmailSignIn} className="space-y-4 animate-fade-in text-left">
+                                    <div className="text-center mb-4">
+                                        <div className="inline-flex items-center justify-center p-2.5 rounded-full bg-white/10 mb-2">
+                                            <Icons.Google />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-white">Sign in with Google</h2>
+                                        <p className="text-xs text-gray-400">Use your Gmail Account to continue to ATLAS</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Email or Gmail Username</label>
+                                        <input
+                                            type="text"
+                                            value={signInEmail}
+                                            onChange={e => setSignInEmail(e.target.value)}
+                                            placeholder="yourname@gmail.com"
+                                            required
+                                            className="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand transition"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Password</label>
+                                        <PasswordInput
+                                            value={signInPassword}
+                                            onChange={e => setSignInPassword(e.target.value)}
+                                            placeholder="Enter your password"
+                                            className="bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand transition"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isAuthenticating}
+                                        className="w-full py-3 bg-brand text-black font-bold rounded-xl hover:bg-brandDark transition text-sm uppercase tracking-wider flex justify-center items-center gap-2"
+                                    >
+                                        {isAuthenticating ? <Icons.Spinner /> : 'Sign In'}
+                                    </button>
+
+                                    <div className="flex justify-between items-center pt-2 text-xs">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthScreenMode('gmail_create')}
+                                            className="text-brand hover:underline font-semibold"
+                                        >
+                                            Create account
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthScreenMode('options')}
+                                            className="text-gray-400 hover:text-white"
+                                        >
+                                            ← Back to all options
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* MODE 3: GOOGLE-STYLE CREATE A GMAIL ACCOUNT FLOW (WITH EYE BUTTONS & PHOTO UPLOAD) */}
+                            {authScreenMode === 'gmail_create' && (
+                                <form onSubmit={handleCreateGmailAccount} className="space-y-3.5 animate-fade-in text-left">
+                                    <div className="text-center mb-3">
+                                        <div className="inline-flex items-center justify-center p-2.5 rounded-full bg-white/10 mb-1">
+                                            <Icons.Google />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-white">Create a Google Account</h2>
+                                        <p className="text-xs text-gray-400">Enter your name, choose a Gmail address & photo</p>
+                                    </div>
+
+                                    {/* Optional Profile Photo Picker right at creation */}
+                                    <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/40 border border-white/10">
+                                        <img
+                                            src={signupAvatar || `https://placehold.co/80x80/0f2942/00f2fe?text=${encodeURIComponent((firstName || 'G').charAt(0).toUpperCase())}`}
+                                            alt="Avatar Preview"
+                                            className="w-12 h-12 rounded-full object-cover border-2 border-brand/50"
+                                        />
+                                        <div className="flex-1">
+                                            <label className="text-xs font-bold text-brand hover:underline cursor-pointer block">
+                                                + Upload Profile Picture (Optional)
+                                                <input type="file" accept="image/*" className="hidden" onChange={handleSignupAvatarUpload} />
+                                            </label>
+                                            <span className="text-[11px] text-gray-400">You can also change this anytime later</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2.5">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">First Name</label>
+                                            <input
+                                                type="text"
+                                                value={firstName}
+                                                onChange={e => setFirstName(e.target.value)}
+                                                placeholder="First name"
+                                                required
+                                                className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Last Name</label>
+                                            <input
+                                                type="text"
+                                                value={lastName}
+                                                onChange={e => setLastName(e.target.value)}
+                                                placeholder="Last name (opt)"
+                                                className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Choose your Gmail address</label>
+                                        <div className="flex items-center bg-black/50 border border-white/20 rounded-xl overflow-hidden focus-within:border-brand">
+                                            <input
+                                                type="text"
+                                                value={gmailUsername}
+                                                onChange={e => setGmailUsername(e.target.value)}
+                                                placeholder="username"
+                                                required
+                                                className="flex-1 bg-transparent px-3 py-2.5 text-sm text-white focus:outline-none"
+                                            />
+                                            {!gmailUsername.includes('@') && (
+                                                <span className="px-3 py-2.5 bg-white/10 text-xs font-mono text-gray-300 border-l border-white/10">
+                                                    @gmail.com
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Create Password</label>
+                                        <PasswordInput
+                                            value={createPassword}
+                                            onChange={e => setCreatePassword(e.target.value)}
+                                            placeholder="Password (min 6 chars)"
+                                            className="bg-black/50 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Confirm Password</label>
+                                        <PasswordInput
+                                            value={confirmPassword}
+                                            onChange={e => setConfirmPassword(e.target.value)}
+                                            placeholder="Confirm password"
+                                            className="bg-black/50 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isAuthenticating}
+                                        className="w-full py-3 bg-brand text-black font-bold rounded-xl hover:bg-brandDark transition text-sm uppercase tracking-wider flex justify-center items-center gap-2 mt-2"
+                                    >
+                                        {isAuthenticating ? <Icons.Spinner /> : 'Create Gmail Account & Sign In'}
+                                    </button>
+
+                                    <div className="flex justify-between items-center pt-1 text-xs">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthScreenMode('gmail_signin')}
+                                            className="text-brand hover:underline font-semibold"
+                                        >
+                                            Sign in instead
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthScreenMode('options')}
+                                            className="text-gray-400 hover:text-white"
+                                        >
+                                            ← Back
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* MODE 4: OMEGA ADMIN LOGIN (WITH EYE BUTTON) */}
+                            {authScreenMode === 'admin' && (
                                 <form onSubmit={handleDirectAdminLogin} className="space-y-4 animate-fade-in">
-                                    <p className="text-brand font-mono text-sm mb-6 uppercase tracking-widest">Admin Terminal</p>
-                                    <input type="text" value={adminId} onChange={e => setAdminId(e.target.value)} placeholder="Admin ID" className="w-full bg-black/40 border border-brand/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand transition text-brand font-mono" required />
-                                    <input type="password" value={adminPass} onChange={e => setAdminPass(e.target.value)} placeholder="Passphrase" className="w-full bg-black/40 border border-brand/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand transition text-brand font-mono" required />
-                                    <button type="submit" disabled={isAuthenticating} className="w-full py-3 bg-brand text-black font-bold rounded-xl hover:bg-brandDark transition uppercase tracking-wider mt-2 flex justify-center items-center gap-2">
+                                    <p className="text-brand font-mono text-sm mb-4 uppercase tracking-widest">Admin Terminal</p>
+                                    <input
+                                        type="text"
+                                        value={adminId}
+                                        onChange={e => setAdminId(e.target.value)}
+                                        placeholder="Admin ID"
+                                        className="w-full bg-black/40 border border-brand/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand transition text-brand font-mono"
+                                        required
+                                    />
+                                    <PasswordInput
+                                        value={adminPass}
+                                        onChange={e => setAdminPass(e.target.value)}
+                                        placeholder="Passphrase"
+                                        className="bg-black/40 border border-brand/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand transition text-brand font-mono"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={isAuthenticating}
+                                        className="w-full py-3 bg-brand text-black font-bold rounded-xl hover:bg-brandDark transition uppercase tracking-wider mt-2 flex justify-center items-center gap-2"
+                                    >
                                         {isAuthenticating ? <Icons.Spinner /> : 'Initialize God Mode'}
                                     </button>
-                                    <button type="button" onClick={() => setShowAdminLogin(false)} className="w-full py-3 text-gray-400 hover:text-white transition text-sm">Cancel Protocol</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAuthScreenMode('options')}
+                                        className="w-full py-2 text-gray-400 hover:text-white transition text-sm"
+                                    >
+                                        Cancel Protocol
+                                    </button>
                                 </form>
                             )}
                         </div>
@@ -1171,40 +2857,75 @@
                     
                     <label className="fixed bottom-24 right-24 md:right-32 z-40 p-4 glass-panel rounded-full cursor-pointer hover:bg-white/20 transition group shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] flex items-center justify-center" title="Customize Background">
                         <Icons.Pen />
-                        <input type="file" accept="image/*,video/*" className="hidden" onChange={handleBgUpload} />
+                        <input type="file" accept="image/*" className="hidden" onChange={handleBgUpload} />
                         <span className="absolute -top-10 bg-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap border border-white/10 pointer-events-none">Upload BG</span>
                     </label>
 
                     <nav className="fixed top-0 w-full glass-panel z-50 h-16 flex items-center px-4 justify-between transition-colors">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                             <button onClick={() => setMenuOpen(true)} className="p-2 hover:bg-white/10 rounded transition"><Icons.Menu /></button>
                             {view !== 'home' && view !== 'login' && (
                                 <button onClick={() => navigate('home')} className="p-2 hover:bg-white/10 rounded transition flex items-center gap-2 text-sm text-gray-300 hover:text-white">
                                     <Icons.Back /> <span className="hidden sm:inline font-bold uppercase tracking-wider">Back</span>
                                 </button>
                             )}
-                            <span className="text-2xl font-black neon-text uppercase tracking-widest cursor-default select-none hidden sm:block ml-2">ATLAS</span>
+                            <span onClick={() => navigate('home')} className="text-2xl font-black neon-text uppercase tracking-widest cursor-pointer select-none hidden sm:block ml-2">ATLAS</span>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <span className="text-2xl font-black neon-text uppercase tracking-widest cursor-default select-none sm:hidden">ATLAS</span>
-                            <div className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-1 pr-3 rounded-full transition" onClick={() => navigate('profile')}>
-                                <span className="text-sm font-medium hidden md:block">{user.name}</span>
-                                <img src={user.avatar || 'https://placehold.co/100x100/2a2a2a/fff?text=U'} alt="Profile" className="w-10 h-10 rounded-full border-2 border-brand/50 object-cover" />
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => navigate('nicl_exam')}
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 border ${
+                                    view === 'nicl_exam'
+                                        ? 'bg-brand text-black border-brand shadow-[0_0_15px_rgba(0,242,254,0.5)]'
+                                        : 'bg-brand/15 text-brand border-brand/40 hover:bg-brand/25'
+                                }`}
+                            >
+                                <Icons.Academic />
+                                <span>NICL AO IT Exam</span>
+                            </button>
+
+                            <div className="flex items-center gap-2.5 cursor-pointer hover:bg-white/10 p-1 pr-3 rounded-full transition border border-transparent hover:border-white/15" onClick={() => navigate('profile')} title="Click to edit your Name or Photo">
+                                <img
+                                    src={user.avatar || `https://placehold.co/100x100/0f2942/00f2fe?text=${encodeURIComponent((user.name || 'U').charAt(0).toUpperCase())}`}
+                                    alt="Profile"
+                                    className="w-9 h-9 rounded-full border-2 border-brand/60 object-cover"
+                                />
+                                <div className="hidden md:flex flex-col text-left">
+                                    <span className="text-xs font-bold leading-tight text-white">{user.name}</span>
+                                    <span className="text-[10px] text-brand leading-tight">Edit Profile</span>
+                                </div>
                             </div>
                         </div>
                     </nav>
 
                     {menuOpen && (
                         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-md flex" onClick={() => setMenuOpen(false)}>
-                            <div className="w-64 sm:w-80 h-full glass-panel border-r border-white/20 p-6 flex flex-col" onClick={e => e.stopPropagation()}>
-                                <div className="flex justify-between items-center mb-10">
+                            <div className="w-64 sm:w-80 h-full glass-panel border-r border-white/20 p-6 flex flex-col overflow-y-auto" onClick={e => e.stopPropagation()}>
+                                <div className="flex justify-between items-center mb-8">
                                     <span className="text-xl font-bold gradient-text tracking-widest">NAVIGATION</span>
                                     <button onClick={() => setMenuOpen(false)} className="hover:text-brand transition"><Icons.X /></button>
                                 </div>
                                 <div className="flex flex-col gap-2 font-medium">
                                     {['home', 'profile', 'projects', 'education', 'skills', 'experience'].map(item => (
-                                        <button key={item} onClick={() => navigate(item)} className="text-left px-4 py-3 rounded hover:bg-white/10 transition uppercase tracking-wider text-sm">{item}</button>
+                                        <button
+                                            key={item}
+                                            onClick={() => navigate(item)}
+                                            className={`text-left px-4 py-3 rounded transition uppercase tracking-wider text-sm ${view === item ? 'bg-brand/20 text-brand font-bold' : 'hover:bg-white/10 text-gray-200'}`}
+                                        >
+                                            {item}
+                                        </button>
                                     ))}
+                                    <button
+                                        onClick={() => navigate('nicl_exam')}
+                                        className={`text-left px-4 py-3 rounded transition uppercase tracking-wider text-sm font-bold border mt-2 flex items-center gap-2 ${
+                                            view === 'nicl_exam'
+                                                ? 'bg-brand text-black border-brand'
+                                                : 'bg-brand/15 hover:bg-brand/25 text-brand border-brand/40'
+                                        }`}
+                                    >
+                                        <Icons.Academic /> NICL AO IT Exam Hub
+                                    </button>
                                     <button onClick={() => navigate('terminal')} className="text-left px-4 py-3 rounded hover:bg-brand/20 text-brand transition uppercase tracking-wider text-sm font-bold border border-brand/20 mt-2">
                                         &gt;_ Terminal
                                     </button>
@@ -1215,19 +2936,22 @@
                                     )}
                                 </div>
                                 <div className="mt-auto pt-6 border-t border-white/10">
-                                    <button onClick={() => {setUser(null); setView('login')}} className="w-full text-left px-4 py-3 rounded hover:bg-white/10 transition uppercase tracking-wider text-sm text-gray-400">Log Out</button>
+                                    <button onClick={handleLogout} className="w-full text-left px-4 py-3 rounded hover:bg-red-500/20 hover:text-red-300 transition uppercase tracking-wider text-sm text-gray-400">
+                                        Log Out
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     <main className="flex-grow pt-24 pb-32">
-                        {view === 'home' && <Home adminProfile={adminProfile} />}
+                        {view === 'home' && <Home adminProfile={adminProfile} user={user} onNavigate={navigate} />}
                         {view === 'skills' && <Skills />}
                         {view === 'experience' && <Experience />}
                         {view === 'education' && <Education />}
                         {view === 'projects' && <Projects />}
-                        {view === 'profile' && <ProfileSettings user={user} setUser={setUser} theme={theme} setTheme={setTheme} notify={triggerToast} />}
+                        {view === 'nicl_exam' && <NICLExamSimulator user={user} notify={triggerToast} />}
+                        {view === 'profile' && <ProfileSettings user={user} setUser={setUser} setAdminProfile={setAdminProfile} theme={theme} setTheme={setTheme} notify={triggerToast} />}
                         {view === 'terminal' && <InteractiveTerminal />}
                         {view === 'admin' && user?.role === 'admin' && <AdminDashboard currentUser={user} notify={triggerToast} />}
                         {view === 'admin' && user?.role !== 'admin' && (
@@ -1237,10 +2961,12 @@
                     </main>
 
                     <div className="fixed bottom-0 w-full p-4 z-30 pointer-events-none">
-                        <div className="glass-panel mx-auto max-w-2xl rounded-2xl h-14 flex items-center justify-around px-6 pointer-events-auto shadow-2xl border border-white/10">
+                        <div className="glass-panel mx-auto max-w-2xl rounded-2xl h-14 flex items-center justify-around px-4 pointer-events-auto shadow-2xl border border-white/10">
                            <button onClick={()=>navigate('home')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='home'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Overview</button>
                            <button onClick={()=>navigate('projects')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='projects'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Work</button>
                            <button onClick={()=>navigate('skills')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='skills'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Arsenal</button>
+                           <button onClick={()=>navigate('nicl_exam')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition flex items-center gap-1 ${view==='nicl_exam'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-emerald-400'}`}>★ NICL Exam</button>
+                           <button onClick={()=>navigate('profile')} className={`text-xs uppercase font-bold tracking-widest hover:text-brand transition ${view==='profile'?'text-brand drop-shadow-[0_0_5px_#00f2fe]':'text-gray-400'}`}>Profile</button>
                         </div>
                     </div>
 
